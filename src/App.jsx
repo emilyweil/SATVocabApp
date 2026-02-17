@@ -5,46 +5,49 @@ import { getToday, createSRSCard, updateSRSCard, isDueForReview, getIntervalLabe
 import VOCABULARY from './data/words.json'
 
 // ═══════════════════════════════════════════════════════════════
-// CAT MASCOT (inline SVG)
+// OWL MASCOT (inline SVG)
 // ═══════════════════════════════════════════════════════════════
 const CatMascot = ({ size = 120, style = {} }) => (
-  <svg width={size} height={size} viewBox="0 0 120 120" fill="none" style={style}>
-    {/* Body */}
-    <ellipse cx="60" cy="75" rx="35" ry="30" fill="#FFB347"/>
-    {/* Head */}
-    <circle cx="60" cy="42" r="28" fill="#FFB347"/>
-    {/* Left ear */}
-    <polygon points="38,22 28,2 48,14" fill="#FFB347"/>
-    <polygon points="40,20 32,6 47,16" fill="#FFD1A9"/>
-    {/* Right ear */}
-    <polygon points="82,22 92,2 72,14" fill="#FFB347"/>
-    <polygon points="80,20 88,6 73,16" fill="#FFD1A9"/>
-    {/* Eyes */}
-    <ellipse cx="48" cy="40" rx="5" ry="5.5" fill="#4B4B4B"/>
-    <ellipse cx="72" cy="40" rx="5" ry="5.5" fill="#4B4B4B"/>
-    <ellipse cx="49.5" cy="38.5" rx="2" ry="2" fill="white"/>
-    <ellipse cx="73.5" cy="38.5" rx="2" ry="2" fill="white"/>
-    {/* Nose */}
-    <ellipse cx="60" cy="48" rx="3" ry="2" fill="#FF8C94"/>
-    {/* Mouth */}
-    <path d="M55 51 Q60 56 65 51" stroke="#4B4B4B" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
-    {/* Whiskers */}
-    <line x1="25" y1="44" x2="44" y2="47" stroke="#4B4B4B" strokeWidth="1" strokeLinecap="round"/>
-    <line x1="25" y1="50" x2="44" y2="50" stroke="#4B4B4B" strokeWidth="1" strokeLinecap="round"/>
-    <line x1="76" y1="47" x2="95" y2="44" stroke="#4B4B4B" strokeWidth="1" strokeLinecap="round"/>
-    <line x1="76" y1="50" x2="95" y2="50" stroke="#4B4B4B" strokeWidth="1" strokeLinecap="round"/>
-    {/* Belly */}
-    <ellipse cx="60" cy="80" rx="20" ry="18" fill="#FFD1A9"/>
-    {/* Paws */}
-    <ellipse cx="40" cy="100" rx="10" ry="6" fill="#FFB347"/>
-    <ellipse cx="80" cy="100" rx="10" ry="6" fill="#FFB347"/>
-    {/* Tail */}
-    <path d="M90 85 Q110 70 105 50" stroke="#FFB347" strokeWidth="8" fill="none" strokeLinecap="round"/>
-    {/* Graduation cap */}
-    <rect x="40" y="16" width="40" height="4" rx="1" fill="#4B4B4B"/>
-    <polygon points="60,6 42,18 78,18" fill="#4B4B4B"/>
-    <line x1="78" y1="18" x2="82" y2="28" stroke="#4B4B4B" strokeWidth="1.5"/>
-    <circle cx="82" cy="29" r="2" fill="#FFD700"/>
+  <svg width={size} height={size * 1.25} viewBox="0 0 400 500" fill="none" style={style}>
+    <path d="M274.5 161.5C288.9 139.9 299.7 105.9 299.7 105.9L272.7 79.5L243.9 111.3L217.5 113.7L191.1 111.3L162.3 79.5L135.3 105.9C135.3 105.9 146.1 139.9 160.5 161.5C174.9 183.1 189.9 189.1 189.9 189.1L245.1 189.1C245.1 189.1 260.1 183.1 274.5 161.5Z" fill="#C19A6B"/>
+    <path d="M217.5 113.7L191.1 111.3L162.3 79.5L135.3 105.9C135.3 105.9 142.5 127.5 151.5 144.3L283.5 144.3C292.5 127.5 299.7 105.9 299.7 105.9L272.7 79.5L243.9 111.3L217.5 113.7Z" fill="#A67B5B"/>
+    <path d="M135.3 105.9L153.3 48.3L183.3 85.5L135.3 105.9Z" fill="#C19A6B"/>
+    <path d="M299.7 105.9L281.7 48.3L251.7 85.5L299.7 105.9Z" fill="#C19A6B"/>
+    <path d="M153.3 48.3L171.3 80.7L183.3 85.5L153.3 48.3Z" fill="#E0C097"/>
+    <path d="M281.7 48.3L263.7 80.7L251.7 85.5L281.7 48.3Z" fill="#E0C097"/>
+    <path d="M191.1 111.3L186.3 134.1L195.9 134.1L191.1 111.3Z" fill="#4E3B31"/>
+    <path d="M243.9 111.3L248.7 134.1L239.1 134.1L243.9 111.3Z" fill="#4E3B31"/>
+    <path d="M217.5 113.7L212.7 136.5L222.3 136.5L217.5 113.7Z" fill="#4E3B31"/>
+    <path d="M162.3 79.5L176.7 101.1L183.3 85.5L162.3 79.5Z" fill="#4E3B31"/>
+    <path d="M272.7 79.5L258.3 101.1L251.7 85.5L272.7 79.5Z" fill="#4E3B31"/>
+    <path d="M188.1 168.3C188.1 168.3 191.7 173.1 197.7 173.1C203.7 173.1 207.3 168.3 207.3 168.3" stroke="#4E3B31" strokeWidth="3" strokeLinecap="round"/>
+    <path d="M200.1 163.5L195.3 156.3H204.9L200.1 163.5Z" fill="#A67B5B"/>
+    <circle cx="174.3" cy="137.7" r="16.2" fill="#5E8C61"/>
+    <circle cx="221.1" cy="137.7" r="16.2" fill="#5E8C61"/>
+    <ellipse cx="174.3" cy="137.7" rx="7.2" ry="12.6" fill="#141414"/>
+    <ellipse cx="221.1" cy="137.7" rx="7.2" ry="12.6" fill="#141414"/>
+    <circle cx="169.5" cy="130.5" r="3.6" fill="white"/>
+    <circle cx="216.3" cy="130.5" r="3.6" fill="white"/>
+    <path d="M135.3 105.9L144.9 115.5M135.3 125.1L144.9 122.7M135.3 139.5L144.9 134.7" stroke="#4E3B31" strokeWidth="3" strokeLinecap="round"/>
+    <path d="M299.7 105.9L290.1 115.5M299.7 125.1L290.1 122.7M299.7 139.5L290.1 134.7" stroke="#4E3B31" strokeWidth="3" strokeLinecap="round"/>
+    <path d="M189.9 189.1C189.9 189.1 156.3 227.5 156.3 275.5C156.3 323.5 175.5 371.5 194.7 390.7L223.5 390.7C242.7 371.5 261.9 323.5 261.9 275.5C261.9 227.5 245.1 189.1 245.1 189.1L189.9 189.1Z" fill="#C19A6B"/>
+    <path d="M216.9 390.7L194.7 390.7C175.5 371.5 156.3 323.5 156.3 275.5C156.3 227.5 189.9 189.1 189.9 189.1H203.1L216.9 390.7Z" fill="#A67B5B"/>
+    <path d="M161.1 232.3L175.5 241.9C175.5 241.9 199.5 222.7 223.5 222.7C247.5 222.7 259.5 241.9 259.5 241.9L273.9 232.3C273.9 232.3 247.5 203.5 216.9 203.5C186.3 203.5 161.1 232.3 161.1 232.3Z" fill="#4E3B31"/>
+    <path d="M158.7 280.3L173.1 289.9C173.1 289.9 197.1 270.7 221.1 270.7C245.1 270.7 257.1 289.9 257.1 289.9L271.5 280.3C271.5 280.3 245.1 251.5 214.5 251.5C183.9 251.5 158.7 280.3 158.7 280.3Z" fill="#4E3B31"/>
+    <path d="M161.1 328.3L175.5 337.9C175.5 337.9 199.5 318.7 223.5 318.7C247.5 318.7 259.5 337.9 259.5 337.9L273.9 328.3C273.9 328.3 247.5 299.5 216.9 299.5C186.3 299.5 161.1 328.3 161.1 328.3Z" fill="#4E3B31"/>
+    <path d="M168.3 376.3L182.7 385.9C182.7 385.9 206.7 366.7 230.7 366.7C254.7 366.7 266.7 385.9 266.7 385.9L281.1 376.3C281.1 376.3 254.7 347.5 224.1 347.5C193.5 347.5 168.3 376.3 168.3 376.3Z" fill="#4E3B31"/>
+    <path d="M217.5 390.7C217.5 390.7 236.7 419.5 260.7 419.5C284.7 419.5 299.1 390.7 299.1 390.7H270.3C270.3 390.7 260.7 405.1 246.3 405.1C231.9 405.1 217.5 390.7 217.5 390.7Z" fill="#E0C097"/>
+    <path d="M217.5 390.7L227.1 409.9M236.7 390.7L246.3 409.9M255.9 390.7L265.5 409.9" stroke="#A67B5B" strokeWidth="3" strokeLinecap="round"/>
+    <path d="M194.7 390.7C194.7 390.7 175.5 419.5 151.5 419.5C127.5 419.5 113.1 390.7 113.1 390.7H141.9C141.9 390.7 151.5 405.1 165.9 405.1C180.3 405.1 194.7 390.7 194.7 390.7Z" fill="#E0C097"/>
+    <path d="M194.7 390.7L185.1 409.9M175.5 390.7L165.9 409.9M156.3 390.7L146.7 409.9" stroke="#A67B5B" strokeWidth="3" strokeLinecap="round"/>
+    <path d="M299.1 390.7C299.1 390.7 323.1 366.7 323.1 318.7C323.1 270.7 299.1 246.7 299.1 246.7L261.9 275.5L299.1 390.7Z" fill="#C19A6B"/>
+    <path d="M289.5 256.3L303.9 265.9C303.9 265.9 323.1 246.7 342.3 246.7C361.5 246.7 371.1 265.9 371.1 265.9L385.5 256.3C385.5 256.3 361.5 227.5 332.7 227.5C303.9 227.5 289.5 256.3 289.5 256.3Z" fill="#4E3B31"/>
+    <path d="M289.5 304.3L303.9 313.9C303.9 313.9 323.1 294.7 342.3 294.7C361.5 294.7 371.1 313.9 371.1 313.9L385.5 304.3C385.5 304.3 361.5 275.5 332.7 275.5C303.9 275.5 289.5 304.3 289.5 304.3Z" fill="#4E3B31"/>
+    <path d="M289.5 352.3L303.9 361.9C303.9 361.9 323.1 342.7 342.3 342.7C361.5 342.7 371.1 361.9 371.1 361.9L385.5 352.3C385.5 352.3 361.5 323.5 332.7 323.5C303.9 323.5 289.5 352.3 289.5 352.3Z" fill="#4E3B31"/>
+    <path d="M113.1 390.7C113.1 390.7 89.1 366.7 89.1 318.7C89.1 270.7 113.1 246.7 113.1 246.7L156.3 275.5L113.1 390.7Z" fill="#C19A6B"/>
+    <path d="M122.7 256.3L108.3 265.9C108.3 265.9 89.1 246.7 69.9 246.7C50.7 246.7 41.1 265.9 41.1 265.9L26.7 256.3C26.7 256.3 50.7 227.5 79.5 227.5C108.3 227.5 122.7 256.3 122.7 256.3Z" fill="#4E3B31"/>
+    <path d="M122.7 304.3L108.3 313.9C108.3 313.9 89.1 294.7 69.9 294.7C50.7 294.7 41.1 313.9 41.1 313.9L26.7 304.3C26.7 304.3 50.7 275.5 79.5 275.5C108.3 275.5 122.7 304.3 122.7 304.3Z" fill="#4E3B31"/>
+    <path d="M122.7 352.3L108.3 361.9C108.3 361.9 89.1 342.7 69.9 342.7C50.7 342.7 41.1 361.9 41.1 361.9L26.7 352.3C26.7 352.3 50.7 323.5 79.5 323.5C108.3 323.5 122.7 352.3 122.7 352.3Z" fill="#4E3B31"/>
   </svg>
 )
 
@@ -107,6 +110,65 @@ const Spinner = ({ text = 'Loading...' }) => (
     <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
   </div>
 )
+
+// ═══════════════════════════════════════════════════════════════
+// CONFETTI BURST
+// ═══════════════════════════════════════════════════════════════
+function ConfettiBurst({ active }) {
+  const [particles, setParticles] = useState([])
+  useEffect(() => {
+    if (!active) return
+    const colors = ['#58CC02', '#CE82FF', '#FF9600', '#1CB0F6', '#FF4B4B', '#FFD700', '#FF6B9D']
+    const newParticles = Array.from({ length: 40 }, (_, i) => ({
+      id: i,
+      x: 50 + (Math.random() - 0.5) * 10,
+      y: 40,
+      angle: Math.random() * 360,
+      speed: 3 + Math.random() * 6,
+      rotation: Math.random() * 360,
+      rotSpeed: (Math.random() - 0.5) * 15,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      size: 6 + Math.random() * 6,
+      shape: Math.random() > 0.5 ? 'rect' : 'circle',
+    }))
+    setParticles(newParticles)
+    const timer = setTimeout(() => setParticles([]), 2000)
+    return () => clearTimeout(timer)
+  }, [active])
+
+  if (particles.length === 0) return null
+  return (
+    <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 9999, overflow: 'hidden' }}>
+      <style>{`
+        @keyframes confetti-fall {
+          0% { transform: translate(0, 0) rotate(var(--rot-start)); opacity: 1; }
+          100% { transform: translate(var(--dx), var(--dy)) rotate(var(--rot-end)); opacity: 0; }
+        }
+      `}</style>
+      {particles.map(p => {
+        const rad = (p.angle * Math.PI) / 180
+        const dx = Math.cos(rad) * p.speed * 60
+        const dy = Math.sin(rad) * p.speed * 40 + 200
+        return (
+          <div key={p.id} style={{
+            position: 'absolute',
+            left: `${p.x}%`,
+            top: `${p.y}%`,
+            width: p.size,
+            height: p.shape === 'rect' ? p.size * 0.6 : p.size,
+            borderRadius: p.shape === 'circle' ? '50%' : '2px',
+            background: p.color,
+            '--dx': `${dx}px`,
+            '--dy': `${dy}px`,
+            '--rot-start': `${p.rotation}deg`,
+            '--rot-end': `${p.rotation + p.rotSpeed * 100}deg`,
+            animation: 'confetti-fall 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
+          }} />
+        )
+      })}
+    </div>
+  )
+}
 
 // ═══════════════════════════════════════════════════════════════
 // LOGIN SCREEN (Supabase Auth)
@@ -190,13 +252,13 @@ function LoginScreen({ onAuthComplete }) {
 // ═══════════════════════════════════════════════════════════════
 // WELCOME PANEL (shown once for first-time users)
 // ═══════════════════════════════════════════════════════════════
-function WelcomePanel({ name, onDismiss }) {
+function WelcomePanel({ name, onDismiss, isFirstTime }) {
   return (
     <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <div style={{ maxWidth: 400, margin: '0 auto', padding: 24, textAlign: 'center' }}>
-        <div style={{ marginTop: 16 }}><CatMascot size={100} /></div>
+        <div style={{ marginTop: 16 }}><CatMascot size={80} /></div>
         <h1 style={{ fontSize: 24, fontWeight: 800, color: C.grayDark, margin: '20px 0 8px' }}>
-          Welcome, {name}! 🎉
+          {isFirstTime ? `Welcome, ${name}! 🎉` : 'How It Works'}
         </h1>
         <p style={{ color: C.gray, fontSize: 15, margin: '0 0 28px', lineHeight: 1.5 }}>
           Your mission: master all <strong>1,000 SAT words</strong>. Here's how it works:
@@ -247,7 +309,7 @@ function WelcomePanel({ name, onDismiss }) {
         </p>
 
         <button onClick={onDismiss} style={{ width: '100%', padding: '18px 0', background: C.green, color: 'white', fontWeight: 700, fontSize: 16, border: 'none', borderRadius: 16, cursor: 'pointer', boxShadow: `0 4px 0 ${C.greenDark}` }}>
-          Let's Get Started! 🚀
+          {isFirstTime ? "Let's Get Started! 🚀" : 'Got it! ✓'}
         </button>
       </div>
     </div>
@@ -257,7 +319,7 @@ function WelcomePanel({ name, onDismiss }) {
 // ═══════════════════════════════════════════════════════════════
 // HOME SCREEN
 // ═══════════════════════════════════════════════════════════════
-function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onStartLearningQuiz, onViewWords, onLogout, onBrowse }) {
+function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onStartLearningQuiz, onViewWords, onLogout, onBrowse, onShowHowItWorks }) {
   const stats = getStats(profile.words_introduced, srsCards)
   const today = getToday()
   const dayDone = profile.today_complete && profile.last_session_date === today
@@ -278,7 +340,8 @@ function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onSt
 
   return (
     <div style={{ minHeight: '100vh', background: C.bg }}>
-      <div style={{ background: 'white', padding: '12px 20px', borderBottom: '2px solid #F0F0F0', display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+      <div style={{ background: 'white', padding: '12px 20px', borderBottom: '2px solid #F0F0F0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <button onClick={onShowHowItWorks} style={{ background: 'none', border: 'none', color: C.blue, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>How it works</button>
         <button onClick={onLogout} style={{ background: 'none', border: 'none', color: C.gray, cursor: 'pointer', fontSize: 13 }}>Sign Out</button>
       </div>
       <div style={{ maxWidth: 400, margin: '0 auto', padding: 24 }}>
@@ -370,6 +433,7 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
   const [sessionNewWords, setSessionNewWords] = useState([])
   const [sessionReviewWords, setSessionReviewWords] = useState([])
   const [isReviewQuiz, setIsReviewQuiz] = useState(initialMode === 'reviewQuiz' || initialMode === 'learningQuiz')
+  const [confettiKey, setConfettiKey] = useState(0)
 
   // Local mutable copy of cards for this session
   const [localCards, setLocalCards] = useState({ ...srsCards })
@@ -422,7 +486,21 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
 
   const startQuiz = () => buildAndStartQuiz(sessionNewWords, sessionReviewWords)
 
-  const selectAnswer = (ans) => { if (showFeedback) return; setSelected(ans); setShowFeedback(true) }
+  const selectAnswer = (ans) => {
+    if (showFeedback) return
+    setSelected(ans)
+    setShowFeedback(true)
+    // Check if this answer masters the word
+    const q = quizWords[qIndex]
+    const correctDef = getWordData(q.word).definition
+    if (ans === correctDef) {
+      const existCard = localCards[q.word]
+      const existRep = existCard ? (parseInt(existCard.repetition, 10) || 0) : 0
+      if (existRep >= 1) {
+        setConfettiKey(k => k + 1) // trigger confetti!
+      }
+    }
+  }
 
   const continueQuiz = () => {
     const w = quizWords[qIndex]
@@ -557,6 +635,7 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
     const isReview = existingCard && existingCard.status !== 'new'
     return (
       <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', flexDirection: 'column' }}>
+        <ConfettiBurst active={confettiKey} />
         <div style={{ background: 'white', padding: '12px 20px', borderBottom: '2px solid #F0F0F0' }}>
           <div style={{ maxWidth: 400, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 12 }}>
             <button onClick={onComplete} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.gray, fontSize: 20 }}>✕</button>
@@ -873,7 +952,7 @@ export default function App() {
         setSrsCards(cards)
         if (changeScreen) {
           if (prof.sessions_completed === 0 && (!prof.words_introduced || prof.words_introduced.length === 0)) {
-            setShowWelcome(true)
+            setShowWelcome('first')
           }
           setScreen('home')
         }
@@ -884,7 +963,7 @@ export default function App() {
         setProfile(newProf)
         setSrsCards({})
         if (changeScreen) {
-          setShowWelcome(true)
+          setShowWelcome('first')
           setScreen('home')
         }
       }
@@ -979,6 +1058,7 @@ export default function App() {
   if (showWelcome) return (
     <WelcomePanel
       name={profile.name}
+      isFirstTime={showWelcome === 'first'}
       onDismiss={() => setShowWelcome(false)}
     />
   )
@@ -993,6 +1073,7 @@ export default function App() {
       onViewWords={() => setScreen('words')}
       onLogout={handleLogout}
       onBrowse={(cat) => { setBrowseCategory(cat); setScreen('browse') }}
+      onShowHowItWorks={() => setShowWelcome('howItWorks')}
     />
   )
 }
