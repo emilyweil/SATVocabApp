@@ -190,70 +190,91 @@ function LoginScreen({ onAuthComplete }) {
 // ═══════════════════════════════════════════════════════════════
 // HOME SCREEN
 // ═══════════════════════════════════════════════════════════════
-function HomeScreen({ profile, srsCards, onStartSession, onViewWords, onLogout, onBrowse }) {
+function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onViewWords, onLogout, onBrowse }) {
   const stats = getStats(profile.words_introduced, srsCards)
   const today = getToday()
   const dayDone = profile.today_complete && profile.last_session_date === today
 
   const introduced = profile.words_introduced || []
-  const learningWords = introduced.filter(w => srsCards[w] && (srsCards[w].status === 'learning' || srsCards[w].status === 'new'))
-  const reviewingWords = introduced.filter(w => srsCards[w] && srsCards[w].status === 'review')
-  const masteredWords = introduced.filter(w => srsCards[w] && srsCards[w].status === 'mastered')
+  const learningWords = introduced.filter(w => {
+    const c = srsCards[w]; if (!c) return false
+    const rep = parseInt(c.repetition, 10) || 0
+    return rep === 0 && c.status !== 'mastered'
+  })
+  const reviewingWords = introduced.filter(w => {
+    const c = srsCards[w]; if (!c) return false
+    const rep = parseInt(c.repetition, 10) || 0
+    return rep === 1 && c.status !== 'mastered'
+  })
+  const masteredWords = introduced.filter(w => {
+    const c = srsCards[w]; if (!c) return false
+    const rep = parseInt(c.repetition, 10) || 0
+    return rep >= 2 || c.status === 'mastered'
+  })
 
   return (
     <div style={{ minHeight: '100vh', background: C.bg }}>
-      <div style={{ background: 'white', padding: '16px 20px', borderBottom: '2px solid #F0F0F0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <FlameIcon size={28} active={profile.streak > 0} />
-          <span style={{ fontWeight: 800, fontSize: 18, color: profile.streak > 0 ? '#FF9600' : C.gray }}>{profile.streak}</span>
-        </div>
-        <span style={{ fontWeight: 700, color: C.grayDark, fontSize: 14 }}>{profile.best_streak > 1 ? `Best: ${profile.best_streak} days` : ''}</span>
+      <div style={{ background: 'white', padding: '12px 20px', borderBottom: '2px solid #F0F0F0', display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
         <button onClick={onLogout} style={{ background: 'none', border: 'none', color: C.gray, cursor: 'pointer', fontSize: 13 }}>Sign Out</button>
       </div>
-      <div style={{ maxWidth: 400, margin: '0 auto', padding: 20 }}>
-        <div style={{ textAlign: 'center', marginBottom: 20 }}>
-          <CatMascot size={100} />
-          <h2 style={{ fontSize: 22, fontWeight: 800, color: C.grayDark, margin: '12px 0 4px' }}>
+      <div style={{ maxWidth: 400, margin: '0 auto', padding: 24 }}>
+        <div style={{ textAlign: 'center', marginBottom: 24 }}>
+          <CatMascot size={80} />
+          <h2 style={{ fontSize: 20, fontWeight: 800, color: C.grayDark, margin: '12px 0 4px' }}>
             {dayDone ? '🎉 Day complete!' : `Hey, ${profile.name}!`}
           </h2>
           <p style={{ color: C.gray, margin: 0, fontSize: 14 }}>
-            {dayDone ? `You're on a ${profile.streak}-day streak! See you tomorrow.` : "Complete today's session to keep your streak."}
+            {dayDone ? 'Great work today. See you tomorrow!' : "Complete today's session to keep your streak."}
           </p>
-          {dayDone && profile.sprints_today > 0 && <p style={{ color: C.purple, margin: '4px 0 0', fontSize: 13, fontWeight: 600 }}>+{profile.sprints_today} extra practice session{profile.sprints_today > 1 ? 's' : ''} today!</p>}
         </div>
 
-        <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-          {[
-            { label: 'Learning', value: stats.learning, color: C.orange, words: learningWords },
-            { label: 'Reviewing', value: stats.review, color: C.purple, words: reviewingWords },
-            { label: 'Mastered', value: stats.mastered, color: C.green, words: masteredWords },
-          ].map((s, i) => (
-            <div key={i} onClick={() => s.words.length > 0 && onBrowse({ title: s.label, words: s.words, color: s.color })}
-              style={{ flex: 1, background: 'white', borderRadius: 16, padding: '12px 8px', textAlign: 'center', border: '2px solid #F0F0F0', cursor: s.words.length > 0 ? 'pointer' : 'default', transition: 'transform 0.1s' }}
-              onMouseDown={e => { if (s.words.length > 0) e.currentTarget.style.transform = 'scale(0.97)' }}
-              onMouseUp={e => { e.currentTarget.style.transform = 'scale(1)' }}
-              onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)' }}>
-              <div style={{ fontSize: 20, fontWeight: 800, color: s.color }}>{s.value}</div>
-              <div style={{ fontSize: 11, color: C.gray, fontWeight: 600, marginTop: 2 }}>{s.label}</div>
+        {/* Streak — prominent center display */}
+        <div style={{ textAlign: 'center', marginBottom: 24 }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: 'white', padding: '16px 32px', borderRadius: 20, border: '2px solid #F0F0F0' }}>
+            <FlameIcon size={36} active={profile.streak > 0} />
+            <div>
+              <div style={{ fontSize: 36, fontWeight: 900, color: profile.streak > 0 ? '#FF9600' : C.gray, lineHeight: 1 }}>{profile.streak}</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: C.gray, marginTop: 2 }}>day streak{profile.best_streak > 1 ? ` · Best: ${profile.best_streak}` : ''}</div>
             </div>
-          ))}
+          </div>
+          {dayDone && profile.sprints_today > 0 && <p style={{ color: C.purple, margin: '8px 0 0', fontSize: 13, fontWeight: 600 }}>+{profile.sprints_today} extra practice session{profile.sprints_today > 1 ? 's' : ''} today!</p>}
         </div>
 
-        <div style={{ background: 'white', borderRadius: 16, padding: 16, border: '2px solid #F0F0F0', marginBottom: 20 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-            <span style={{ fontSize: 13, fontWeight: 700, color: C.grayDark }}>Overall Progress</span>
-            <span style={{ fontSize: 13, fontWeight: 700, color: C.green }}>{stats.mastered}/{VOCABULARY.length}</span>
+        {/* Stat panels */}
+        <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+          {/* Learning panel */}
+          <div onClick={() => learningWords.length > 0 && onBrowse({ title: 'Learning', words: learningWords, color: C.orange })}
+            style={{ flex: 1, background: 'white', borderRadius: 16, padding: '14px 12px', border: '2px solid #F0F0F0', cursor: learningWords.length > 0 ? 'pointer' : 'default', transition: 'transform 0.1s' }}
+            onMouseDown={e => { if (learningWords.length > 0) e.currentTarget.style.transform = 'scale(0.97)' }}
+            onMouseUp={e => { e.currentTarget.style.transform = 'scale(1)' }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)' }}>
+            <div style={{ fontSize: 22, fontWeight: 800, color: C.orange, textAlign: 'center' }}>{stats.learning}</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: C.grayDark, textAlign: 'center', marginTop: 2 }}>Learning</div>
+            <p style={{ fontSize: 11, color: C.gray, textAlign: 'center', margin: '6px 0 0', lineHeight: 1.3 }}>Words you've gotten wrong</p>
           </div>
-          <div style={{ height: 14, background: '#E5E5E5', borderRadius: 7, overflow: 'hidden', display: 'flex' }}>
-            <div style={{ height: '100%', width: `${(stats.mastered / VOCABULARY.length) * 100}%`, background: C.green, transition: 'width 0.5s' }} />
-            <div style={{ height: '100%', width: `${(stats.review / VOCABULARY.length) * 100}%`, background: C.purple, transition: 'width 0.5s' }} />
-            <div style={{ height: '100%', width: `${(stats.learning / VOCABULARY.length) * 100}%`, background: C.orange, transition: 'width 0.5s' }} />
+          {/* Reviewing panel */}
+          <div style={{ flex: 1, background: 'white', borderRadius: 16, padding: '14px 12px', border: '2px solid #F0F0F0' }}>
+            <div onClick={() => reviewingWords.length > 0 && onBrowse({ title: 'Reviewing', words: reviewingWords, color: C.purple })}
+              style={{ cursor: reviewingWords.length > 0 ? 'pointer' : 'default' }}>
+              <div style={{ fontSize: 22, fontWeight: 800, color: C.purple, textAlign: 'center' }}>{stats.review}</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: C.grayDark, textAlign: 'center', marginTop: 2 }}>Reviewing</div>
+              <p style={{ fontSize: 11, color: C.gray, textAlign: 'center', margin: '6px 0 0', lineHeight: 1.3 }}>Words you've gotten right once</p>
+            </div>
+            {stats.review > 0 && (
+              <button onClick={onStartReviewQuiz}
+                style={{ display: 'block', margin: '8px auto 0', background: 'none', border: 'none', color: C.purple, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline' }}>Master them →</button>
+            )}
           </div>
-          <div style={{ display: 'flex', gap: 12, marginTop: 6 }}>
-            {[{ c: C.green, l: 'Mastered' }, { c: C.purple, l: 'Reviewing' }, { c: C.orange, l: 'Learning' }].map((x, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 4 }}><div style={{ width: 8, height: 8, borderRadius: 4, background: x.c }} /><span style={{ fontSize: 10, color: C.gray }}>{x.l}</span></div>
-            ))}
-          </div>
+        </div>
+
+        {/* Mastered count card */}
+        <div style={{ background: 'white', borderRadius: 16, padding: 16, border: '2px solid #F0F0F0', marginBottom: 20, textAlign: 'center', cursor: stats.mastered > 0 ? 'pointer' : 'default' }}
+          onClick={() => stats.mastered > 0 && onBrowse({ title: 'Mastered', words: masteredWords, color: C.green })}>
+          <div style={{ fontSize: 28, fontWeight: 800, color: C.green }}>{stats.mastered} <span style={{ fontSize: 16, fontWeight: 700, color: C.gray }}>/ {VOCABULARY.length}</span></div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: C.grayDark, marginTop: 4 }}>Words Mastered</div>
+          {stats.mastered === 0 && (
+            <p style={{ color: C.gray, fontSize: 12, margin: '8px 0 0', lineHeight: 1.4 }}>Get a word right twice in a row to master it.</p>
+          )}
         </div>
 
         {!dayDone ? (
@@ -262,7 +283,6 @@ function HomeScreen({ profile, srsCards, onStartSession, onViewWords, onLogout, 
           <button onClick={() => onStartSession(true)} style={{ width: '100%', padding: '16px 0', background: C.purple, color: 'white', fontWeight: 700, fontSize: 15, border: 'none', borderRadius: 16, cursor: 'pointer', boxShadow: '0 4px 0 #A855F7' }}>Keep Practicing 💪</button>
         )}
         <button onClick={onViewWords} style={{ width: '100%', padding: '14px 0', background: 'transparent', color: C.gray, fontWeight: 600, fontSize: 14, border: 'none', cursor: 'pointer', marginTop: 8 }}>View All Words</button>
-        <p style={{ textAlign: 'center', color: C.gray, fontSize: 12, marginTop: 8 }}>About 5–10 minutes</p>
       </div>
     </div>
   )
@@ -271,7 +291,7 @@ function HomeScreen({ profile, srsCards, onStartSession, onViewWords, onLogout, 
 // ═══════════════════════════════════════════════════════════════
 // DAILY SESSION — Learn → Quiz → Practice → Celebration
 // ═══════════════════════════════════════════════════════════════
-function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint }) {
+function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint, initialMode }) {
   const [phase, setPhase] = useState('init')
   const [cardIndex, setCardIndex] = useState(0)
   const [flipped, setFlipped] = useState(false)
@@ -280,25 +300,38 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint 
   const [selected, setSelected] = useState(null)
   const [showFeedback, setShowFeedback] = useState(false)
   const [results, setResults] = useState([])
-  const [practiceIndex, setPracticeIndex] = useState(0)
-  const [practiceFlipped, setPracticeFlipped] = useState(false)
-  const [practiceWords, setPracticeWords] = useState([])
   const [sessionNewWords, setSessionNewWords] = useState([])
   const [sessionReviewWords, setSessionReviewWords] = useState([])
+  const [isReviewQuiz, setIsReviewQuiz] = useState(initialMode === 'reviewQuiz')
 
   // Local mutable copy of cards for this session
   const [localCards, setLocalCards] = useState({ ...srsCards })
   const [localIntroduced, setLocalIntroduced] = useState([...(profile.words_introduced || [])])
 
   useEffect(() => {
-    const session = buildDailySession(localIntroduced, localCards, VOCABULARY)
-    setSessionNewWords(session.newWords)
-    setSessionReviewWords(session.reviewWords)
-    if (session.newWords.length > 0) setPhase('learn')
-    else if (session.newWords.length + session.reviewWords.length > 0) buildAndStartQuiz(session.newWords, session.reviewWords)
-    else {
-      const diff = session.difficultWords.slice(0, 8)
-      if (diff.length > 0) { setPracticeWords(diff); setPhase('practice') }
+    if (initialMode === 'reviewQuiz') {
+      // Review quiz: quiz ALL words with exactly 1 correct answer
+      const reviewWords = (localIntroduced || [])
+        .filter(w => {
+          const c = localCards[w]; if (!c) return false
+          const rep = parseInt(c.repetition, 10) || 0
+          console.log(`[ReviewQuiz] ${w}: rep=${rep} status=${c.status}`)
+          return rep === 1 && c.status !== 'mastered'
+        })
+      console.log(`[ReviewQuiz] Found ${reviewWords.length} words to review:`, reviewWords)
+      setSessionNewWords([])
+      setSessionReviewWords(reviewWords)
+      if (reviewWords.length > 0) {
+        buildAndStartQuiz([], reviewWords)
+      } else {
+        setPhase('celebration')
+      }
+    } else {
+      const session = buildDailySession(localIntroduced, localCards, VOCABULARY)
+      setSessionNewWords(session.newWords)
+      setSessionReviewWords(session.reviewWords)
+      if (session.newWords.length > 0) setPhase('learn')
+      else if (session.newWords.length + session.reviewWords.length > 0) buildAndStartQuiz(session.newWords, session.reviewWords)
       else { completeDayAndSave(localCards, localIntroduced); setPhase('celebration') }
     }
   }, [])
@@ -324,7 +357,9 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint 
     const correctDef = getWordData(w.word).definition
     const wasCorrect = selected === correctDef
     const existing = localCards[w.word] || createSRSCard(w.word)
+    console.log(`[Quiz] ${w.word}: existing rep=${existing.repetition} status=${existing.status}`)
     const updated = updateSRSCard(existing, wasCorrect)
+    console.log(`[Quiz] ${w.word}: updated rep=${updated.repetition} status=${updated.status}`)
     const newResults = [...results, { word: w.word, wasCorrect, newCard: updated }]
     if (qIndex < quizWords.length - 1) {
       setResults(newResults); setQIndex(qIndex + 1); setSelected(null); setShowFeedback(false)
@@ -338,28 +373,27 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint 
     const newIntroduced = [...localIntroduced]
     quizResults.forEach(r => { newCards[r.word] = r.newCard; if (!newIntroduced.includes(r.word)) newIntroduced.push(r.word) })
     sessionNewWords.forEach(w => { if (!newIntroduced.includes(w)) newIntroduced.push(w); if (!newCards[w]) newCards[w] = createSRSCard(w) })
+
+    // Log final card states
+    console.log('[finishQuiz] Card states being saved:')
+    quizResults.forEach(r => console.log(`  ${r.word}: rep=${r.newCard.repetition} status=${r.newCard.status} correct=${r.wasCorrect}`))
+
     setLocalCards(newCards)
     setLocalIntroduced(newIntroduced)
     setResults(quizResults)
 
-    const difficultWordList = newIntroduced.map(w => newCards[w]).filter(c => c && (c.status === 'learning' || c.status === 'new') && c.lastReview).sort((a, b) => a.easeFactor - b.easeFactor).slice(0, 8).map(c => c.word)
-    if (difficultWordList.length > 0) {
-      setPracticeWords(difficultWordList); setPracticeIndex(0); setPracticeFlipped(false)
-      // Save partial progress
-      await saveToDB(newCards, newIntroduced, false, quizResults)
-      setPhase('practice')
-    } else {
-      await completeDayAndSave(newCards, newIntroduced, quizResults)
-      setPhase('celebration')
-    }
+    await completeDayAndSave(newCards, newIntroduced, quizResults)
+    setPhase('celebration')
   }
 
   const saveToDB = async (cards, introduced, dayComplete, quizResults) => {
     try {
-      // Save SRS cards
+      // Save SRS cards — only save cards that have been touched
       const changedCards = {}
       Object.keys(cards).forEach(w => { if (cards[w]) changedCards[w] = cards[w] })
+      console.log(`[saveToDB] Saving ${Object.keys(changedCards).length} cards to DB`)
       await upsertSRSCards(userId, changedCards)
+      console.log('[saveToDB] Cards saved successfully')
 
       // Update profile
       const finalResults = quizResults || results || []
@@ -395,11 +429,6 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint 
     await saveToDB(cards, introduced, true, quizResults)
   }
 
-  const finishPractice = async () => {
-    await completeDayAndSave(localCards, localIntroduced)
-    setPhase('celebration')
-  }
-
   // ── LOADING ──
   if (phase === 'init') return (
     <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
@@ -417,14 +446,11 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint 
           <div style={{ maxWidth: 400, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 12 }}>
             <button onClick={onComplete} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.gray, fontSize: 20 }}>✕</button>
             <div style={{ flex: 1, height: 12, background: '#E5E5E5', borderRadius: 6, overflow: 'hidden' }}><div style={{ height: '100%', width: `${((cardIndex + 1) / sessionNewWords.length) * 100}%`, background: C.blue, borderRadius: 6, transition: 'width 0.3s' }} /></div>
-            <span style={{ fontSize: 11, fontWeight: 700, color: C.gray }}>{cardIndex + 1} / {sessionNewWords.length}</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: C.gray }}>New word {cardIndex + 1} of {sessionNewWords.length}</span>
           </div>
         </div>
         <div style={{ maxWidth: 400, margin: '0 auto', padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-            <span style={{ fontSize: 16 }}>📚</span><span style={{ color: C.blue, fontWeight: 700, fontSize: 14, textTransform: 'uppercase', letterSpacing: 1 }}>Learn New Words</span>
-          </div>
-          <p style={{ color: C.gray, fontSize: 13, margin: '0 0 20px' }}>Card {cardIndex + 1} of {sessionNewWords.length} · Tap to flip</p>
+          <p style={{ color: C.gray, fontSize: 13, margin: '0 0 20px' }}>Tap card to flip</p>
           <div onClick={() => setFlipped(!flipped)} style={{ width: '100%', maxWidth: 340, height: 280, cursor: 'pointer', perspective: 1000 }}>
             <div style={{ position: 'relative', width: '100%', height: '100%', transition: 'transform 0.5s', transformStyle: 'preserve-3d', transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)' }}>
               <div style={{ position: 'absolute', inset: 0, backfaceVisibility: 'hidden', background: 'white', borderRadius: 20, padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', border: '2px solid #F0F0F0' }}>
@@ -463,7 +489,7 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint 
           <div style={{ maxWidth: 400, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 12 }}>
             <button onClick={onComplete} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.gray, fontSize: 20 }}>✕</button>
             <div style={{ flex: 1, height: 12, background: '#E5E5E5', borderRadius: 6, overflow: 'hidden' }}><div style={{ height: '100%', width: `${((qIndex + 1) / quizWords.length) * 100}%`, background: C.green, borderRadius: 6, transition: 'width 0.3s' }} /></div>
-            <span style={{ fontSize: 11, fontWeight: 700, color: C.gray }}>{qIndex + 1} / {quizWords.length}</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: C.gray }}>{isReviewQuiz ? 'Review' : 'Quiz'} {qIndex + 1} of {quizWords.length}</span>
           </div>
         </div>
         <div style={{ maxWidth: 400, margin: '0 auto', padding: 24, width: '100%', boxSizing: 'border-box' }}>
@@ -484,65 +510,25 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint 
               return <button key={i} onClick={() => selectAnswer(opt)} style={{ width: '100%', padding: '14px 16px', textAlign: 'left', background: bg, border, borderRadius: 14, color, fontWeight: 600, fontSize: 14, cursor: showFeedback ? 'default' : 'pointer', lineHeight: 1.4 }}>{opt}</button>
             })}
           </div>
-          {showFeedback && (
+          {showFeedback && (() => {
+            const existCard = localCards[q.word]
+            const existRep = existCard ? (parseInt(existCard.repetition, 10) || 0) : 0
+            const willMaster = isCorrect && existRep >= 1
+            return (
             <div style={{ background: isCorrect ? C.greenLight : C.redLight, padding: 16, borderRadius: 16, marginTop: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                <span style={{ fontSize: 20 }}>{isCorrect ? '✅' : '❌'}</span>
-                <span style={{ fontWeight: 800, color: isCorrect ? C.greenDark : C.red, fontSize: 16 }}>{isCorrect ? 'Correct!' : 'Not quite!'}</span>
+                <span style={{ fontSize: 20 }}>{isCorrect ? (willMaster ? '⭐' : '✅') : '❌'}</span>
+                <span style={{ fontWeight: 800, color: isCorrect ? C.greenDark : C.red, fontSize: 16 }}>{isCorrect ? (willMaster ? 'Mastered!' : 'Correct!') : 'Not quite!'}</span>
               </div>
               {isCorrect ? (
-                <p style={{ margin: '0 0 12px', fontSize: 13, color: C.greenDark }}>Nice work! This word will come back for review later.</p>
+                <p style={{ margin: '0 0 12px', fontSize: 13, color: C.greenDark }}>{willMaster ? "That's two in a row — this word is now mastered! 🎉" : 'Nice work! Get it right once more to master it.'}</p>
               ) : (
                 <div><p style={{ margin: '0 0 4px', color: C.red, fontSize: 13 }}><strong>{q.word}</strong> means: {data.definition}</p><p style={{ margin: '0 0 12px', fontSize: 13, color: C.red }}>You'll see this word again soon.</p></div>
               )}
               <button onClick={continueQuiz} style={{ width: '100%', padding: '14px 0', background: isCorrect ? C.green : C.red, color: 'white', fontWeight: 700, fontSize: 15, border: 'none', borderRadius: 14, cursor: 'pointer' }}>Continue</button>
             </div>
-          )}
-        </div>
-      </div>
-    )
-  }
-
-  // ── PRACTICE ──
-  if (phase === 'practice') {
-    const word = practiceWords[practiceIndex]
-    const data = getWordData(word)
-    return (
-      <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', flexDirection: 'column' }}>
-        <div style={{ background: 'white', padding: '12px 20px', borderBottom: '2px solid #F0F0F0' }}>
-          <div style={{ maxWidth: 400, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 12 }}>
-            <button onClick={finishPractice} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.gray, fontSize: 13 }}>Skip →</button>
-            <div style={{ flex: 1, height: 12, background: '#E5E5E5', borderRadius: 6, overflow: 'hidden' }}><div style={{ height: '100%', width: `${((practiceIndex + 1) / practiceWords.length) * 100}%`, background: C.orange, borderRadius: 6, transition: 'width 0.3s' }} /></div>
-            <span style={{ fontSize: 11, fontWeight: 700, color: C.gray }}>{practiceIndex + 1} / {practiceWords.length}</span>
-          </div>
-        </div>
-        <div style={{ maxWidth: 400, margin: '0 auto', padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-            <span style={{ fontSize: 16 }}>💪</span><span style={{ color: C.orange, fontWeight: 700, fontSize: 14, textTransform: 'uppercase', letterSpacing: 1 }}>Practice Difficult Words</span>
-          </div>
-          <p style={{ color: C.gray, fontSize: 13, margin: '0 0 20px' }}>Card {practiceIndex + 1} of {practiceWords.length} · Tap to flip</p>
-          <div onClick={() => setPracticeFlipped(!practiceFlipped)} style={{ width: '100%', maxWidth: 340, height: 260, cursor: 'pointer', perspective: 1000 }}>
-            <div style={{ position: 'relative', width: '100%', height: '100%', transition: 'transform 0.5s', transformStyle: 'preserve-3d', transform: practiceFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)' }}>
-              <div style={{ position: 'absolute', inset: 0, backfaceVisibility: 'hidden', background: 'white', borderRadius: 20, padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', border: `2px solid ${C.orange}` }}>
-                <h2 style={{ fontSize: 28, fontWeight: 800, color: C.grayDark, margin: '0 0 16px' }}>{word}</h2>
-                <p style={{ color: C.gray, textAlign: 'center', fontStyle: 'italic', fontSize: 15, lineHeight: 1.5 }}>"{data.sentence}"</p>
-                <p style={{ color: '#D0D0D0', fontSize: 12, marginTop: 16 }}>Tap to see definition →</p>
-              </div>
-              <div style={{ position: 'absolute', inset: 0, backfaceVisibility: 'hidden', transform: 'rotateY(180deg)', background: `linear-gradient(135deg, ${C.orange}, #E07800)`, borderRadius: 20, padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                <h2 style={{ fontSize: 24, fontWeight: 800, color: 'white', margin: '0 0 12px' }}>{word}</h2>
-                <p style={{ color: 'white', textAlign: 'center', fontSize: 17, lineHeight: 1.5 }}>{data.definition}</p>
-              </div>
-            </div>
-          </div>
-          <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
-            <button onClick={() => { setPracticeIndex(Math.max(0, practiceIndex - 1)); setPracticeFlipped(false) }} disabled={practiceIndex === 0}
-              style={{ padding: '12px 24px', borderRadius: 14, fontWeight: 700, fontSize: 14, border: practiceIndex === 0 ? 'none' : `2px solid ${C.orange}`, background: practiceIndex === 0 ? '#E5E5E5' : 'white', color: practiceIndex === 0 ? C.gray : C.orange, cursor: practiceIndex === 0 ? 'default' : 'pointer' }}>← Back</button>
-            {practiceIndex < practiceWords.length - 1 ? (
-              <button onClick={() => { setPracticeIndex(practiceIndex + 1); setPracticeFlipped(false) }} style={{ padding: '12px 24px', borderRadius: 14, fontWeight: 700, fontSize: 14, border: 'none', background: C.orange, color: 'white', boxShadow: '0 4px 0 #E07800', cursor: 'pointer' }}>Next →</button>
-            ) : (
-              <button onClick={finishPractice} style={{ padding: '12px 24px', borderRadius: 14, fontWeight: 700, fontSize: 14, border: 'none', background: C.green, color: 'white', boxShadow: `0 4px 0 ${C.greenDark}`, cursor: 'pointer' }}>Done! ✓</button>
-            )}
-          </div>
+            )
+          })()}
         </div>
       </div>
     )
@@ -554,6 +540,8 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint 
     const total = results.length
     const pct = total > 0 ? Math.round((correctCount / total) * 100) : 100
     const stats = getStats(localIntroduced, localCards)
+    console.log(`[Celebration] Stats: learning=${stats.learning} review=${stats.review} mastered=${stats.mastered}`)
+    console.log(`[Celebration] Quiz: ${correctCount}/${total} correct (${pct}%)`)
 
     // Compute expected streak (profile prop may be stale before refresh completes)
     const today = getToday()
@@ -561,13 +549,18 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint 
     const displayStreak = alreadyDoneToday ? profile.streak : (profile.last_session_date !== today ? profile.streak + 1 : profile.streak)
 
     return (
-      <div style={{ minHeight: '100vh', background: `linear-gradient(180deg, ${C.greenLight} 0%, ${C.bg} 40%)`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-        <CatMascot size={110} />
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8, marginBottom: 4 }}>
-          <FlameIcon size={36} active />
-          <span style={{ fontSize: 42, fontWeight: 900, color: '#FF9600' }}>{displayStreak}</span>
+      <div style={{ minHeight: '100vh', background: `linear-gradient(180deg, ${C.greenLight} 0%, ${C.bg} 40%)`, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 24 }}>
+        <div style={{ marginTop: 16 }}>
+          <CatMascot size={90} />
         </div>
-        <h2 style={{ fontSize: 22, fontWeight: 800, color: C.grayDark, margin: '0 0 4px' }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: 'white', padding: '16px 32px', borderRadius: 20, border: '2px solid #F0F0F0', marginTop: 16, marginBottom: 8 }}>
+          <FlameIcon size={36} active />
+          <div>
+            <div style={{ fontSize: 36, fontWeight: 900, color: '#FF9600', lineHeight: 1 }}>{displayStreak}</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: C.gray, marginTop: 2 }}>day streak</div>
+          </div>
+        </div>
+        <h2 style={{ fontSize: 22, fontWeight: 800, color: C.grayDark, margin: '8px 0 4px' }}>
           {isSprint ? 'Extra practice done! 💪' : displayStreak === 1 ? 'Day 1 — great start!' : displayStreak < 7 ? `${displayStreak}-day streak!` : `${displayStreak}-day streak! 🔥`}
         </h2>
         <p style={{ color: C.gray, margin: '0 0 24px', fontSize: 14 }}>
@@ -585,8 +578,11 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint 
 
         <div style={{ width: '100%', maxWidth: 340, display: 'flex', flexDirection: 'column', gap: 10 }}>
           <button onClick={() => onComplete('done')} style={{ width: '100%', padding: '16px 0', background: C.green, color: 'white', fontWeight: 700, fontSize: 16, border: 'none', borderRadius: 16, cursor: 'pointer', boxShadow: `0 4px 0 ${C.greenDark}` }}>Done for Today! 🎉</button>
-          {(stats.learning + stats.review > 0 || (VOCABULARY.length - stats.totalIntroduced > 0)) && (
-            <button onClick={() => { onComplete('sprint') }} style={{ width: '100%', padding: '16px 0', background: 'white', color: C.purple, fontWeight: 700, fontSize: 15, border: `2px solid ${C.purple}`, borderRadius: 16, cursor: 'pointer' }}>Keep Practicing 💪</button>
+          {stats.review > 0 && (
+            <button onClick={() => { onComplete('reviewQuiz') }} style={{ width: '100%', padding: '16px 0', background: C.purple, color: 'white', fontWeight: 700, fontSize: 15, border: 'none', borderRadius: 16, cursor: 'pointer', boxShadow: '0 4px 0 #A855F7' }}>Master Review Words ({stats.review})</button>
+          )}
+          {(stats.learning > 0 || (VOCABULARY.length - stats.totalIntroduced > 0)) && (
+            <button onClick={() => { onComplete('sprint') }} style={{ width: '100%', padding: '16px 0', background: 'white', color: C.gray, fontWeight: 600, fontSize: 14, border: `2px solid #E5E5E5`, borderRadius: 16, cursor: 'pointer' }}>Learn More New Words</button>
           )}
         </div>
       </div>
@@ -603,9 +599,21 @@ function WordListScreen({ profile, srsCards, onBack }) {
   const [tab, setTab] = useState('all')
   const introduced = profile.words_introduced || []
   const allWords = introduced.filter(w => srsCards[w])
-  const learning = allWords.filter(w => srsCards[w]?.status === 'learning' || srsCards[w]?.status === 'new')
-  const reviewing = allWords.filter(w => srsCards[w]?.status === 'review')
-  const mastered = allWords.filter(w => srsCards[w]?.status === 'mastered')
+  const learning = allWords.filter(w => {
+    const c = srsCards[w]; if (!c) return false
+    const rep = parseInt(c.repetition, 10) || 0
+    return rep === 0 && c.status !== 'mastered'
+  })
+  const reviewing = allWords.filter(w => {
+    const c = srsCards[w]; if (!c) return false
+    const rep = parseInt(c.repetition, 10) || 0
+    return rep === 1 && c.status !== 'mastered'
+  })
+  const mastered = allWords.filter(w => {
+    const c = srsCards[w]; if (!c) return false
+    const rep = parseInt(c.repetition, 10) || 0
+    return rep >= 2 || c.status === 'mastered'
+  })
   const tabs = [
     { id: 'all', label: 'All', count: allWords.length, color: C.blue },
     { id: 'learning', label: 'Learning', count: learning.length, color: C.orange },
@@ -730,6 +738,7 @@ export default function App() {
   const [screen, setScreen] = useState('loading') // loading | login | home | session | words | browse
   const [isSprint, setIsSprint] = useState(false)
   const [sessionKey, setSessionKey] = useState(0)
+  const [sessionMode, setSessionMode] = useState('normal') // 'normal' | 'reviewQuiz'
   const [browseCategory, setBrowseCategory] = useState(null) // { title, words, color }
 
   // Check for existing session on mount
@@ -758,6 +767,12 @@ export default function App() {
   const loadUserData = async (userId, changeScreen = true) => {
     try {
       const [prof, cards] = await Promise.all([getProfile(userId), getSRSCards(userId)])
+      console.log(`[loadUserData] Loaded ${Object.keys(cards).length} cards from DB`)
+      // Log a sample of card states
+      const cardList = Object.values(cards)
+      if (cardList.length > 0) {
+        cardList.slice(0, 10).forEach(c => console.log(`  ${c.word}: rep=${c.repetition} status=${c.status}`))
+      }
       if (prof) {
         // Check if streak should break (only on initial load / new day)
         const today = getToday()
@@ -812,6 +827,14 @@ export default function App() {
 
   const startSession = (sprint) => {
     setIsSprint(sprint)
+    setSessionMode('normal')
+    setSessionKey(k => k + 1)
+    setScreen('session')
+  }
+
+  const startReviewQuiz = () => {
+    setIsSprint(true)
+    setSessionMode('reviewQuiz')
     setSessionKey(k => k + 1)
     setScreen('session')
   }
@@ -837,8 +860,13 @@ export default function App() {
       profile={profile}
       srsCards={srsCards}
       isSprint={isSprint}
+      initialMode={sessionMode}
       onSave={handleRefreshData}
-      onComplete={(action) => { handleRefreshData().then(() => { if (action === 'sprint') { setIsSprint(true); setSessionKey(k => k + 1); setScreen('session') } else { setScreen('home') } }) }}
+      onComplete={(action) => { handleRefreshData().then(() => {
+        if (action === 'sprint') { setIsSprint(true); setSessionMode('normal'); setSessionKey(k => k + 1); setScreen('session') }
+        else if (action === 'reviewQuiz') { startReviewQuiz() }
+        else { setScreen('home') }
+      }) }}
     />
   )
 
@@ -859,6 +887,7 @@ export default function App() {
       profile={profile}
       srsCards={srsCards}
       onStartSession={startSession}
+      onStartReviewQuiz={startReviewQuiz}
       onViewWords={() => setScreen('words')}
       onLogout={handleLogout}
       onBrowse={(cat) => { setBrowseCategory(cat); setScreen('browse') }}

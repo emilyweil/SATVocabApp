@@ -56,9 +56,9 @@ export async function getSRSCards(userId) {
   ;(data || []).forEach(card => {
     cards[card.word] = {
       word: card.word,
-      interval: card.interval,
-      repetition: card.repetition,
-      easeFactor: parseFloat(card.ease_factor),
+      interval: parseInt(card.interval, 10) || 0,
+      repetition: parseInt(card.repetition, 10) || 0,
+      easeFactor: parseFloat(card.ease_factor) || 2.5,
       nextReview: card.next_review,
       lastReview: card.last_review,
       status: card.status,
