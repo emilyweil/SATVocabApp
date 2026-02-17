@@ -608,12 +608,8 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
 
   // ── CELEBRATION ──
   if (phase === 'celebration') {
-    const correctCount = results.filter(r => r.wasCorrect).length
-    const total = results.length
-    const pct = total > 0 ? Math.round((correctCount / total) * 100) : 100
     const stats = getStats(localIntroduced, localCards)
     console.log(`[Celebration] Stats: learning=${stats.learning} review=${stats.review} mastered=${stats.mastered}`)
-    console.log(`[Celebration] Quiz: ${correctCount}/${total} correct (${pct}%)`)
 
     // Compute expected streak (profile prop may be stale before refresh completes)
     const today = getToday()
@@ -639,25 +635,43 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
           {isSprint ? 'Great effort! Keep building that knowledge.' : displayStreak >= 7 ? "You're on fire! Keep it going!" : 'Come back tomorrow to keep your streak alive!'}
         </p>
 
-        <div style={{ width: '100%', maxWidth: 340, background: 'white', borderRadius: 20, border: '2px solid #F0F0F0', padding: 16, marginBottom: 24 }}>
-          <p style={{ fontWeight: 700, fontSize: 14, color: C.grayDark, margin: '0 0 12px' }}>{isSprint ? 'Practice Summary' : "Today's Summary"}</p>
-          <div style={{ display: 'flex', justifyContent: 'space-around' }}>
-            <div style={{ textAlign: 'center' }}><div style={{ fontSize: 24, fontWeight: 800, color: C.blue }}>{sessionNewWords.length}</div><div style={{ fontSize: 11, color: C.gray }}>New Words</div></div>
-            <div style={{ textAlign: 'center' }}><div style={{ fontSize: 24, fontWeight: 800, color: pct >= 80 ? C.green : C.orange }}>{pct}%</div><div style={{ fontSize: 11, color: C.gray }}>Quiz Score</div></div>
-            <div style={{ textAlign: 'center' }}><div style={{ fontSize: 24, fontWeight: 800, color: C.green }}>{stats.mastered}</div><div style={{ fontSize: 11, color: C.gray }}>Mastered</div></div>
+        {/* Stat panels — same layout as home screen */}
+        <div style={{ width: '100%', maxWidth: 340, display: 'flex', gap: 8, marginBottom: 16 }}>
+          {/* Learning panel */}
+          <div style={{ flex: 1, background: 'white', borderRadius: 16, padding: '14px 12px', border: '2px solid #F0F0F0' }}>
+            <div style={{ fontSize: 22, fontWeight: 800, color: C.orange, textAlign: 'center' }}>{stats.learning}</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: C.grayDark, textAlign: 'center', marginTop: 2 }}>Learning</div>
+            <p style={{ fontSize: 11, color: C.gray, textAlign: 'center', margin: '6px 0 0', lineHeight: 1.3 }}>Words you've gotten wrong</p>
+            {stats.learning > 0 && (
+              <button onClick={() => onComplete('learningQuiz')}
+                style={{ display: 'block', margin: '8px auto 0', background: 'none', border: 'none', color: C.orange, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline' }}>Practice them →</button>
+            )}
           </div>
+          {/* Reviewing panel */}
+          <div style={{ flex: 1, background: 'white', borderRadius: 16, padding: '14px 12px', border: '2px solid #F0F0F0' }}>
+            <div style={{ fontSize: 22, fontWeight: 800, color: C.purple, textAlign: 'center' }}>{stats.review}</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: C.grayDark, textAlign: 'center', marginTop: 2 }}>Reviewing</div>
+            <p style={{ fontSize: 11, color: C.gray, textAlign: 'center', margin: '6px 0 0', lineHeight: 1.3 }}>Words you've gotten right once</p>
+            {stats.review > 0 && (
+              <button onClick={() => onComplete('reviewQuiz')}
+                style={{ display: 'block', margin: '8px auto 0', background: 'none', border: 'none', color: C.purple, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline' }}>Master them →</button>
+            )}
+          </div>
+        </div>
+
+        {/* Mastered count card */}
+        <div style={{ width: '100%', maxWidth: 340, background: 'white', borderRadius: 16, padding: 16, border: '2px solid #F0F0F0', marginBottom: 24, textAlign: 'center' }}>
+          <div style={{ fontSize: 28, fontWeight: 800, color: C.green }}>{stats.mastered} <span style={{ fontSize: 28, fontWeight: 800, color: C.gray }}>/ {VOCABULARY.length}</span></div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: C.grayDark, marginTop: 4 }}>Words Mastered</div>
+          {stats.mastered === 0 && (
+            <p style={{ color: C.gray, fontSize: 12, margin: '8px 0 0', lineHeight: 1.4 }}>Get a word right twice in a row to master it.</p>
+          )}
         </div>
 
         <div style={{ width: '100%', maxWidth: 340, display: 'flex', flexDirection: 'column', gap: 10 }}>
           <button onClick={() => onComplete('done')} style={{ width: '100%', padding: '16px 0', background: C.green, color: 'white', fontWeight: 700, fontSize: 16, border: 'none', borderRadius: 16, cursor: 'pointer', boxShadow: `0 4px 0 ${C.greenDark}` }}>Done for Today! 🎉</button>
-          {stats.review > 0 && (
-            <button onClick={() => { onComplete('reviewQuiz') }} style={{ width: '100%', padding: '16px 0', background: C.purple, color: 'white', fontWeight: 700, fontSize: 15, border: 'none', borderRadius: 16, cursor: 'pointer', boxShadow: '0 4px 0 #A855F7' }}>Master Review Words ({stats.review})</button>
-          )}
-          {stats.learning > 0 && (
-            <button onClick={() => { onComplete('learningQuiz') }} style={{ width: '100%', padding: '16px 0', background: C.orange, color: 'white', fontWeight: 700, fontSize: 15, border: 'none', borderRadius: 16, cursor: 'pointer', boxShadow: '0 4px 0 #E68A00' }}>Practice Learning Words ({stats.learning})</button>
-          )}
           {(VOCABULARY.length - stats.totalIntroduced > 0) && (
-            <button onClick={() => { onComplete('sprint') }} style={{ width: '100%', padding: '16px 0', background: 'white', color: C.gray, fontWeight: 600, fontSize: 14, border: `2px solid #E5E5E5`, borderRadius: 16, cursor: 'pointer' }}>Learn More New Words</button>
+            <button onClick={() => { onComplete('sprint') }} style={{ width: '100%', padding: '16px 0', background: C.blue, color: 'white', fontWeight: 700, fontSize: 15, border: 'none', borderRadius: 16, cursor: 'pointer', boxShadow: `0 4px 0 ${C.blueDark}` }}>Learn More New Words</button>
           )}
         </div>
       </div>
