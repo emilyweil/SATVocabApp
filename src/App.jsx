@@ -188,9 +188,76 @@ function LoginScreen({ onAuthComplete }) {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// WELCOME PANEL (shown once for first-time users)
+// ═══════════════════════════════════════════════════════════════
+function WelcomePanel({ name, onDismiss }) {
+  return (
+    <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div style={{ maxWidth: 400, margin: '0 auto', padding: 24, textAlign: 'center' }}>
+        <div style={{ marginTop: 16 }}><CatMascot size={100} /></div>
+        <h1 style={{ fontSize: 24, fontWeight: 800, color: C.grayDark, margin: '20px 0 8px' }}>
+          Welcome, {name}! 🎉
+        </h1>
+        <p style={{ color: C.gray, fontSize: 15, margin: '0 0 28px', lineHeight: 1.5 }}>
+          Your mission: master all <strong>1,000 SAT words</strong>. Here's how it works:
+        </p>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 28, textAlign: 'left' }}>
+          <div style={{ background: 'white', borderRadius: 16, padding: 16, border: '2px solid #F0F0F0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+              <span style={{ fontSize: 24 }}>📚</span>
+              <span style={{ fontSize: 16, fontWeight: 800, color: C.orange }}>Learning</span>
+            </div>
+            <p style={{ color: C.gray, fontSize: 13, margin: 0, lineHeight: 1.5 }}>
+              New words start here. You'll see them on flashcards, then answer a quiz. Get one wrong? It stays here until you nail it.
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span style={{ fontSize: 18, color: C.gray }}>↓ get it right once</span>
+          </div>
+
+          <div style={{ background: 'white', borderRadius: 16, padding: 16, border: '2px solid #F0F0F0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+              <span style={{ fontSize: 24 }}>🔄</span>
+              <span style={{ fontSize: 16, fontWeight: 800, color: C.purple }}>Reviewing</span>
+            </div>
+            <p style={{ color: C.gray, fontSize: 13, margin: 0, lineHeight: 1.5 }}>
+              Almost there! These are words you've gotten right once. One more correct answer and they're mastered.
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span style={{ fontSize: 18, color: C.gray }}>↓ get it right again</span>
+          </div>
+
+          <div style={{ background: 'white', borderRadius: 16, padding: 16, border: '2px solid #F0F0F0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+              <span style={{ fontSize: 24 }}>⭐</span>
+              <span style={{ fontSize: 16, fontWeight: 800, color: C.green }}>Mastered</span>
+            </div>
+            <p style={{ color: C.gray, fontSize: 13, margin: 0, lineHeight: 1.5 }}>
+              You know it! Two correct answers in a row means this word is yours. Keep going until all 1,000 are here!
+            </p>
+          </div>
+        </div>
+
+        <p style={{ color: C.gray, fontSize: 13, margin: '0 0 20px', lineHeight: 1.5 }}>
+          You'll learn <strong>5 new words</strong> each day. Build a streak, and before you know it, you'll be an SAT vocab pro! 🐱
+        </p>
+
+        <button onClick={onDismiss} style={{ width: '100%', padding: '18px 0', background: C.green, color: 'white', fontWeight: 700, fontSize: 16, border: 'none', borderRadius: 16, cursor: 'pointer', boxShadow: `0 4px 0 ${C.greenDark}` }}>
+          Let's Get Started! 🚀
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════
 // HOME SCREEN
 // ═══════════════════════════════════════════════════════════════
-function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onViewWords, onLogout, onBrowse }) {
+function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onStartLearningQuiz, onViewWords, onLogout, onBrowse }) {
   const stats = getStats(profile.words_introduced, srsCards)
   const today = getToday()
   const dayDone = profile.today_complete && profile.last_session_date === today
@@ -198,18 +265,15 @@ function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onVi
   const introduced = profile.words_introduced || []
   const learningWords = introduced.filter(w => {
     const c = srsCards[w]; if (!c) return false
-    const rep = parseInt(c.repetition, 10) || 0
-    return rep === 0 && c.status !== 'mastered'
+    return (parseInt(c.repetition, 10) || 0) === 0
   })
   const reviewingWords = introduced.filter(w => {
     const c = srsCards[w]; if (!c) return false
-    const rep = parseInt(c.repetition, 10) || 0
-    return rep === 1 && c.status !== 'mastered'
+    return (parseInt(c.repetition, 10) || 0) === 1
   })
   const masteredWords = introduced.filter(w => {
     const c = srsCards[w]; if (!c) return false
-    const rep = parseInt(c.repetition, 10) || 0
-    return rep >= 2 || c.status === 'mastered'
+    return (parseInt(c.repetition, 10) || 0) >= 2
   })
 
   return (
@@ -237,20 +301,23 @@ function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onVi
               <div style={{ fontSize: 12, fontWeight: 700, color: C.gray, marginTop: 2 }}>day streak{profile.best_streak > 1 ? ` · Best: ${profile.best_streak}` : ''}</div>
             </div>
           </div>
-          {dayDone && profile.sprints_today > 0 && <p style={{ color: C.purple, margin: '8px 0 0', fontSize: 13, fontWeight: 600 }}>+{profile.sprints_today} extra practice session{profile.sprints_today > 1 ? 's' : ''} today!</p>}
+          {dayDone && profile.sprints_today > 0 && <p style={{ color: C.purple, margin: '8px 0 0', fontSize: 13, fontWeight: 600 }}>+{profile.sprints_today * 5} extra practice words today!</p>}
         </div>
 
         {/* Stat panels */}
         <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
           {/* Learning panel */}
-          <div onClick={() => learningWords.length > 0 && onBrowse({ title: 'Learning', words: learningWords, color: C.orange })}
-            style={{ flex: 1, background: 'white', borderRadius: 16, padding: '14px 12px', border: '2px solid #F0F0F0', cursor: learningWords.length > 0 ? 'pointer' : 'default', transition: 'transform 0.1s' }}
-            onMouseDown={e => { if (learningWords.length > 0) e.currentTarget.style.transform = 'scale(0.97)' }}
-            onMouseUp={e => { e.currentTarget.style.transform = 'scale(1)' }}
-            onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)' }}>
-            <div style={{ fontSize: 22, fontWeight: 800, color: C.orange, textAlign: 'center' }}>{stats.learning}</div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: C.grayDark, textAlign: 'center', marginTop: 2 }}>Learning</div>
-            <p style={{ fontSize: 11, color: C.gray, textAlign: 'center', margin: '6px 0 0', lineHeight: 1.3 }}>Words you've gotten wrong</p>
+          <div style={{ flex: 1, background: 'white', borderRadius: 16, padding: '14px 12px', border: '2px solid #F0F0F0' }}>
+            <div onClick={() => learningWords.length > 0 && onBrowse({ title: 'Learning', words: learningWords, color: C.orange })}
+              style={{ cursor: learningWords.length > 0 ? 'pointer' : 'default' }}>
+              <div style={{ fontSize: 22, fontWeight: 800, color: C.orange, textAlign: 'center' }}>{stats.learning}</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: C.grayDark, textAlign: 'center', marginTop: 2 }}>Learning</div>
+              <p style={{ fontSize: 11, color: C.gray, textAlign: 'center', margin: '6px 0 0', lineHeight: 1.3 }}>Words you've gotten wrong</p>
+            </div>
+            {stats.learning > 0 && (
+              <button onClick={onStartLearningQuiz}
+                style={{ display: 'block', margin: '8px auto 0', background: 'none', border: 'none', color: C.orange, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline' }}>Practice them →</button>
+            )}
           </div>
           {/* Reviewing panel */}
           <div style={{ flex: 1, background: 'white', borderRadius: 16, padding: '14px 12px', border: '2px solid #F0F0F0' }}>
@@ -270,7 +337,7 @@ function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onVi
         {/* Mastered count card */}
         <div style={{ background: 'white', borderRadius: 16, padding: 16, border: '2px solid #F0F0F0', marginBottom: 20, textAlign: 'center', cursor: stats.mastered > 0 ? 'pointer' : 'default' }}
           onClick={() => stats.mastered > 0 && onBrowse({ title: 'Mastered', words: masteredWords, color: C.green })}>
-          <div style={{ fontSize: 28, fontWeight: 800, color: C.green }}>{stats.mastered} <span style={{ fontSize: 16, fontWeight: 700, color: C.gray }}>/ {VOCABULARY.length}</span></div>
+          <div style={{ fontSize: 28, fontWeight: 800, color: C.green }}>{stats.mastered} <span style={{ fontSize: 28, fontWeight: 800, color: C.gray }}>/ {VOCABULARY.length}</span></div>
           <div style={{ fontSize: 13, fontWeight: 700, color: C.grayDark, marginTop: 4 }}>Words Mastered</div>
           {stats.mastered === 0 && (
             <p style={{ color: C.gray, fontSize: 12, margin: '8px 0 0', lineHeight: 1.4 }}>Get a word right twice in a row to master it.</p>
@@ -302,7 +369,7 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
   const [results, setResults] = useState([])
   const [sessionNewWords, setSessionNewWords] = useState([])
   const [sessionReviewWords, setSessionReviewWords] = useState([])
-  const [isReviewQuiz, setIsReviewQuiz] = useState(initialMode === 'reviewQuiz')
+  const [isReviewQuiz, setIsReviewQuiz] = useState(initialMode === 'reviewQuiz' || initialMode === 'learningQuiz')
 
   // Local mutable copy of cards for this session
   const [localCards, setLocalCards] = useState({ ...srsCards })
@@ -310,22 +377,27 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
 
   useEffect(() => {
     if (initialMode === 'reviewQuiz') {
-      // Review quiz: quiz ALL words with exactly 1 correct answer
       const reviewWords = (localIntroduced || [])
         .filter(w => {
           const c = localCards[w]; if (!c) return false
-          const rep = parseInt(c.repetition, 10) || 0
-          console.log(`[ReviewQuiz] ${w}: rep=${rep} status=${c.status}`)
-          return rep === 1 && c.status !== 'mastered'
+          return (parseInt(c.repetition, 10) || 0) === 1
         })
-      console.log(`[ReviewQuiz] Found ${reviewWords.length} words to review:`, reviewWords)
+      console.log(`[ReviewQuiz] Found ${reviewWords.length} words to review`)
       setSessionNewWords([])
       setSessionReviewWords(reviewWords)
-      if (reviewWords.length > 0) {
-        buildAndStartQuiz([], reviewWords)
-      } else {
-        setPhase('celebration')
-      }
+      if (reviewWords.length > 0) buildAndStartQuiz([], reviewWords)
+      else setPhase('celebration')
+    } else if (initialMode === 'learningQuiz') {
+      const learningWords = (localIntroduced || [])
+        .filter(w => {
+          const c = localCards[w]; if (!c) return false
+          return (parseInt(c.repetition, 10) || 0) === 0
+        })
+      console.log(`[LearningQuiz] Found ${learningWords.length} words to practice`)
+      setSessionNewWords([])
+      setSessionReviewWords(learningWords)
+      if (learningWords.length > 0) buildAndStartQuiz([], learningWords)
+      else setPhase('celebration')
     } else {
       const session = buildDailySession(localIntroduced, localCards, VOCABULARY)
       setSessionNewWords(session.newWords)
@@ -489,7 +561,7 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
           <div style={{ maxWidth: 400, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 12 }}>
             <button onClick={onComplete} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.gray, fontSize: 20 }}>✕</button>
             <div style={{ flex: 1, height: 12, background: '#E5E5E5', borderRadius: 6, overflow: 'hidden' }}><div style={{ height: '100%', width: `${((qIndex + 1) / quizWords.length) * 100}%`, background: C.green, borderRadius: 6, transition: 'width 0.3s' }} /></div>
-            <span style={{ fontSize: 11, fontWeight: 700, color: C.gray }}>{isReviewQuiz ? 'Review' : 'Quiz'} {qIndex + 1} of {quizWords.length}</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: C.gray }}>{initialMode === 'learningQuiz' ? 'Practice' : initialMode === 'reviewQuiz' ? 'Review' : 'Quiz'} {qIndex + 1} of {quizWords.length}</span>
           </div>
         </div>
         <div style={{ maxWidth: 400, margin: '0 auto', padding: 24, width: '100%', boxSizing: 'border-box' }}>
@@ -581,7 +653,10 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
           {stats.review > 0 && (
             <button onClick={() => { onComplete('reviewQuiz') }} style={{ width: '100%', padding: '16px 0', background: C.purple, color: 'white', fontWeight: 700, fontSize: 15, border: 'none', borderRadius: 16, cursor: 'pointer', boxShadow: '0 4px 0 #A855F7' }}>Master Review Words ({stats.review})</button>
           )}
-          {(stats.learning > 0 || (VOCABULARY.length - stats.totalIntroduced > 0)) && (
+          {stats.learning > 0 && (
+            <button onClick={() => { onComplete('learningQuiz') }} style={{ width: '100%', padding: '16px 0', background: C.orange, color: 'white', fontWeight: 700, fontSize: 15, border: 'none', borderRadius: 16, cursor: 'pointer', boxShadow: '0 4px 0 #E68A00' }}>Practice Learning Words ({stats.learning})</button>
+          )}
+          {(VOCABULARY.length - stats.totalIntroduced > 0) && (
             <button onClick={() => { onComplete('sprint') }} style={{ width: '100%', padding: '16px 0', background: 'white', color: C.gray, fontWeight: 600, fontSize: 14, border: `2px solid #E5E5E5`, borderRadius: 16, cursor: 'pointer' }}>Learn More New Words</button>
           )}
         </div>
@@ -599,21 +674,9 @@ function WordListScreen({ profile, srsCards, onBack }) {
   const [tab, setTab] = useState('all')
   const introduced = profile.words_introduced || []
   const allWords = introduced.filter(w => srsCards[w])
-  const learning = allWords.filter(w => {
-    const c = srsCards[w]; if (!c) return false
-    const rep = parseInt(c.repetition, 10) || 0
-    return rep === 0 && c.status !== 'mastered'
-  })
-  const reviewing = allWords.filter(w => {
-    const c = srsCards[w]; if (!c) return false
-    const rep = parseInt(c.repetition, 10) || 0
-    return rep === 1 && c.status !== 'mastered'
-  })
-  const mastered = allWords.filter(w => {
-    const c = srsCards[w]; if (!c) return false
-    const rep = parseInt(c.repetition, 10) || 0
-    return rep >= 2 || c.status === 'mastered'
-  })
+  const learning = allWords.filter(w => (parseInt(srsCards[w]?.repetition, 10) || 0) === 0)
+  const reviewing = allWords.filter(w => (parseInt(srsCards[w]?.repetition, 10) || 0) === 1)
+  const mastered = allWords.filter(w => (parseInt(srsCards[w]?.repetition, 10) || 0) >= 2)
   const tabs = [
     { id: 'all', label: 'All', count: allWords.length, color: C.blue },
     { id: 'learning', label: 'Learning', count: learning.length, color: C.orange },
@@ -738,8 +801,9 @@ export default function App() {
   const [screen, setScreen] = useState('loading') // loading | login | home | session | words | browse
   const [isSprint, setIsSprint] = useState(false)
   const [sessionKey, setSessionKey] = useState(0)
-  const [sessionMode, setSessionMode] = useState('normal') // 'normal' | 'reviewQuiz'
+  const [sessionMode, setSessionMode] = useState('normal') // 'normal' | 'reviewQuiz' | 'learningQuiz'
   const [browseCategory, setBrowseCategory] = useState(null) // { title, words, color }
+  const [showWelcome, setShowWelcome] = useState(false)
 
   // Check for existing session on mount
   useEffect(() => {
@@ -793,14 +857,22 @@ export default function App() {
         }
         setProfile(prof)
         setSrsCards(cards)
-        if (changeScreen) setScreen('home')
+        if (changeScreen) {
+          if (prof.sessions_completed === 0 && (!prof.words_introduced || prof.words_introduced.length === 0)) {
+            setShowWelcome(true)
+          }
+          setScreen('home')
+        }
       } else {
         // Profile doesn't exist yet (edge case)
         const name = authUser?.user_metadata?.name || 'Student'
         const newProf = await createProfile(userId, name)
         setProfile(newProf)
         setSrsCards({})
-        if (changeScreen) setScreen('home')
+        if (changeScreen) {
+          setShowWelcome(true)
+          setScreen('home')
+        }
       }
     } catch (e) {
       console.error('Load error:', e)
@@ -839,6 +911,13 @@ export default function App() {
     setScreen('session')
   }
 
+  const startLearningQuiz = () => {
+    setIsSprint(true)
+    setSessionMode('learningQuiz')
+    setSessionKey(k => k + 1)
+    setScreen('session')
+  }
+
   if (screen === 'loading') return (
     <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
       <CatMascot size={120} style={{ marginBottom: 16 }} /><Spinner text="Loading..." />
@@ -865,6 +944,7 @@ export default function App() {
       onComplete={(action) => { handleRefreshData().then(() => {
         if (action === 'sprint') { setIsSprint(true); setSessionMode('normal'); setSessionKey(k => k + 1); setScreen('session') }
         else if (action === 'reviewQuiz') { startReviewQuiz() }
+        else if (action === 'learningQuiz') { startLearningQuiz() }
         else { setScreen('home') }
       }) }}
     />
@@ -882,12 +962,20 @@ export default function App() {
     />
   )
 
+  if (showWelcome) return (
+    <WelcomePanel
+      name={profile.name}
+      onDismiss={() => setShowWelcome(false)}
+    />
+  )
+
   return (
     <HomeScreen
       profile={profile}
       srsCards={srsCards}
       onStartSession={startSession}
       onStartReviewQuiz={startReviewQuiz}
+      onStartLearningQuiz={startLearningQuiz}
       onViewWords={() => setScreen('words')}
       onLogout={handleLogout}
       onBrowse={(cat) => { setBrowseCategory(cat); setScreen('browse') }}

@@ -68,10 +68,11 @@ export function buildDailySession(wordsIntroduced, srsCards, allWords) {
 
   const reviewWords = wordsIntroduced
     .map((w) => srsCards[w])
-    .filter((c) => c && isDueForReview(c) && c.status !== 'mastered')
+    .filter((c) => c && isDueForReview(c) && (parseInt(c.repetition, 10) || 0) < 2)
     .sort((a, b) => {
-      const p = { learning: 0, new: 0, review: 1, mastered: 2 }
-      return (p[a.status] || 0) - (p[b.status] || 0) || (a.nextReview < b.nextReview ? -1 : 1)
+      const repA = parseInt(a.repetition, 10) || 0
+      const repB = parseInt(b.repetition, 10) || 0
+      return repA - repB || (a.nextReview < b.nextReview ? -1 : 1)
     })
     .map((c) => c.word)
     .slice(0, 10)
@@ -85,9 +86,10 @@ export function getStats(wordsIntroduced, srsCards) {
     const c = srsCards[w]
     if (!c) return
     const rep = parseInt(c.repetition, 10) || 0
-    if (rep >= 2 || c.status === 'mastered') mastered++
-    else if (rep === 1 || c.status === 'review') review++
-    else learning++ // includes 'new', 'learning', and any card with rep=0
+    // Strictly based on consecutive correct count — ignore status field
+    if (rep >= 2) mastered++
+    else if (rep === 1) review++
+    else learning++ // rep === 0: new or gotten wrong
   })
   return { learning, review, mastered, totalIntroduced: wordsIntroduced.length }
 }
