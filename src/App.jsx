@@ -5,23 +5,10 @@ import { getToday, createSRSCard, updateSRSCard, isDueForReview, getIntervalLabe
 import VOCABULARY from './data/words.json'
 
 // ═══════════════════════════════════════════════════════════════
-// CAT MASCOT (inline SVG)
+// CAT MASCOT (PNG image)
 // ═══════════════════════════════════════════════════════════════
 const CatMascot = ({ size = 120, style = {} }) => (
-  <svg width={size} height={size * 1.25} viewBox="0 0 20 25" fill="none" style={style}>
-    <path d="M10.31 3.57c.36.05.71.11 1.06.18.41-1.02.83-2.03 1.25-3.05.25 0 .5-.01.74-.01 1.17 0 2.34 0 3.5.01.24.63.49 1.26.74 1.89.18.47.36.94.55 1.41.49.73.97 1.45 1.45 2.18-1.12 3.22-2.24 6.44-3.36 9.65-.18 1.21-.36 2.42-.55 3.62-.39 2.53-.79 5.06-1.19 7.59.44.25.87.51 1.31.76 1.03.6 2.06 1.2 3.09 1.79-.3.32-.59.63-.89.95-.72.77-1.43 1.55-2.15 2.32-.55.35-1.11.71-1.66 1.06-.77.49-1.53.98-2.3 1.47-.29.05-.58.09-.87.14-.47.08-.93.16-1.4.24-.22-.11-.44-.21-.66-.32-.64-.31-1.28-.62-1.91-.93-1.67-.82-3.34-1.63-5-2.45-.22-.03-.45-.06-.67-.09-.63-.08-1.26-.16-1.89-.24-.62-.21-1.23-.43-1.85-.64-1.15-.39-2.29-.79-3.44-1.18.29-.81.58-1.62.86-2.43.41-1.14.82-2.27 1.23-3.41.39-1.07.78-2.15 1.17-3.22.51-1.41 1.02-2.82 1.52-4.24 1.16-3.21 2.31-6.43 3.47-9.64.47-.7.93-1.41 1.4-2.11.18-.45.36-.9.55-1.35.25-.61.5-1.23.75-1.84 1.17 0 2.33 0 3.5-.01.24 0 .48 0 .72.01.41.98.82 1.97 1.23 2.95.35-.05.69-.11 1.04-.16z" fill="#b88652"/>
-    <path d="M10.65 24.57c.45-.07.91-.14 1.36-.21.3-.05.59-.09.89-.14-.37-.35-.74-.71-1.11-1.06-.44-.42-.87-.84-1.31-1.27-.35-.2-.7-.4-1.04-.6-1.07-.62-2.14-1.24-3.2-1.86-.43-.25-.86-.51-1.29-.76.39-2.53.78-5.05 1.18-7.58.18-1.19.37-2.37.55-3.56 1.09-3.13 2.18-6.26 3.27-9.39-.5-.76-1-1.51-1.51-2.27-.18-.45-.36-.9-.54-1.35-.25-.63-.5-1.26-.74-1.89-1.17 0-2.34 0-3.5-.01-.24 0-.49 0-.73.01-.41.97-.82 1.93-1.23 2.9-.37-.05-.74-.1-1.12-.16-.35-.05-.71-.11-1.06-.17-.41.98-.82 1.96-1.23 2.95-.24 0-.48 0-.72-.01-1.17.01-2.33.01-3.5.01-.25.61-.5 1.23-.75 1.84-.18.45-.36.9-.55 1.35-.47.7-.93 1.41-1.4 2.11-1.16 3.21-2.31 6.43-3.47 9.64-.5 1.41-1.01 2.83-1.52 4.24-.39 1.07-.78 2.15-1.17 3.22-.41 1.14-.82 2.27-1.23 3.41-.29.81-.58 1.62-.86 2.43 1.15.39 2.29.79 3.44 1.18.62.21 1.23.43 1.85.64.63.08 1.26.16 1.89.24.22.03.45.06.67.09 1.67.82 3.34 1.63 5 2.45.64.31 1.28.62 1.91.93.22.11.44.21.66.32.47-.08.93-.16 1.4-.24z" fill="#784d30"/>
-    <path d="M6.59 20.85c-.21.04-.43.08-.64.12-1.59.29-3.18.58-4.77.86-1.1.2-2.19.4-3.29.59.21-.45.42-.89.64-1.34.58-1.22 1.16-2.45 1.74-3.67.29-.62.58-1.24.87-1.86 1.04.04 2.08.08 3.13.11 1.45.05 2.91.1 4.36.15.1.01.2.01.3.02-.07 1.16-.13 2.32-.2 3.48-.06 1.14-.13 2.27-.19 3.41-.66-.63-1.33-1.26-1.99-1.88.01-.01.02-.01.03-.02z" fill="#e0c399"/>
-    <path d="M13.41 20.85c-.01-.01-.02-.01-.03-.02.66-.63 1.33-1.26 1.99-1.88.06 1.14.13 2.27.19 3.41.07 1.16.13 2.32.2 3.48.1.01.2.01.3.02 1.45.05 2.91.1 4.36.15 1.04.04 2.08.08 3.13.11.29-.62.58-1.24.87-1.86.58-1.22 1.16-2.45 1.74-3.67.21-.45.42-.89.64-1.34-1.1.2-2.19.4-3.29.59-1.59.29-3.18.58-4.77.86-.21.04-.43.08-.64.12z" fill="#e0c399"/>
-    <ellipse cx="6.59" cy="8.75" rx="1.74" ry="1.88" fill="#7eb866"/>
-    <ellipse cx="13.41" cy="8.75" rx="1.74" ry="1.88" fill="#7eb866"/>
-    <ellipse cx="6.59" cy="8.75" rx="0.87" ry="1.88" fill="#000000"/>
-    <ellipse cx="13.41" cy="8.75" rx="0.87" ry="1.88" fill="#000000"/>
-    <circle cx="6.16" cy="7.97" r="0.43" fill="#ffffff"/>
-    <circle cx="13.84" cy="7.97" r="0.43" fill="#ffffff"/>
-    <path d="M10 11.51c-.24 0-.48-.02-.72-.06-.24.04-.48.06-.72.06-.26 0-.51-.02-.76-.07-.03-.28-.06-.55-.09-.83.25-.04.5-.07.76-.1.27 0 .54.01.81.03.27-.02.54-.03.81-.03.25.03.5.06.76.1-.03.28-.06.55-.09.83-.25.05-.5.07-.76.07z" fill="#e8a2a2"/>
-    <path d="M10 13.75c-.36.18-.72.36-1.09.54-.22-1.19-.43-2.38-.65-3.57-.25 1.39-.5 2.78-.76 4.17.77-.38 1.54-.76 2.3-1.14.76.38 1.53.76 2.3 1.14-.25-1.39-.5-2.78-.76-4.17-.22 1.19-.43 2.38-.65 3.57-.36-.18-.72-.36-1.09-.54z" fill="#e0c399"/>
-  </svg>
+  <img src="/cat-mascot.png" alt="Cat mascot" width={size} height={size} style={{ objectFit: 'contain', ...style }} />
 )
 
 // ═══════════════════════════════════════════════════════════════
@@ -292,7 +279,7 @@ function WelcomePanel({ name, onDismiss, isFirstTime }) {
 // ═══════════════════════════════════════════════════════════════
 // HOME SCREEN
 // ═══════════════════════════════════════════════════════════════
-function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onStartLearningQuiz, onViewWords, onLogout, onBrowse, onShowHowItWorks }) {
+function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onStartLearningQuiz, onStartMasteredQuiz, onViewWords, onLogout, onBrowse, onShowHowItWorks }) {
   const stats = getStats(profile.words_introduced, srsCards)
   const today = getToday()
   const dayDone = profile.today_complete && profile.last_session_date === today
@@ -371,12 +358,18 @@ function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onSt
         </div>
 
         {/* Mastered count card */}
-        <div style={{ background: 'white', borderRadius: 16, padding: 16, border: '2px solid #F0F0F0', marginBottom: 20, textAlign: 'center', cursor: stats.mastered > 0 ? 'pointer' : 'default' }}
-          onClick={() => stats.mastered > 0 && onBrowse({ title: 'Mastered', words: masteredWords, color: C.green })}>
-          <div style={{ fontSize: 28, fontWeight: 800, color: C.green }}>{stats.mastered} <span style={{ fontSize: 28, fontWeight: 800, color: C.gray }}>/ {VOCABULARY.length}</span></div>
-          <div style={{ fontSize: 13, fontWeight: 700, color: C.grayDark, marginTop: 4 }}>Words Mastered</div>
+        <div style={{ background: 'white', borderRadius: 16, padding: 16, border: '2px solid #F0F0F0', marginBottom: 20, textAlign: 'center' }}>
+          <div onClick={() => stats.mastered > 0 && onBrowse({ title: 'Mastered', words: masteredWords, color: C.green })}
+            style={{ cursor: stats.mastered > 0 ? 'pointer' : 'default' }}>
+            <div style={{ fontSize: 28, fontWeight: 800, color: C.green }}>{stats.mastered} <span style={{ fontSize: 28, fontWeight: 800, color: C.gray }}>/ {VOCABULARY.length}</span></div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: C.grayDark, marginTop: 4 }}>Words Mastered</div>
+          </div>
           {stats.mastered === 0 && (
             <p style={{ color: C.gray, fontSize: 12, margin: '8px 0 0', lineHeight: 1.4 }}>Get a word right twice in a row to master it.</p>
+          )}
+          {stats.mastered > 0 && (
+            <button onClick={onStartMasteredQuiz}
+              style={{ display: 'block', margin: '8px auto 0', background: 'none', border: 'none', color: C.green, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline' }}>Quiz yourself →</button>
           )}
         </div>
 
@@ -405,7 +398,7 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
   const [results, setResults] = useState([])
   const [sessionNewWords, setSessionNewWords] = useState([])
   const [sessionReviewWords, setSessionReviewWords] = useState([])
-  const [isReviewQuiz, setIsReviewQuiz] = useState(initialMode === 'reviewQuiz' || initialMode === 'learningQuiz')
+  const [isReviewQuiz, setIsReviewQuiz] = useState(initialMode === 'reviewQuiz' || initialMode === 'learningQuiz' || initialMode === 'masteredQuiz')
   const [confettiKey, setConfettiKey] = useState(0)
 
   // Local mutable copy of cards for this session
@@ -423,6 +416,20 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
       setSessionNewWords([])
       setSessionReviewWords(reviewWords)
       if (reviewWords.length > 0) buildAndStartQuiz([], reviewWords)
+      else setPhase('celebration')
+    } else if (initialMode === 'masteredQuiz') {
+      // Quiz mastered words — wrong answers go back to review (rep=1)
+      const masteredWords = (localIntroduced || [])
+        .filter(w => {
+          const c = localCards[w]; if (!c) return false
+          return (parseInt(c.repetition, 10) || 0) >= 2
+        })
+        .sort(() => Math.random() - 0.5) // shuffle
+        .slice(0, 25) // max 25
+      console.log(`[MasteredQuiz] Found ${masteredWords.length} mastered words to quiz`)
+      setSessionNewWords([])
+      setSessionReviewWords(masteredWords)
+      if (masteredWords.length > 0) buildAndStartQuiz([], masteredWords)
       else setPhase('celebration')
     } else if (initialMode === 'learningQuiz') {
       const learningWords = (localIntroduced || [])
@@ -481,7 +488,12 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
     const wasCorrect = selected === correctDef
     const existing = localCards[w.word] || createSRSCard(w.word)
     console.log(`[Quiz] ${w.word}: existing rep=${existing.repetition} status=${existing.status}`)
-    const updated = updateSRSCard(existing, wasCorrect)
+    let updated = updateSRSCard(existing, wasCorrect)
+    // In mastered quiz, wrong answers go back to review (rep=1) not learning (rep=0)
+    if (initialMode === 'masteredQuiz' && !wasCorrect) {
+      updated = { ...updated, repetition: 1, status: 'review' }
+      console.log(`[MasteredQuiz] ${w.word}: demoted to review (rep=1)`)
+    }
     console.log(`[Quiz] ${w.word}: updated rep=${updated.repetition} status=${updated.status}`)
 
     // Update localCards immediately so progress is tracked per-answer
@@ -508,7 +520,10 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
       const correctDef = getWordData(w.word).definition
       const wasCorrect = selected === correctDef
       const existing = cardsToSave[w.word] || createSRSCard(w.word)
-      const updated = updateSRSCard(existing, wasCorrect)
+      let updated = updateSRSCard(existing, wasCorrect)
+      if (initialMode === 'masteredQuiz' && !wasCorrect) {
+        updated = { ...updated, repetition: 1, status: 'review' }
+      }
       cardsToSave[w.word] = updated
       allResults.push({ word: w.word, wasCorrect, newCard: updated })
     }
@@ -643,7 +658,7 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
           <div style={{ maxWidth: 400, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 12 }}>
             <button onClick={handleQuitQuiz} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.gray, fontSize: 20 }}>✕</button>
             <div style={{ flex: 1, height: 12, background: '#E5E5E5', borderRadius: 6, overflow: 'hidden' }}><div style={{ height: '100%', width: `${((qIndex + 1) / quizWords.length) * 100}%`, background: C.green, borderRadius: 6, transition: 'width 0.3s' }} /></div>
-            <span style={{ fontSize: 11, fontWeight: 700, color: C.gray }}>{initialMode === 'learningQuiz' ? 'Practice' : initialMode === 'reviewQuiz' ? 'Review' : 'Quiz'} {qIndex + 1} of {quizWords.length}</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: C.gray }}>{initialMode === 'learningQuiz' ? 'Practice' : initialMode === 'reviewQuiz' ? 'Review' : initialMode === 'masteredQuiz' ? 'Mastery Check' : 'Quiz'} {qIndex + 1} of {quizWords.length}</span>
           </div>
         </div>
         <div style={{ maxWidth: 400, margin: '0 auto', padding: 24, width: '100%', boxSizing: 'border-box' }}>
@@ -652,7 +667,8 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 20 }}>
             <h2 style={{ fontSize: 28, fontWeight: 800, color: C.blue, margin: 0 }}>{q.word}</h2>
-            {isReview && <span style={{ padding: '2px 8px', borderRadius: 8, fontSize: 10, fontWeight: 700, background: C.purpleLight, color: C.purple }}>REVIEW</span>}
+            {initialMode === 'masteredQuiz' && <span style={{ padding: '2px 8px', borderRadius: 8, fontSize: 10, fontWeight: 700, background: C.greenLight, color: C.green }}>MASTERED</span>}
+            {isReview && initialMode !== 'masteredQuiz' && <span style={{ padding: '2px 8px', borderRadius: 8, fontSize: 10, fontWeight: 700, background: C.purpleLight, color: C.purple }}>REVIEW</span>}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {q.options.map((opt, i) => {
@@ -667,17 +683,27 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
           {showFeedback && (() => {
             const existCard = localCards[q.word]
             const existRep = existCard ? (parseInt(existCard.repetition, 10) || 0) : 0
-            const willMaster = isCorrect && existRep >= 1
+            const willMaster = isCorrect && existRep >= 1 && initialMode !== 'masteredQuiz'
+            const isMasteredQuizWrong = !isCorrect && initialMode === 'masteredQuiz'
             return (
             <div style={{ background: isCorrect ? C.greenLight : C.redLight, padding: 16, borderRadius: 16, marginTop: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                 <span style={{ fontSize: 20 }}>{isCorrect ? (willMaster ? '⭐' : '✅') : '❌'}</span>
-                <span style={{ fontWeight: 800, color: isCorrect ? C.greenDark : C.red, fontSize: 16 }}>{isCorrect ? (willMaster ? 'Mastered!' : 'Correct!') : 'Not quite!'}</span>
+                <span style={{ fontWeight: 800, color: isCorrect ? C.greenDark : C.red, fontSize: 16 }}>{isCorrect ? (willMaster ? 'Mastered!' : (initialMode === 'masteredQuiz' ? 'Still got it!' : 'Correct!')) : 'Not quite!'}</span>
               </div>
               {isCorrect ? (
-                <p style={{ margin: '0 0 12px', fontSize: 13, color: C.greenDark }}>{willMaster ? "That's two in a row — this word is now mastered! 🎉" : 'Nice work! Get it right once more to master it.'}</p>
+                <p style={{ margin: '0 0 12px', fontSize: 13, color: C.greenDark }}>
+                  {willMaster ? "That's two in a row — this word is now mastered! 🎉"
+                    : initialMode === 'masteredQuiz' ? 'You know this one well!'
+                    : 'Nice work! Get it right once more to master it.'}
+                </p>
               ) : (
-                <div><p style={{ margin: '0 0 4px', color: C.red, fontSize: 13 }}><strong>{q.word}</strong> means: {data.definition}</p><p style={{ margin: '0 0 12px', fontSize: 13, color: C.red }}>You'll see this word again soon.</p></div>
+                <div>
+                  <p style={{ margin: '0 0 4px', color: C.red, fontSize: 13 }}><strong>{q.word}</strong> means: {data.definition}</p>
+                  <p style={{ margin: '0 0 12px', fontSize: 13, color: C.red }}>
+                    {isMasteredQuizWrong ? "This word moves back to your review list." : "You'll see this word again soon."}
+                  </p>
+                </div>
               )}
               <button onClick={continueQuiz} style={{ width: '100%', padding: '14px 0', background: isCorrect ? C.green : C.red, color: 'white', fontWeight: 700, fontSize: 15, border: 'none', borderRadius: 14, cursor: 'pointer' }}>Continue</button>
             </div>
@@ -747,6 +773,10 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
           <div style={{ fontSize: 13, fontWeight: 700, color: C.grayDark, marginTop: 4 }}>Words Mastered</div>
           {stats.mastered === 0 && (
             <p style={{ color: C.gray, fontSize: 12, margin: '8px 0 0', lineHeight: 1.4 }}>Get a word right twice in a row to master it.</p>
+          )}
+          {stats.mastered > 0 && (
+            <button onClick={() => onComplete('masteredQuiz')}
+              style={{ display: 'block', margin: '8px auto 0', background: 'none', border: 'none', color: C.green, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline' }}>Quiz yourself →</button>
           )}
         </div>
 
@@ -994,6 +1024,19 @@ export default function App() {
   }
 
   const startSession = (sprint) => {
+    // Periodic mastery review: every 5th session, if 10+ mastered words, do mastery quiz
+    if (!sprint && profile) {
+      const sessCount = profile.sessions_completed || 0
+      const stats = getStats(profile.words_introduced || [], srsCards)
+      if (sessCount > 0 && sessCount % 5 === 0 && stats.mastered >= 10) {
+        console.log(`[MasteryReview] Session #${sessCount + 1}: triggering mastery review (${stats.mastered} mastered)`)
+        setIsSprint(false) // counts as a real session
+        setSessionMode('masteredQuiz')
+        setSessionKey(k => k + 1)
+        setScreen('session')
+        return
+      }
+    }
     setIsSprint(sprint)
     setSessionMode('normal')
     setSessionKey(k => k + 1)
@@ -1010,6 +1053,13 @@ export default function App() {
   const startLearningQuiz = () => {
     setIsSprint(true)
     setSessionMode('learningQuiz')
+    setSessionKey(k => k + 1)
+    setScreen('session')
+  }
+
+  const startMasteredQuiz = () => {
+    setIsSprint(true)
+    setSessionMode('masteredQuiz')
     setSessionKey(k => k + 1)
     setScreen('session')
   }
@@ -1041,6 +1091,7 @@ export default function App() {
         if (action === 'sprint') { setIsSprint(true); setSessionMode('normal'); setSessionKey(k => k + 1); setScreen('session') }
         else if (action === 'reviewQuiz') { startReviewQuiz() }
         else if (action === 'learningQuiz') { startLearningQuiz() }
+        else if (action === 'masteredQuiz') { startMasteredQuiz() }
         else { setScreen('home') }
       }) }}
     />
@@ -1073,6 +1124,7 @@ export default function App() {
       onStartSession={startSession}
       onStartReviewQuiz={startReviewQuiz}
       onStartLearningQuiz={startLearningQuiz}
+      onStartMasteredQuiz={startMasteredQuiz}
       onViewWords={() => setScreen('words')}
       onLogout={handleLogout}
       onBrowse={(cat) => { setBrowseCategory(cat); setScreen('browse') }}
