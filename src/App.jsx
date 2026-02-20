@@ -72,10 +72,11 @@ const CatMascot = ({ size = 120, style = {} }) => (
 // ═══════════════════════════════════════════════════════════════
 const C = {
   green: '#58CC02', greenDark: '#4CAD00', greenLight: '#D7FFB8',
-  blue: '#1CB0F6', blueDark: '#1899D6',
+  blue: '#1CB0F6', blueDark: '#1899D6', blueLight: '#E8F5FE',
   orange: '#FF9600', orangeLight: '#FFF3E0',
   red: '#FF4B4B', redLight: '#FFE0E0',
   purple: '#CE82FF', purpleLight: '#F3E8FF',
+  gold: '#F5A623', goldDark: '#D4911E', goldLight: '#FFF5E0',
   gray: '#AFAFAF', grayLight: '#E5E5E5', grayDark: '#4B4B4B',
   white: '#FFFFFF', bg: '#F7F7F7',
 }
@@ -101,7 +102,7 @@ const FlameIcon = ({ size = 24, active = true }) => (
 )
 
 const SRSBadge = ({ interval, status }) => {
-  const colors = { new: { bg: '#E8F5FE', t: C.blue }, learning: { bg: C.orangeLight, t: C.orange }, review: { bg: C.purpleLight, t: C.purple }, mastered: { bg: C.greenLight, t: C.greenDark } }
+  const colors = { new: { bg: '#E8F5FE', t: C.blue }, learning: { bg: C.blueLight, t: C.blue }, review: { bg: C.purpleLight, t: C.purple }, mastered: { bg: C.goldLight, t: C.gold } }
   const col = colors[status] || colors.new
   const label = status === 'mastered' ? '✓ Mastered' : status === 'new' ? 'New' : `Next: ${getIntervalLabel(interval)}`
   return <span style={{ padding: '3px 10px', background: col.bg, color: col.t, borderRadius: 20, fontSize: 11, fontWeight: 700 }}>{label}</span>
@@ -190,24 +191,16 @@ function ConfettiBurst({ active }) {
 // QUIZ BUCKET ANIMATIONS
 // ═══════════════════════════════════════════════════════════════
 const BUCKET_CFG = {
-  learning: { label: 'Learning', icon: '📚', color: C.orange, liquidLight: '#FFB84D', borderActive: 'rgba(255,140,0,0.5)' },
-  review:   { label: 'Review',   icon: '🔁', color: C.purple, liquidLight: '#C084FC', borderActive: 'rgba(168,85,247,0.5)' },
-  mastered: { label: 'Mastered', icon: '⭐', color: C.green,  liquidLight: '#4ADE80', borderActive: 'rgba(34,197,94,0.5)' },
+  learning: { label: 'Learning', icon: '📚', color: C.blue, dot: '#1CB0F6', borderActive: 'rgba(28,176,246,0.5)' },
+  review:   { label: 'Review',   icon: '🔁', color: C.purple, dot: '#CE82FF', borderActive: 'rgba(168,85,247,0.5)' },
+  mastered: { label: 'Mastered', icon: '⭐', color: C.gold, dot: '#F5A623', borderActive: 'rgba(245,166,35,0.5)' },
 }
 
 const BUCKET_ANIM_CSS = `
-@keyframes bucket-wave { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(8px); } }
-@keyframes bucket-splash {
-  0% { width: 6px; height: 6px; opacity: 1; }
-  50% { width: 40px; height: 8px; opacity: 0.6; border-radius: 50%; margin-left: -17px; }
-  100% { width: 60px; height: 4px; opacity: 0; border-radius: 50%; margin-left: -27px; }
-}
-@keyframes bucket-floatSink {
-  0% { opacity: 0; transform: translateX(-50%) translateY(8px) scale(0.6); }
-  15% { opacity: 1; transform: translateX(-50%) translateY(-6px) scale(1.1); }
-  30% { transform: translateX(-50%) translateY(0px) scale(1); }
-  70% { opacity: 1; transform: translateX(-50%) translateY(2px) scale(1); }
-  100% { opacity: 0; transform: translateX(-50%) translateY(8px) scale(0.7); }
+@keyframes bucket-dotPop {
+  0% { transform: scale(0); opacity: 0; }
+  50% { transform: scale(2); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
 }
 `
 
@@ -216,13 +209,14 @@ function FlyingPill({ word, from, to, color, onDone }) {
   useEffect(() => {
     const el = ref.current; if (!el) return
     el.style.left = from.x + 'px'; el.style.top = from.y + 'px'
-    el.style.transform = 'scale(1) rotate(0deg)'; el.style.opacity = '1'
+    el.style.transform = 'scale(1)'; el.style.opacity = '1'
     requestAnimationFrame(() => requestAnimationFrame(() => {
-      el.style.transition = 'all 0.55s cubic-bezier(0.22, 1.2, 0.36, 1)'
+      el.style.transition = 'all 0.6s cubic-bezier(0.22, 1.2, 0.36, 1)'
       el.style.left = to.x + 'px'; el.style.top = to.y + 'px'
-      el.style.transform = 'scale(0.7) rotate(6deg)'
+      el.style.transform = 'scale(0.15)' // shrink to dot size
+      el.style.opacity = '0.8'
     }))
-    const t = setTimeout(onDone, 600)
+    const t = setTimeout(onDone, 650)
     return () => clearTimeout(t)
   }, [])
   return (
@@ -236,78 +230,48 @@ function FlyingPill({ word, from, to, color, onDone }) {
   )
 }
 
-function QuizBucket({ cfg, count, totalWords, recentWord, ripple, isTarget, innerRef }) {
-  const fillPct = Math.min((count / totalWords) * 100, 100)
-  const visualFill = count > 0 ? Math.max(fillPct, 8) : 0
+function QuizBucket({ cfg, count, totalWords, newDotKey, isTarget, innerRef }) {
   return (
     <div ref={innerRef} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 5 }}>
         <span style={{ fontSize: 11 }}>{cfg.icon}</span>
         <span style={{ fontSize: 9, fontWeight: 800, color: cfg.color, letterSpacing: 0.5, textTransform: 'uppercase' }}>{cfg.label}</span>
+        <span style={{
+          fontSize: 9, fontWeight: 900, color: cfg.color,
+          background: cfg.color + '18', padding: '1px 5px', borderRadius: 6,
+        }}>{count}</span>
       </div>
       <div style={{
-        width: '100%', height: 80, position: 'relative',
-        borderRadius: '10px 10px 14px 14px',
-        border: `2px solid ${isTarget ? cfg.borderActive : '#E5E5E5'}`,
+        width: '100%', height: 72, position: 'relative',
+        borderRadius: 12,
+        border: `2px solid ${isTarget ? cfg.borderActive : '#E8E8E8'}`,
         background: 'white', overflow: 'hidden',
         transition: 'border-color 0.3s, box-shadow 0.3s',
-        boxShadow: isTarget ? `0 0 16px ${cfg.color}20, inset 0 0 16px ${cfg.color}06` : '0 2px 8px rgba(0,0,0,0.04)',
+        boxShadow: isTarget ? `0 0 16px ${cfg.color}25` : '0 1px 4px rgba(0,0,0,0.04)',
+        padding: 3,
       }}>
-        {/* Liquid fill */}
+        {/* Dot grid */}
         <div style={{
-          position: 'absolute', bottom: 0, left: 0, right: 0,
-          height: `${visualFill}%`,
-          background: `linear-gradient(180deg, ${cfg.liquidLight}40 0%, ${cfg.color}50 100%)`,
-          transition: 'height 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)',
-          borderRadius: '0 0 12px 12px',
+          display: 'flex', flexWrap: 'wrap', alignContent: 'flex-end',
+          width: '100%', height: '100%', gap: 1.5,
         }}>
-          {count > 0 && (
-            <div style={{
-              position: 'absolute', top: -4, left: '-10%', right: '-10%', height: 10,
-              background: `radial-gradient(ellipse at 30% 50%, ${cfg.liquidLight}50 0%, transparent 70%), radial-gradient(ellipse at 70% 50%, ${cfg.liquidLight}40 0%, transparent 70%)`,
-              animation: 'bucket-wave 3s ease-in-out infinite',
+          {Array.from({ length: count }, (_, i) => (
+            <div key={i} style={{
+              width: 3.5, height: 3.5, borderRadius: '50%',
+              background: cfg.dot,
+              opacity: 0.75,
+              animation: (newDotKey && i === count - 1) ? 'bucket-dotPop 0.4s cubic-bezier(0.34,1.56,0.64,1)' : 'none',
             }} />
-          )}
+          ))}
         </div>
-        {/* Ripple splash */}
-        {ripple && (
+        {/* Empty state */}
+        {count === 0 && (
           <div style={{
-            position: 'absolute', bottom: `${visualFill}%`, left: '50%',
-            transform: 'translateX(-50%)', width: 6, height: 6,
-            borderRadius: '50%', background: cfg.color,
-            animation: 'bucket-splash 0.5s ease-out forwards', zIndex: 3,
-          }} />
-        )}
-        {/* Count */}
-        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 2 }}>
-          <div style={{
-            fontSize: count > 99 ? 22 : 26, fontWeight: 900, color: count > 0 ? cfg.color : '#E0E0E0',
-            lineHeight: 1, transition: 'all 0.3s',
-          }}>{count}</div>
-          {count > 0 && (
-            <div style={{ fontSize: 8, fontWeight: 700, color: C.gray, marginTop: 2 }}>word{count !== 1 ? 's' : ''}</div>
-          )}
-        </div>
-        {/* Recent arrival floating */}
-        {recentWord && (
-          <div style={{
-            position: 'absolute', bottom: `${Math.max(visualFill - 2, 4)}%`,
-            left: '50%', transform: 'translateX(-50%)', zIndex: 4,
-            animation: 'bucket-floatSink 1.8s ease forwards',
+            position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
-            <div style={{
-              background: cfg.color, color: '#fff', padding: '2px 8px',
-              borderRadius: 50, fontSize: 8, fontWeight: 800, whiteSpace: 'nowrap',
-              boxShadow: `0 2px 10px ${cfg.color}60`,
-            }}>{recentWord}</div>
+            <span style={{ fontSize: 9, color: '#D5D5D5', fontWeight: 600 }}>—</span>
           </div>
         )}
-        {/* Glass highlight */}
-        <div style={{
-          position: 'absolute', top: 0, left: 0, right: 0, height: '40%',
-          background: 'linear-gradient(180deg, rgba(255,255,255,0.5) 0%, transparent 100%)',
-          borderRadius: '10px 10px 0 0', pointerEvents: 'none',
-        }} />
       </div>
     </div>
   )
@@ -411,7 +375,7 @@ function WelcomePanel({ name, onDismiss, isFirstTime }) {
           <div style={{ background: 'white', borderRadius: 16, padding: 16, border: '2px solid #F0F0F0' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
               <span style={{ fontSize: 24 }}>📚</span>
-              <span style={{ fontSize: 16, fontWeight: 800, color: C.orange }}>Learning</span>
+              <span style={{ fontSize: 16, fontWeight: 800, color: C.blue }}>Learning</span>
             </div>
             <p style={{ color: C.gray, fontSize: 13, margin: 0, lineHeight: 1.5 }}>
               New words start here. You'll see them on flashcards, then answer a quiz. Get one wrong? It stays here until you nail it.
@@ -439,7 +403,7 @@ function WelcomePanel({ name, onDismiss, isFirstTime }) {
           <div style={{ background: 'white', borderRadius: 16, padding: 16, border: '2px solid #F0F0F0' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
               <span style={{ fontSize: 24 }}>⭐</span>
-              <span style={{ fontSize: 16, fontWeight: 800, color: C.green }}>Mastered</span>
+              <span style={{ fontSize: 16, fontWeight: 800, color: C.gold }}>Mastered</span>
             </div>
             <p style={{ color: C.gray, fontSize: 13, margin: 0, lineHeight: 1.5 }}>
               You know it! Two correct answers in a row means this word is yours. Keep going until all 1,000 are here!
@@ -514,15 +478,15 @@ function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onSt
         <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
           {/* Learning panel */}
           <div style={{ flex: 1, background: 'white', borderRadius: 16, padding: '14px 12px', border: '2px solid #F0F0F0' }}>
-            <div onClick={() => learningWords.length > 0 && onBrowse({ title: 'Learning', words: learningWords, color: C.orange })}
+            <div onClick={() => learningWords.length > 0 && onBrowse({ title: 'Learning', words: learningWords, color: C.blue })}
               style={{ cursor: learningWords.length > 0 ? 'pointer' : 'default' }}>
-              <div style={{ fontSize: 22, fontWeight: 800, color: C.orange, textAlign: 'center' }}>{stats.learning}</div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: C.blue, textAlign: 'center' }}>{stats.learning}</div>
               <div style={{ fontSize: 12, fontWeight: 700, color: C.grayDark, textAlign: 'center', marginTop: 2 }}>Learning</div>
               <p style={{ fontSize: 11, color: C.gray, textAlign: 'center', margin: '6px 0 0', lineHeight: 1.3 }}>Words you've gotten wrong</p>
             </div>
             {stats.learning > 0 && (
               <button onClick={onStartLearningQuiz}
-                style={{ display: 'block', margin: '8px auto 0', background: 'none', border: 'none', color: C.orange, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline' }}>Practice them →</button>
+                style={{ display: 'block', margin: '8px auto 0', background: 'none', border: 'none', color: C.blue, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline' }}>Practice them →</button>
             )}
           </div>
           {/* Reviewing panel */}
@@ -542,9 +506,9 @@ function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onSt
 
         {/* Mastered count card */}
         <div style={{ background: 'white', borderRadius: 16, padding: 16, border: '2px solid #F0F0F0', marginBottom: 20, textAlign: 'center' }}>
-          <div onClick={() => stats.mastered > 0 && onBrowse({ title: 'Mastered', words: masteredWords, color: C.green })}
+          <div onClick={() => stats.mastered > 0 && onBrowse({ title: 'Mastered', words: masteredWords, color: C.gold })}
             style={{ cursor: stats.mastered > 0 ? 'pointer' : 'default' }}>
-            <div style={{ fontSize: 28, fontWeight: 800, color: C.green }}>{stats.mastered} <span style={{ fontSize: 28, fontWeight: 800, color: C.gray }}>/ {VOCABULARY.length}</span></div>
+            <div style={{ fontSize: 28, fontWeight: 800, color: C.gold }}>{stats.mastered} <span style={{ fontSize: 28, fontWeight: 800, color: C.gray }}>/ {VOCABULARY.length}</span></div>
             <div style={{ fontSize: 13, fontWeight: 700, color: C.grayDark, marginTop: 4 }}>Words Mastered</div>
           </div>
           {stats.mastered === 0 && (
@@ -552,7 +516,7 @@ function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onSt
           )}
           {stats.mastered > 0 && (
             <button onClick={onStartMasteredQuiz}
-              style={{ display: 'block', margin: '8px auto 0', background: 'none', border: 'none', color: C.green, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline' }}>Quiz yourself →</button>
+              style={{ display: 'block', margin: '8px auto 0', background: 'none', border: 'none', color: C.gold, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline' }}>Quiz yourself →</button>
           )}
         </div>
 
@@ -586,8 +550,7 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
 
   // Bucket animation state
   const [flyingPill, setFlyingPill] = useState(null)
-  const [bucketRecent, setBucketRecent] = useState({ learning: null, review: null, mastered: null })
-  const [bucketRipple, setBucketRipple] = useState({ learning: false, review: false, mastered: false })
+  const [newDotKeys, setNewDotKeys] = useState({ learning: 0, review: 0, mastered: 0 })
   const bucketRefs = { learning: useRef(null), review: useRef(null), mastered: useRef(null) }
   const wordCardRef = useRef(null)
 
@@ -621,10 +584,7 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
   const onFlyDone = useCallback(() => {
     if (!flyingPill) return
     const { target } = flyingPill
-    setBucketRipple(p => ({ ...p, [target]: true }))
-    setTimeout(() => setBucketRipple(p => ({ ...p, [target]: false })), 600)
-    setBucketRecent(p => ({ ...p, [target]: flyingPill.word }))
-    setTimeout(() => setBucketRecent(p => ({ ...p, [target]: null })), 1800)
+    setNewDotKeys(p => ({ ...p, [target]: p[target] + 1 }))
     setFlyingPill(null)
   }, [flyingPill])
 
@@ -923,8 +883,7 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
                 cfg={cfg}
                 count={liveBuckets[key]}
                 totalWords={VOCABULARY.length}
-                recentWord={bucketRecent[key]}
-                ripple={bucketRipple[key]}
+                newDotKey={newDotKeys[key]}
                 isTarget={flyingPill?.target === key}
                 innerRef={bucketRefs[key]}
               />
@@ -937,9 +896,9 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
               <span style={{ fontSize: 16 }}>✍️</span><p style={{ color: C.grayDark, fontWeight: 700, fontSize: 16, margin: 0 }}>What does this word mean?</p>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 20 }}>
-              <h2 style={{ fontSize: 28, fontWeight: 800, color: C.blue, margin: 0 }}>{q.word}</h2>
+              <h2 style={{ fontSize: 28, fontWeight: 800, color: curBucket ? BUCKET_CFG[curBucket].color : C.green, margin: 0 }}>{q.word}</h2>
               {curBucket && (
-                <span style={{ padding: '2px 8px', borderRadius: 8, fontSize: 10, fontWeight: 700, background: BUCKET_CFG[curBucket].color + '20', color: BUCKET_CFG[curBucket].color }}>
+                <span style={{ padding: '2px 8px', borderRadius: 8, fontSize: 10, fontWeight: 700, background: BUCKET_CFG[curBucket].color + '18', color: BUCKET_CFG[curBucket].color }}>
                   {BUCKET_CFG[curBucket].label.toUpperCase()}
                 </span>
               )}
@@ -1022,12 +981,12 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
         <div style={{ width: '100%', maxWidth: 340, display: 'flex', gap: 8, marginBottom: 16 }}>
           {/* Learning panel */}
           <div style={{ flex: 1, background: 'white', borderRadius: 16, padding: '14px 12px', border: '2px solid #F0F0F0' }}>
-            <div style={{ fontSize: 22, fontWeight: 800, color: C.orange, textAlign: 'center' }}>{stats.learning}</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: C.blue, textAlign: 'center' }}>{stats.learning}</div>
             <div style={{ fontSize: 12, fontWeight: 700, color: C.grayDark, textAlign: 'center', marginTop: 2 }}>Learning</div>
             <p style={{ fontSize: 11, color: C.gray, textAlign: 'center', margin: '6px 0 0', lineHeight: 1.3 }}>Words you've gotten wrong</p>
             {stats.learning > 0 && (
               <button onClick={() => onComplete('learningQuiz')}
-                style={{ display: 'block', margin: '8px auto 0', background: 'none', border: 'none', color: C.orange, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline' }}>Practice them →</button>
+                style={{ display: 'block', margin: '8px auto 0', background: 'none', border: 'none', color: C.blue, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline' }}>Practice them →</button>
             )}
           </div>
           {/* Reviewing panel */}
@@ -1044,14 +1003,14 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
 
         {/* Mastered count card */}
         <div style={{ width: '100%', maxWidth: 340, background: 'white', borderRadius: 16, padding: 16, border: '2px solid #F0F0F0', marginBottom: 24, textAlign: 'center' }}>
-          <div style={{ fontSize: 28, fontWeight: 800, color: C.green }}>{stats.mastered} <span style={{ fontSize: 28, fontWeight: 800, color: C.gray }}>/ {VOCABULARY.length}</span></div>
+          <div style={{ fontSize: 28, fontWeight: 800, color: C.gold }}>{stats.mastered} <span style={{ fontSize: 28, fontWeight: 800, color: C.gray }}>/ {VOCABULARY.length}</span></div>
           <div style={{ fontSize: 13, fontWeight: 700, color: C.grayDark, marginTop: 4 }}>Words Mastered</div>
           {stats.mastered === 0 && (
             <p style={{ color: C.gray, fontSize: 12, margin: '8px 0 0', lineHeight: 1.4 }}>Get a word right twice in a row to master it.</p>
           )}
           {stats.mastered > 0 && (
             <button onClick={() => onComplete('masteredQuiz')}
-              style={{ display: 'block', margin: '8px auto 0', background: 'none', border: 'none', color: C.green, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline' }}>Quiz yourself →</button>
+              style={{ display: 'block', margin: '8px auto 0', background: 'none', border: 'none', color: C.gold, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline' }}>Quiz yourself →</button>
           )}
         </div>
 
@@ -1079,10 +1038,10 @@ function WordListScreen({ profile, srsCards, onBack }) {
   const reviewing = allWords.filter(w => (parseInt(srsCards[w]?.repetition, 10) || 0) === 1)
   const mastered = allWords.filter(w => (parseInt(srsCards[w]?.repetition, 10) || 0) >= 2)
   const tabs = [
-    { id: 'all', label: 'All', count: allWords.length, color: C.blue },
-    { id: 'learning', label: 'Learning', count: learning.length, color: C.orange },
+    { id: 'all', label: 'All', count: allWords.length, color: C.grayDark },
+    { id: 'learning', label: 'Learning', count: learning.length, color: C.blue },
     { id: 'review', label: 'Reviewing', count: reviewing.length, color: C.purple },
-    { id: 'mastered', label: 'Mastered', count: mastered.length, color: C.green },
+    { id: 'mastered', label: 'Mastered', count: mastered.length, color: C.gold },
   ]
   const currentWords = tab === 'all' ? allWords : tab === 'learning' ? learning : tab === 'review' ? reviewing : mastered
   return (
