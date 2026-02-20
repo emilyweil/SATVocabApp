@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { supabase } from './lib/supabase.js'
 import { getProfile, updateProfile, createProfile, getSRSCards, upsertSRSCards } from './lib/db.js'
 import { getToday, createSRSCard, updateSRSCard, isDueForReview, getIntervalLabel, buildDailySession, getStats } from './lib/srs.js'
@@ -182,6 +182,133 @@ function ConfettiBurst({ active }) {
           }} />
         )
       })}
+    </div>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════
+// QUIZ BUCKET ANIMATIONS
+// ═══════════════════════════════════════════════════════════════
+const BUCKET_CFG = {
+  learning: { label: 'Learning', icon: '📚', color: C.orange, liquidLight: '#FFB84D', borderActive: 'rgba(255,140,0,0.5)' },
+  review:   { label: 'Review',   icon: '🔁', color: C.purple, liquidLight: '#C084FC', borderActive: 'rgba(168,85,247,0.5)' },
+  mastered: { label: 'Mastered', icon: '⭐', color: C.green,  liquidLight: '#4ADE80', borderActive: 'rgba(34,197,94,0.5)' },
+}
+
+const BUCKET_ANIM_CSS = `
+@keyframes bucket-wave { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(8px); } }
+@keyframes bucket-splash {
+  0% { width: 6px; height: 6px; opacity: 1; }
+  50% { width: 40px; height: 8px; opacity: 0.6; border-radius: 50%; margin-left: -17px; }
+  100% { width: 60px; height: 4px; opacity: 0; border-radius: 50%; margin-left: -27px; }
+}
+@keyframes bucket-floatSink {
+  0% { opacity: 0; transform: translateX(-50%) translateY(8px) scale(0.6); }
+  15% { opacity: 1; transform: translateX(-50%) translateY(-6px) scale(1.1); }
+  30% { transform: translateX(-50%) translateY(0px) scale(1); }
+  70% { opacity: 1; transform: translateX(-50%) translateY(2px) scale(1); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(8px) scale(0.7); }
+}
+`
+
+function FlyingPill({ word, from, to, color, onDone }) {
+  const ref = useRef(null)
+  useEffect(() => {
+    const el = ref.current; if (!el) return
+    el.style.left = from.x + 'px'; el.style.top = from.y + 'px'
+    el.style.transform = 'scale(1) rotate(0deg)'; el.style.opacity = '1'
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      el.style.transition = 'all 0.55s cubic-bezier(0.22, 1.2, 0.36, 1)'
+      el.style.left = to.x + 'px'; el.style.top = to.y + 'px'
+      el.style.transform = 'scale(0.7) rotate(6deg)'
+    }))
+    const t = setTimeout(onDone, 600)
+    return () => clearTimeout(t)
+  }, [])
+  return (
+    <div ref={ref} style={{ position: 'fixed', zIndex: 9999, pointerEvents: 'none', opacity: 0 }}>
+      <div style={{
+        background: color, color: '#fff', padding: '5px 14px', borderRadius: 50,
+        fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap',
+        boxShadow: `0 8px 32px ${color}60, 0 2px 8px rgba(0,0,0,0.15)`,
+      }}>{word}</div>
+    </div>
+  )
+}
+
+function QuizBucket({ cfg, count, totalWords, recentWord, ripple, isTarget, innerRef }) {
+  const fillPct = Math.min((count / totalWords) * 100, 100)
+  const visualFill = count > 0 ? Math.max(fillPct, 8) : 0
+  return (
+    <div ref={innerRef} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 5 }}>
+        <span style={{ fontSize: 11 }}>{cfg.icon}</span>
+        <span style={{ fontSize: 9, fontWeight: 800, color: cfg.color, letterSpacing: 0.5, textTransform: 'uppercase' }}>{cfg.label}</span>
+      </div>
+      <div style={{
+        width: '100%', height: 80, position: 'relative',
+        borderRadius: '10px 10px 14px 14px',
+        border: `2px solid ${isTarget ? cfg.borderActive : '#E5E5E5'}`,
+        background: 'white', overflow: 'hidden',
+        transition: 'border-color 0.3s, box-shadow 0.3s',
+        boxShadow: isTarget ? `0 0 16px ${cfg.color}20, inset 0 0 16px ${cfg.color}06` : '0 2px 8px rgba(0,0,0,0.04)',
+      }}>
+        {/* Liquid fill */}
+        <div style={{
+          position: 'absolute', bottom: 0, left: 0, right: 0,
+          height: `${visualFill}%`,
+          background: `linear-gradient(180deg, ${cfg.liquidLight}40 0%, ${cfg.color}50 100%)`,
+          transition: 'height 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)',
+          borderRadius: '0 0 12px 12px',
+        }}>
+          {count > 0 && (
+            <div style={{
+              position: 'absolute', top: -4, left: '-10%', right: '-10%', height: 10,
+              background: `radial-gradient(ellipse at 30% 50%, ${cfg.liquidLight}50 0%, transparent 70%), radial-gradient(ellipse at 70% 50%, ${cfg.liquidLight}40 0%, transparent 70%)`,
+              animation: 'bucket-wave 3s ease-in-out infinite',
+            }} />
+          )}
+        </div>
+        {/* Ripple splash */}
+        {ripple && (
+          <div style={{
+            position: 'absolute', bottom: `${visualFill}%`, left: '50%',
+            transform: 'translateX(-50%)', width: 6, height: 6,
+            borderRadius: '50%', background: cfg.color,
+            animation: 'bucket-splash 0.5s ease-out forwards', zIndex: 3,
+          }} />
+        )}
+        {/* Count */}
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 2 }}>
+          <div style={{
+            fontSize: count > 99 ? 22 : 26, fontWeight: 900, color: count > 0 ? cfg.color : '#E0E0E0',
+            lineHeight: 1, transition: 'all 0.3s',
+          }}>{count}</div>
+          {count > 0 && (
+            <div style={{ fontSize: 8, fontWeight: 700, color: C.gray, marginTop: 2 }}>word{count !== 1 ? 's' : ''}</div>
+          )}
+        </div>
+        {/* Recent arrival floating */}
+        {recentWord && (
+          <div style={{
+            position: 'absolute', bottom: `${Math.max(visualFill - 2, 4)}%`,
+            left: '50%', transform: 'translateX(-50%)', zIndex: 4,
+            animation: 'bucket-floatSink 1.8s ease forwards',
+          }}>
+            <div style={{
+              background: cfg.color, color: '#fff', padding: '2px 8px',
+              borderRadius: 50, fontSize: 8, fontWeight: 800, whiteSpace: 'nowrap',
+              boxShadow: `0 2px 10px ${cfg.color}60`,
+            }}>{recentWord}</div>
+          </div>
+        )}
+        {/* Glass highlight */}
+        <div style={{
+          position: 'absolute', top: 0, left: 0, right: 0, height: '40%',
+          background: 'linear-gradient(180deg, rgba(255,255,255,0.5) 0%, transparent 100%)',
+          borderRadius: '10px 10px 0 0', pointerEvents: 'none',
+        }} />
+      </div>
     </div>
   )
 }
@@ -457,9 +584,49 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
   const [isReviewQuiz, setIsReviewQuiz] = useState(initialMode === 'reviewQuiz' || initialMode === 'learningQuiz' || initialMode === 'masteredQuiz')
   const [confettiKey, setConfettiKey] = useState(0)
 
+  // Bucket animation state
+  const [flyingPill, setFlyingPill] = useState(null)
+  const [bucketRecent, setBucketRecent] = useState({ learning: null, review: null, mastered: null })
+  const [bucketRipple, setBucketRipple] = useState({ learning: false, review: false, mastered: false })
+  const bucketRefs = { learning: useRef(null), review: useRef(null), mastered: useRef(null) }
+  const wordCardRef = useRef(null)
+
   // Local mutable copy of cards for this session
   const [localCards, setLocalCards] = useState({ ...srsCards })
   const [localIntroduced, setLocalIntroduced] = useState([...(profile.words_introduced || [])])
+
+  // Compute live bucket counts from localCards
+  const liveBuckets = useMemo(() => {
+    let learning = 0, review = 0, mastered = 0
+    localIntroduced.forEach(w => {
+      const c = localCards[w]; if (!c) return
+      const rep = parseInt(c.repetition, 10) || 0
+      if (rep >= 2) mastered++
+      else if (rep === 1) review++
+      else learning++
+    })
+    return { learning, review, mastered }
+  }, [localCards, localIntroduced])
+
+  // Determine which bucket a word currently sits in
+  const getBucket = (word) => {
+    const c = localCards[word]; if (!c) return null
+    const rep = parseInt(c.repetition, 10) || 0
+    if (rep >= 2) return 'mastered'
+    if (rep === 1) return 'review'
+    return 'learning'
+  }
+
+  // Handle flying pill landing in bucket
+  const onFlyDone = useCallback(() => {
+    if (!flyingPill) return
+    const { target } = flyingPill
+    setBucketRipple(p => ({ ...p, [target]: true }))
+    setTimeout(() => setBucketRipple(p => ({ ...p, [target]: false })), 600)
+    setBucketRecent(p => ({ ...p, [target]: flyingPill.word }))
+    setTimeout(() => setBucketRecent(p => ({ ...p, [target]: null })), 1800)
+    setFlyingPill(null)
+  }, [flyingPill])
 
   useEffect(() => {
     if (initialMode === 'reviewQuiz') {
@@ -526,16 +693,42 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
     if (showFeedback) return
     setSelected(ans)
     setShowFeedback(true)
-    // Check if this answer masters the word
+    // Determine target bucket for animation
     const q = quizWords[qIndex]
     const correctDef = getWordData(q.word).definition
-    if (ans === correctDef) {
-      const existCard = localCards[q.word]
-      const existRep = existCard ? (parseInt(existCard.repetition, 10) || 0) : 0
-      if (existRep >= 1) {
-        setConfettiKey(k => k + 1) // trigger confetti!
-      }
+    const isCorrect = ans === correctDef
+    const existCard = localCards[q.word]
+    const existRep = existCard ? (parseInt(existCard.repetition, 10) || 0) : 0
+
+    // Confetti if mastering
+    if (isCorrect && existRep >= 1 && initialMode !== 'masteredQuiz') {
+      setConfettiKey(k => k + 1)
     }
+
+    // Compute what bucket the word will land in after this answer
+    let targetBucket
+    if (isCorrect) {
+      if (existRep >= 1) targetBucket = 'mastered'
+      else targetBucket = 'review'
+    } else {
+      if (initialMode === 'masteredQuiz') targetBucket = 'review'
+      else targetBucket = 'learning'
+    }
+
+    // Launch flying pill after a beat
+    setTimeout(() => {
+      const fromEl = wordCardRef.current
+      const toEl = bucketRefs[targetBucket]?.current
+      if (!fromEl || !toEl) return
+      const fR = fromEl.getBoundingClientRect()
+      const tR = toEl.getBoundingClientRect()
+      setFlyingPill({
+        word: q.word, target: targetBucket,
+        from: { x: fR.left + fR.width / 2 - 36, y: fR.top + 10 },
+        to: { x: tR.left + tR.width / 2 - 36, y: tR.top + 30 },
+        color: BUCKET_CFG[targetBucket].color,
+      })
+    }, 400)
   }
 
   const continueQuiz = () => {
@@ -707,9 +900,12 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
     const isCorrect = selected === data.definition
     const existingCard = localCards[q.word]
     const isReview = existingCard && existingCard.status !== 'new'
+    const curBucket = getBucket(q.word)
     return (
       <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', flexDirection: 'column' }}>
+        <style>{BUCKET_ANIM_CSS}</style>
         <ConfettiBurst active={confettiKey} />
+        {flyingPill && <FlyingPill {...flyingPill} onDone={onFlyDone} />}
         <div style={{ background: 'white', padding: '12px 20px', borderBottom: '2px solid #F0F0F0' }}>
           <div style={{ maxWidth: 400, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 12 }}>
             <button onClick={handleQuitQuiz} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.gray, fontSize: 20 }}>✕</button>
@@ -717,14 +913,37 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
             <span style={{ fontSize: 11, fontWeight: 700, color: C.gray }}>{initialMode === 'learningQuiz' ? 'Practice' : initialMode === 'reviewQuiz' ? 'Review' : initialMode === 'masteredQuiz' ? 'Mastery Check' : 'Quiz'} {qIndex + 1} of {quizWords.length}</span>
           </div>
         </div>
-        <div style={{ maxWidth: 400, margin: '0 auto', padding: 24, width: '100%', boxSizing: 'border-box' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-            <span style={{ fontSize: 16 }}>✍️</span><p style={{ color: C.grayDark, fontWeight: 700, fontSize: 16, margin: 0 }}>What does this word mean?</p>
+        <div style={{ maxWidth: 400, margin: '0 auto', padding: '16px 16px 24px', width: '100%', boxSizing: 'border-box' }}>
+
+          {/* ── Buckets ── */}
+          <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+            {Object.entries(BUCKET_CFG).map(([key, cfg]) => (
+              <QuizBucket
+                key={key}
+                cfg={cfg}
+                count={liveBuckets[key]}
+                totalWords={VOCABULARY.length}
+                recentWord={bucketRecent[key]}
+                ripple={bucketRipple[key]}
+                isTarget={flyingPill?.target === key}
+                innerRef={bucketRefs[key]}
+              />
+            ))}
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 20 }}>
-            <h2 style={{ fontSize: 28, fontWeight: 800, color: C.blue, margin: 0 }}>{q.word}</h2>
-            {initialMode === 'masteredQuiz' && <span style={{ padding: '2px 8px', borderRadius: 8, fontSize: 10, fontWeight: 700, background: C.greenLight, color: C.green }}>MASTERED</span>}
-            {isReview && initialMode !== 'masteredQuiz' && <span style={{ padding: '2px 8px', borderRadius: 8, fontSize: 10, fontWeight: 700, background: C.purpleLight, color: C.purple }}>REVIEW</span>}
+
+          {/* ── Word card ── */}
+          <div ref={wordCardRef}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+              <span style={{ fontSize: 16 }}>✍️</span><p style={{ color: C.grayDark, fontWeight: 700, fontSize: 16, margin: 0 }}>What does this word mean?</p>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 20 }}>
+              <h2 style={{ fontSize: 28, fontWeight: 800, color: C.blue, margin: 0 }}>{q.word}</h2>
+              {curBucket && (
+                <span style={{ padding: '2px 8px', borderRadius: 8, fontSize: 10, fontWeight: 700, background: BUCKET_CFG[curBucket].color + '20', color: BUCKET_CFG[curBucket].color }}>
+                  {BUCKET_CFG[curBucket].label.toUpperCase()}
+                </span>
+              )}
+            </div>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {q.options.map((opt, i) => {
