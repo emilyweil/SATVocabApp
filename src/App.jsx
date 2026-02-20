@@ -191,40 +191,70 @@ function ConfettiBurst({ active }) {
 // QUIZ BUCKET ANIMATIONS
 // ═══════════════════════════════════════════════════════════════
 const BUCKET_CFG = {
-  learning: { label: 'Learning', icon: '📚', color: C.blue, dot: '#1CB0F6', borderActive: 'rgba(28,176,246,0.5)' },
-  review:   { label: 'Review',   icon: '🔁', color: C.purple, dot: '#CE82FF', borderActive: 'rgba(168,85,247,0.5)' },
-  mastered: { label: 'Mastered', icon: '⭐', color: C.gold, dot: '#F5A623', borderActive: 'rgba(245,166,35,0.5)' },
+  learning: { label: 'Learning', icon: '📚', color: C.blue, dot: '#9DD7FB', borderActive: 'rgba(28,176,246,0.5)' },
+  review:   { label: 'Review',   icon: '🔁', color: C.purple, dot: '#E2BFFF', borderActive: 'rgba(168,85,247,0.5)' },
+  mastered: { label: 'Mastered', icon: '⭐', color: C.gold, dot: '#FCCF7E', borderActive: 'rgba(245,166,35,0.5)' },
 }
 
 const BUCKET_ANIM_CSS = `
 @keyframes bucket-dotPop {
   0% { transform: scale(0); opacity: 0; }
-  50% { transform: scale(2); opacity: 1; }
+  50% { transform: scale(2.2); opacity: 1; }
   100% { transform: scale(1); opacity: 1; }
 }
 `
 
-function FlyingPill({ word, from, to, color, onDone }) {
-  const ref = useRef(null)
+function FlyingPill({ word, from, to, sourceColor, targetColor, onDone }) {
+  const outerRef = useRef(null)
+  const pillRef = useRef(null)
   useEffect(() => {
-    const el = ref.current; if (!el) return
-    el.style.left = from.x + 'px'; el.style.top = from.y + 'px'
-    el.style.transform = 'scale(1)'; el.style.opacity = '1'
+    const outer = outerRef.current
+    const pill = pillRef.current
+    if (!outer || !pill) return
+
+    // Phase 1: fly to bucket at readable size, in source color
+    outer.style.left = from.x + 'px'
+    outer.style.top = from.y + 'px'
+    outer.style.opacity = '1'
+    pill.style.background = sourceColor
+    pill.style.boxShadow = `0 6px 24px ${sourceColor}60, 0 2px 8px rgba(0,0,0,0.12)`
+
     requestAnimationFrame(() => requestAnimationFrame(() => {
-      el.style.transition = 'all 0.6s cubic-bezier(0.22, 1.2, 0.36, 1)'
-      el.style.left = to.x + 'px'; el.style.top = to.y + 'px'
-      el.style.transform = 'scale(0.15)' // shrink to dot size
-      el.style.opacity = '0.8'
+      outer.style.transition = 'left 0.55s cubic-bezier(0.22, 1.15, 0.36, 1), top 0.55s cubic-bezier(0.22, 1.15, 0.36, 1)'
+      outer.style.left = to.x + 'px'
+      outer.style.top = to.y + 'px'
     }))
-    const t = setTimeout(onDone, 650)
-    return () => clearTimeout(t)
+
+    // Phase 2: after arriving, shift color and shrink to dot
+    const shrinkTimer = setTimeout(() => {
+      pill.style.transition = 'all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)'
+      pill.style.background = targetColor
+      pill.style.boxShadow = `0 2px 8px ${targetColor}60`
+      pill.style.padding = '0'
+      pill.style.fontSize = '0px'
+      pill.style.width = '5px'
+      pill.style.height = '5px'
+      pill.style.minWidth = '5px'
+      pill.style.borderRadius = '50%'
+      pill.style.color = 'transparent'
+    }, 580)
+
+    const fadeTimer = setTimeout(() => {
+      outer.style.transition = 'opacity 0.15s ease'
+      outer.style.opacity = '0'
+    }, 850)
+
+    const doneTimer = setTimeout(onDone, 1000)
+    return () => { clearTimeout(shrinkTimer); clearTimeout(fadeTimer); clearTimeout(doneTimer) }
   }, [])
+
   return (
-    <div ref={ref} style={{ position: 'fixed', zIndex: 9999, pointerEvents: 'none', opacity: 0 }}>
-      <div style={{
-        background: color, color: '#fff', padding: '5px 14px', borderRadius: 50,
-        fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap',
-        boxShadow: `0 8px 32px ${color}60, 0 2px 8px rgba(0,0,0,0.15)`,
+    <div ref={outerRef} style={{ position: 'fixed', zIndex: 9999, pointerEvents: 'none', opacity: 0 }}>
+      <div ref={pillRef} style={{
+        background: sourceColor, color: '#fff', padding: '5px 14px', borderRadius: 50,
+        fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden',
+        boxShadow: `0 6px 24px ${sourceColor}60, 0 2px 8px rgba(0,0,0,0.12)`,
+        display: 'inline-block',
       }}>{word}</div>
     </div>
   )
@@ -236,10 +266,6 @@ function QuizBucket({ cfg, count, totalWords, newDotKey, isTarget, innerRef }) {
       <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 5 }}>
         <span style={{ fontSize: 11 }}>{cfg.icon}</span>
         <span style={{ fontSize: 9, fontWeight: 800, color: cfg.color, letterSpacing: 0.5, textTransform: 'uppercase' }}>{cfg.label}</span>
-        <span style={{
-          fontSize: 9, fontWeight: 900, color: cfg.color,
-          background: cfg.color + '18', padding: '1px 5px', borderRadius: 6,
-        }}>{count}</span>
       </div>
       <div style={{
         width: '100%', height: 72, position: 'relative',
@@ -259,10 +285,22 @@ function QuizBucket({ cfg, count, totalWords, newDotKey, isTarget, innerRef }) {
             <div key={i} style={{
               width: 3.5, height: 3.5, borderRadius: '50%',
               background: cfg.dot,
-              opacity: 0.75,
               animation: (newDotKey && i === count - 1) ? 'bucket-dotPop 0.4s cubic-bezier(0.34,1.56,0.64,1)' : 'none',
             }} />
           ))}
+        </div>
+        {/* Count overlay */}
+        <div style={{
+          position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          pointerEvents: 'none',
+        }}>
+          <span style={{
+            fontSize: count > 99 ? 18 : 22, fontWeight: 900,
+            color: count > 0 ? cfg.color : '#E0E0E0',
+            opacity: count > 0 ? 0.85 : 1,
+            textShadow: count > 0 ? '0 1px 4px rgba(255,255,255,0.9), 0 0 8px rgba(255,255,255,0.8)' : 'none',
+            lineHeight: 1,
+          }}>{count}</span>
         </div>
         {/* Empty state */}
         {count === 0 && (
@@ -682,11 +720,15 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
       if (!fromEl || !toEl) return
       const fR = fromEl.getBoundingClientRect()
       const tR = toEl.getBoundingClientRect()
+      // Determine source color: current bucket color, or green for new words
+      const sourceBucket = getBucket(q.word)
+      const srcColor = sourceBucket ? BUCKET_CFG[sourceBucket].color : C.green
       setFlyingPill({
         word: q.word, target: targetBucket,
         from: { x: fR.left + fR.width / 2 - 36, y: fR.top + 10 },
         to: { x: tR.left + tR.width / 2 - 36, y: tR.top + 30 },
-        color: BUCKET_CFG[targetBucket].color,
+        sourceColor: srcColor,
+        targetColor: BUCKET_CFG[targetBucket].color,
       })
     }, 400)
   }
