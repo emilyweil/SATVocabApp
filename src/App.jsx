@@ -512,15 +512,22 @@ function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onSt
           {dayDone && profile.sprints_today > 0 && <p style={{ color: C.purple, margin: '8px 0 0', fontSize: 13, fontWeight: 600 }}>+{profile.sprints_today * 5} extra practice words today!</p>}
         </div>
 
+        {/* Dot bucket visualization */}
+        <style>{BUCKET_ANIM_CSS}</style>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+          <QuizBucket cfg={BUCKET_CFG.learning} count={stats.learning} totalWords={VOCABULARY.length} newDotKey={0} isTarget={false} innerRef={null} />
+          <QuizBucket cfg={BUCKET_CFG.review} count={stats.review} totalWords={VOCABULARY.length} newDotKey={0} isTarget={false} innerRef={null} />
+          <QuizBucket cfg={BUCKET_CFG.mastered} count={stats.mastered} totalWords={VOCABULARY.length} newDotKey={0} isTarget={false} innerRef={null} />
+        </div>
+
         {/* Stat panels */}
         <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
           {/* Learning panel */}
           <div style={{ flex: 1, background: 'white', borderRadius: 16, padding: '14px 12px', border: '2px solid #F0F0F0' }}>
             <div onClick={() => learningWords.length > 0 && onBrowse({ title: 'Learning', words: learningWords, color: C.blue })}
               style={{ cursor: learningWords.length > 0 ? 'pointer' : 'default' }}>
-              <div style={{ fontSize: 22, fontWeight: 800, color: C.blue, textAlign: 'center' }}>{stats.learning}</div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: C.grayDark, textAlign: 'center', marginTop: 2 }}>Learning</div>
-              <p style={{ fontSize: 11, color: C.gray, textAlign: 'center', margin: '6px 0 0', lineHeight: 1.3 }}>Words you've gotten wrong</p>
+              <div style={{ fontSize: 12, fontWeight: 700, color: C.grayDark, textAlign: 'center' }}>Learning</div>
+              <p style={{ fontSize: 11, color: C.gray, textAlign: 'center', margin: '4px 0 0', lineHeight: 1.3 }}>Words you've gotten wrong</p>
             </div>
             {stats.learning > 0 && (
               <button onClick={onStartLearningQuiz}
@@ -531,9 +538,8 @@ function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onSt
           <div style={{ flex: 1, background: 'white', borderRadius: 16, padding: '14px 12px', border: '2px solid #F0F0F0' }}>
             <div onClick={() => reviewingWords.length > 0 && onBrowse({ title: 'Reviewing', words: reviewingWords, color: C.purple })}
               style={{ cursor: reviewingWords.length > 0 ? 'pointer' : 'default' }}>
-              <div style={{ fontSize: 22, fontWeight: 800, color: C.purple, textAlign: 'center' }}>{stats.review}</div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: C.grayDark, textAlign: 'center', marginTop: 2 }}>Reviewing</div>
-              <p style={{ fontSize: 11, color: C.gray, textAlign: 'center', margin: '6px 0 0', lineHeight: 1.3 }}>Words you've gotten right once</p>
+              <div style={{ fontSize: 12, fontWeight: 700, color: C.grayDark, textAlign: 'center' }}>Reviewing</div>
+              <p style={{ fontSize: 11, color: C.gray, textAlign: 'center', margin: '4px 0 0', lineHeight: 1.3 }}>Words you've gotten right once</p>
             </div>
             {stats.review > 0 && (
               <button onClick={onStartReviewQuiz}
@@ -591,6 +597,7 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
   const [newDotKeys, setNewDotKeys] = useState({ learning: 0, review: 0, mastered: 0 })
   const bucketRefs = { learning: useRef(null), review: useRef(null), mastered: useRef(null) }
   const wordCardRef = useRef(null)
+  const pendingUpdate = useRef(null) // stores { word, card, wasCorrect } until animation ends
 
   // Local mutable copy of cards for this session
   const [localCards, setLocalCards] = useState({ ...srsCards })
@@ -618,10 +625,20 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
     return 'learning'
   }
 
+  // Apply pending card update to localCards (called by onFlyDone or continueQuiz)
+  const applyPendingUpdate = () => {
+    const pending = pendingUpdate.current
+    if (!pending) return
+    setLocalCards(prev => ({ ...prev, [pending.word]: pending.card }))
+    setLocalIntroduced(prev => prev.includes(pending.word) ? prev : [...prev, pending.word])
+    pendingUpdate.current = null
+  }
+
   // Handle flying pill landing in bucket
   const onFlyDone = useCallback(() => {
     if (!flyingPill) return
     const { target } = flyingPill
+    applyPendingUpdate()
     setNewDotKeys(p => ({ ...p, [target]: p[target] + 1 }))
     setFlyingPill(null)
   }, [flyingPill])
@@ -689,6 +706,10 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
 
   const selectAnswer = (ans) => {
     if (showFeedback) return
+    // Flush any previous pending animation
+    if (pendingUpdate.current) applyPendingUpdate()
+    if (flyingPill) setFlyingPill(null)
+
     setSelected(ans)
     setShowFeedback(true)
     // Determine target bucket for animation
@@ -702,6 +723,14 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
     if (isCorrect && existRep >= 1 && initialMode !== 'masteredQuiz') {
       setConfettiKey(k => k + 1)
     }
+
+    // Pre-compute the card update (applied when animation ends)
+    const existing = localCards[q.word] || createSRSCard(q.word)
+    let updated = updateSRSCard(existing, isCorrect)
+    if (initialMode === 'masteredQuiz' && !isCorrect) {
+      updated = { ...updated, repetition: 1, status: 'review' }
+    }
+    pendingUpdate.current = { word: q.word, card: updated, wasCorrect: isCorrect }
 
     // Compute what bucket the word will land in after this answer
     let targetBucket
@@ -737,24 +766,23 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
     const w = quizWords[qIndex]
     const correctDef = getWordData(w.word).definition
     const wasCorrect = selected === correctDef
-    const existing = localCards[w.word] || createSRSCard(w.word)
-    console.log(`[Quiz] ${w.word}: existing rep=${existing.repetition} status=${existing.status}`)
-    let updated = updateSRSCard(existing, wasCorrect)
-    // In mastered quiz, wrong answers go back to review (rep=1) not learning (rep=0)
-    if (initialMode === 'masteredQuiz' && !wasCorrect) {
-      updated = { ...updated, repetition: 1, status: 'review' }
-      console.log(`[MasteredQuiz] ${w.word}: demoted to review (rep=1)`)
+
+    // Grab the updated card for results - but DON'T apply to localCards here
+    // (localCards update happens in onFlyDone so dots/count animate correctly)
+    let updatedCard
+    if (pendingUpdate.current && pendingUpdate.current.word === w.word) {
+      updatedCard = pendingUpdate.current.card
+    } else {
+      // Animation already finished and applied - card is in localCards
+      updatedCard = localCards[w.word] || createSRSCard(w.word)
     }
-    console.log(`[Quiz] ${w.word}: updated rep=${updated.repetition} status=${updated.status}`)
 
-    // Update localCards immediately so progress is tracked per-answer
-    const updatedCards = { ...localCards, [w.word]: updated }
-    setLocalCards(updatedCards)
-
-    const newResults = [...results, { word: w.word, wasCorrect, newCard: updated }]
+    const newResults = [...results, { word: w.word, wasCorrect, newCard: updatedCard }]
     if (qIndex < quizWords.length - 1) {
       setResults(newResults); setQIndex(qIndex + 1); setSelected(null); setShowFeedback(false)
     } else {
+      // If animation still pending, apply now before finishing
+      if (pendingUpdate.current) applyPendingUpdate()
       finishQuiz(newResults)
     }
   }
@@ -765,18 +793,14 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
     let cardsToSave = { ...localCards }
     let introducedToSave = [...localIntroduced]
 
-    // If feedback is showing, the current answer hasn't been processed yet — include it
+    // If feedback is showing, use the pending card update
     if (showFeedback && quizWords[qIndex]) {
       const w = quizWords[qIndex]
-      const correctDef = getWordData(w.word).definition
-      const wasCorrect = selected === correctDef
-      const existing = cardsToSave[w.word] || createSRSCard(w.word)
-      let updated = updateSRSCard(existing, wasCorrect)
-      if (initialMode === 'masteredQuiz' && !wasCorrect) {
-        updated = { ...updated, repetition: 1, status: 'review' }
+      if (pendingUpdate.current && pendingUpdate.current.word === w.word) {
+        cardsToSave[w.word] = pendingUpdate.current.card
+        allResults.push({ word: w.word, wasCorrect: pendingUpdate.current.wasCorrect, newCard: pendingUpdate.current.card })
+        pendingUpdate.current = null
       }
-      cardsToSave[w.word] = updated
-      allResults.push({ word: w.word, wasCorrect, newCard: updated })
     }
 
     if (allResults.length > 0) {
@@ -939,9 +963,13 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 20 }}>
               <h2 style={{ fontSize: 28, fontWeight: 800, color: curBucket ? BUCKET_CFG[curBucket].color : C.green, margin: 0 }}>{q.word}</h2>
-              {curBucket && (
+              {curBucket ? (
                 <span style={{ padding: '2px 8px', borderRadius: 8, fontSize: 10, fontWeight: 700, background: BUCKET_CFG[curBucket].color + '18', color: BUCKET_CFG[curBucket].color }}>
                   {BUCKET_CFG[curBucket].label.toUpperCase()}
+                </span>
+              ) : (
+                <span style={{ padding: '2px 8px', borderRadius: 8, fontSize: 10, fontWeight: 700, background: '#D7FFB8', color: C.green }}>
+                  NEW
                 </span>
               )}
             </div>
@@ -1019,13 +1047,20 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
           {isSprint ? 'Great effort! Keep building that knowledge.' : displayStreak >= 7 ? "You're on fire! Keep it going!" : 'Come back tomorrow to keep your streak alive!'}
         </p>
 
-        {/* Stat panels — same layout as home screen */}
+        {/* Dot bucket visualization */}
+        <style>{BUCKET_ANIM_CSS}</style>
+        <div style={{ width: '100%', maxWidth: 340, display: 'flex', gap: 8, marginBottom: 16 }}>
+          <QuizBucket cfg={BUCKET_CFG.learning} count={stats.learning} totalWords={VOCABULARY.length} newDotKey={0} isTarget={false} innerRef={null} />
+          <QuizBucket cfg={BUCKET_CFG.review} count={stats.review} totalWords={VOCABULARY.length} newDotKey={0} isTarget={false} innerRef={null} />
+          <QuizBucket cfg={BUCKET_CFG.mastered} count={stats.mastered} totalWords={VOCABULARY.length} newDotKey={0} isTarget={false} innerRef={null} />
+        </div>
+
+        {/* Stat panels */}
         <div style={{ width: '100%', maxWidth: 340, display: 'flex', gap: 8, marginBottom: 16 }}>
           {/* Learning panel */}
           <div style={{ flex: 1, background: 'white', borderRadius: 16, padding: '14px 12px', border: '2px solid #F0F0F0' }}>
-            <div style={{ fontSize: 22, fontWeight: 800, color: C.blue, textAlign: 'center' }}>{stats.learning}</div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: C.grayDark, textAlign: 'center', marginTop: 2 }}>Learning</div>
-            <p style={{ fontSize: 11, color: C.gray, textAlign: 'center', margin: '6px 0 0', lineHeight: 1.3 }}>Words you've gotten wrong</p>
+            <div style={{ fontSize: 12, fontWeight: 700, color: C.grayDark, textAlign: 'center' }}>Learning</div>
+            <p style={{ fontSize: 11, color: C.gray, textAlign: 'center', margin: '4px 0 0', lineHeight: 1.3 }}>Words you've gotten wrong</p>
             {stats.learning > 0 && (
               <button onClick={() => onComplete('learningQuiz')}
                 style={{ display: 'block', margin: '8px auto 0', background: 'none', border: 'none', color: C.blue, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline' }}>Practice them →</button>
@@ -1033,9 +1068,8 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
           </div>
           {/* Reviewing panel */}
           <div style={{ flex: 1, background: 'white', borderRadius: 16, padding: '14px 12px', border: '2px solid #F0F0F0' }}>
-            <div style={{ fontSize: 22, fontWeight: 800, color: C.purple, textAlign: 'center' }}>{stats.review}</div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: C.grayDark, textAlign: 'center', marginTop: 2 }}>Reviewing</div>
-            <p style={{ fontSize: 11, color: C.gray, textAlign: 'center', margin: '6px 0 0', lineHeight: 1.3 }}>Words you've gotten right once</p>
+            <div style={{ fontSize: 12, fontWeight: 700, color: C.grayDark, textAlign: 'center' }}>Reviewing</div>
+            <p style={{ fontSize: 11, color: C.gray, textAlign: 'center', margin: '4px 0 0', lineHeight: 1.3 }}>Words you've gotten right once</p>
             {stats.review > 0 && (
               <button onClick={() => onComplete('reviewQuiz')}
                 style={{ display: 'block', margin: '8px auto 0', background: 'none', border: 'none', color: C.purple, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline' }}>Master them →</button>
