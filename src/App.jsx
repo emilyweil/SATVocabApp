@@ -512,18 +512,17 @@ function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onSt
           {dayDone && profile.sprints_today > 0 && <p style={{ color: C.purple, margin: '8px 0 0', fontSize: 13, fontWeight: 600 }}>+{profile.sprints_today * 5} extra practice words today!</p>}
         </div>
 
-        <style>{BUCKET_ANIM_CSS}</style>
         {/* Stat panels with embedded dots */}
         <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
           {/* Learning panel */}
           <div style={{ flex: 1, background: 'white', borderRadius: 16, padding: '14px 12px', border: '2px solid #F0F0F0' }}>
             <div onClick={() => learningWords.length > 0 && onBrowse({ title: 'Learning', words: learningWords, color: C.blue })}
               style={{ cursor: learningWords.length > 0 ? 'pointer' : 'default' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
-                <span style={{ fontSize: 13 }}>📚</span>
-                <span style={{ fontSize: 12, fontWeight: 700, color: C.blue }}>{stats.learning}</span>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+                <span style={{ fontSize: 16 }}>📚</span>
+                <span style={{ fontSize: 14, fontWeight: 800, color: C.blue }}>Learning</span>
+                <span style={{ fontSize: 18, fontWeight: 900, color: C.blue }}>{stats.learning}</span>
               </div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: C.grayDark, textAlign: 'center', marginTop: 2 }}>Learning</div>
               {stats.learning > 0 && (
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, marginTop: 8, padding: 4, background: '#F8F8F8', borderRadius: 8, minHeight: 20 }}>
                   {Array.from({ length: stats.learning }, (_, i) => (
@@ -542,11 +541,11 @@ function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onSt
           <div style={{ flex: 1, background: 'white', borderRadius: 16, padding: '14px 12px', border: '2px solid #F0F0F0' }}>
             <div onClick={() => reviewingWords.length > 0 && onBrowse({ title: 'Reviewing', words: reviewingWords, color: C.purple })}
               style={{ cursor: reviewingWords.length > 0 ? 'pointer' : 'default' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
-                <span style={{ fontSize: 13 }}>🔁</span>
-                <span style={{ fontSize: 12, fontWeight: 700, color: C.purple }}>{stats.review}</span>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+                <span style={{ fontSize: 16 }}>🔁</span>
+                <span style={{ fontSize: 14, fontWeight: 800, color: C.purple }}>Review</span>
+                <span style={{ fontSize: 18, fontWeight: 900, color: C.purple }}>{stats.review}</span>
               </div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: C.grayDark, textAlign: 'center', marginTop: 2 }}>Reviewing</div>
               {stats.review > 0 && (
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, marginTop: 8, padding: 4, background: '#F8F8F8', borderRadius: 8, minHeight: 20 }}>
                   {Array.from({ length: stats.review }, (_, i) => (
@@ -568,10 +567,10 @@ function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onSt
           <div onClick={() => stats.mastered > 0 && onBrowse({ title: 'Mastered', words: masteredWords, color: C.gold })}
             style={{ cursor: stats.mastered > 0 ? 'pointer' : 'default' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-              <span style={{ fontSize: 20 }}>⭐</span>
-              <div style={{ fontSize: 28, fontWeight: 800, color: C.gold }}>{stats.mastered} <span style={{ fontSize: 28, fontWeight: 800, color: C.gray }}>/ {VOCABULARY.length}</span></div>
+              <span style={{ fontSize: 22 }}>⭐</span>
+              <span style={{ fontSize: 18, fontWeight: 800, color: C.gold }}>Mastered</span>
+              <div style={{ fontSize: 28, fontWeight: 900, color: C.gold }}>{stats.mastered} <span style={{ fontSize: 20, fontWeight: 800, color: C.gray }}>/ {VOCABULARY.length}</span></div>
             </div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: C.grayDark, marginTop: 4 }}>Words Mastered</div>
             {stats.mastered > 0 && (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, marginTop: 10, padding: 6, background: '#F8F8F8', borderRadius: 10, minHeight: 20 }}>
                 {Array.from({ length: stats.mastered }, (_, i) => (
@@ -1076,11 +1075,11 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
         <div style={{ width: '100%', maxWidth: 340, display: 'flex', gap: 8, marginBottom: 16 }}>
           {/* Learning panel */}
           <div style={{ flex: 1, background: 'white', borderRadius: 16, padding: '14px 12px', border: '2px solid #F0F0F0' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
-              <span style={{ fontSize: 13 }}>📚</span>
-              <span style={{ fontSize: 12, fontWeight: 700, color: C.blue }}>{stats.learning}</span>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+              <span style={{ fontSize: 16 }}>📚</span>
+              <span style={{ fontSize: 14, fontWeight: 800, color: C.blue }}>Learning</span>
+              <span style={{ fontSize: 18, fontWeight: 900, color: C.blue }}>{stats.learning}</span>
             </div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: C.grayDark, textAlign: 'center', marginTop: 2 }}>Learning</div>
             {stats.learning > 0 && (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, marginTop: 8, padding: 4, background: '#F8F8F8', borderRadius: 8, minHeight: 20 }}>
                 {Array.from({ length: stats.learning }, (_, i) => (
@@ -1096,11 +1095,11 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
           </div>
           {/* Reviewing panel */}
           <div style={{ flex: 1, background: 'white', borderRadius: 16, padding: '14px 12px', border: '2px solid #F0F0F0' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
-              <span style={{ fontSize: 13 }}>🔁</span>
-              <span style={{ fontSize: 12, fontWeight: 700, color: C.purple }}>{stats.review}</span>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+              <span style={{ fontSize: 16 }}>🔁</span>
+              <span style={{ fontSize: 14, fontWeight: 800, color: C.purple }}>Review</span>
+              <span style={{ fontSize: 18, fontWeight: 900, color: C.purple }}>{stats.review}</span>
             </div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: C.grayDark, textAlign: 'center', marginTop: 2 }}>Reviewing</div>
             {stats.review > 0 && (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, marginTop: 8, padding: 4, background: '#F8F8F8', borderRadius: 8, minHeight: 20 }}>
                 {Array.from({ length: stats.review }, (_, i) => (
@@ -1119,10 +1118,10 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
         {/* Mastered count card */}
         <div style={{ width: '100%', maxWidth: 340, background: 'white', borderRadius: 16, padding: 16, border: '2px solid #F0F0F0', marginBottom: 24, textAlign: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-            <span style={{ fontSize: 20 }}>⭐</span>
-            <div style={{ fontSize: 28, fontWeight: 800, color: C.gold }}>{stats.mastered} <span style={{ fontSize: 28, fontWeight: 800, color: C.gray }}>/ {VOCABULARY.length}</span></div>
+            <span style={{ fontSize: 22 }}>⭐</span>
+            <span style={{ fontSize: 18, fontWeight: 800, color: C.gold }}>Mastered</span>
+            <div style={{ fontSize: 28, fontWeight: 900, color: C.gold }}>{stats.mastered} <span style={{ fontSize: 20, fontWeight: 800, color: C.gray }}>/ {VOCABULARY.length}</span></div>
           </div>
-          <div style={{ fontSize: 13, fontWeight: 700, color: C.grayDark, marginTop: 4 }}>Words Mastered</div>
           {stats.mastered > 0 && (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, marginTop: 10, padding: 6, background: '#F8F8F8', borderRadius: 10, minHeight: 20 }}>
               {Array.from({ length: stats.mastered }, (_, i) => (
