@@ -517,20 +517,19 @@ function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onSt
           {/* Learning panel */}
           <div style={{ flex: 1, background: 'white', borderRadius: 16, border: '2px solid #F0F0F0', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
             <div onClick={() => learningWords.length > 0 && onBrowse({ title: 'Learning', words: learningWords, color: C.blue })}
-              style={{ cursor: learningWords.length > 0 ? 'pointer' : 'default', padding: '14px 12px 0', flex: '0 0 auto' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, marginBottom: 2 }}>
+              style={{ cursor: learningWords.length > 0 ? 'pointer' : 'default', padding: '14px 12px 0', flex: '0 0 auto', textAlign: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
                 <span style={{ fontSize: 14 }}>📚</span>
                 <span style={{ fontSize: 13, fontWeight: 800, color: C.blue }}>Learning</span>
               </div>
-              <div style={{ fontSize: 28, fontWeight: 900, color: C.blue, textAlign: 'center', lineHeight: 1 }}>{stats.learning}</div>
-              <p style={{ fontSize: 11, color: C.gray, textAlign: 'center', margin: '4px 0 0', lineHeight: 1.3 }}>Words you've gotten wrong</p>
+              <div style={{ fontSize: 36, fontWeight: 900, color: C.blue, lineHeight: 1, marginTop: 4 }}>{stats.learning}</div>
+              <p style={{ fontSize: 11, color: C.gray, margin: '6px 0 0', lineHeight: 1.3 }}>Words you've gotten wrong</p>
             </div>
             {stats.learning > 0 && (
               <button onClick={onStartLearningQuiz}
                 style={{ display: 'block', margin: '6px auto 0', background: 'none', border: 'none', color: C.blue, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline', flex: '0 0 auto' }}>Practice them →</button>
             )}
-            {/* Dots pinned to bottom */}
-            <div style={{ flex: 1, minHeight: 24, display: 'flex', alignItems: 'flex-end', padding: '6px 4px 4px' }}>
+            <div style={{ flex: 1, minHeight: 24, display: 'flex', alignItems: 'flex-end', padding: '6px 4px 4px', background: 'white' }}>
               <div style={{ display: 'flex', flexWrap: 'wrap', alignContent: 'flex-end', gap: 1.5, width: '100%' }}>
                 {Array.from({ length: stats.learning }, (_, i) => (
                   <div key={i} style={{ width: 3.5, height: 3.5, borderRadius: '50%', background: BUCKET_CFG.learning.dot }} />
@@ -541,20 +540,19 @@ function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onSt
           {/* Reviewing panel */}
           <div style={{ flex: 1, background: 'white', borderRadius: 16, border: '2px solid #F0F0F0', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
             <div onClick={() => reviewingWords.length > 0 && onBrowse({ title: 'Reviewing', words: reviewingWords, color: C.purple })}
-              style={{ cursor: reviewingWords.length > 0 ? 'pointer' : 'default', padding: '14px 12px 0', flex: '0 0 auto' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, marginBottom: 2 }}>
+              style={{ cursor: reviewingWords.length > 0 ? 'pointer' : 'default', padding: '14px 12px 0', flex: '0 0 auto', textAlign: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
                 <span style={{ fontSize: 14 }}>🔁</span>
                 <span style={{ fontSize: 13, fontWeight: 800, color: C.purple }}>Reviewing</span>
               </div>
-              <div style={{ fontSize: 28, fontWeight: 900, color: C.purple, textAlign: 'center', lineHeight: 1 }}>{stats.review}</div>
-              <p style={{ fontSize: 11, color: C.gray, textAlign: 'center', margin: '4px 0 0', lineHeight: 1.3 }}>Words you've gotten right once</p>
+              <div style={{ fontSize: 36, fontWeight: 900, color: C.purple, lineHeight: 1, marginTop: 4 }}>{stats.review}</div>
+              <p style={{ fontSize: 11, color: C.gray, margin: '6px 0 0', lineHeight: 1.3 }}>Words you've gotten right once</p>
             </div>
             {stats.review > 0 && (
               <button onClick={onStartReviewQuiz}
                 style={{ display: 'block', margin: '6px auto 0', background: 'none', border: 'none', color: C.purple, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline', flex: '0 0 auto' }}>Master them →</button>
             )}
-            {/* Dots pinned to bottom */}
-            <div style={{ flex: 1, minHeight: 24, display: 'flex', alignItems: 'flex-end', padding: '6px 4px 4px' }}>
+            <div style={{ flex: 1, minHeight: 24, display: 'flex', alignItems: 'flex-end', padding: '6px 4px 4px', background: 'white' }}>
               <div style={{ display: 'flex', flexWrap: 'wrap', alignContent: 'flex-end', gap: 1.5, width: '100%' }}>
                 {Array.from({ length: stats.review }, (_, i) => (
                   <div key={i} style={{ width: 3.5, height: 3.5, borderRadius: '50%', background: BUCKET_CFG.review.dot }} />
@@ -572,7 +570,7 @@ function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onSt
               <span style={{ fontSize: 22 }}>⭐</span>
               <span style={{ fontSize: 18, fontWeight: 800, color: C.gold }}>Mastered</span>
             </div>
-            <div style={{ fontSize: 32, fontWeight: 900, color: C.gold, marginTop: 4 }}>{stats.mastered} <span style={{ fontSize: 20, fontWeight: 800, color: C.gray }}>/ {VOCABULARY.length}</span></div>
+            <div style={{ fontSize: 40, fontWeight: 900, color: C.gold, lineHeight: 1, marginTop: 6 }}>{stats.mastered} <span style={{ fontSize: 22, fontWeight: 800, color: C.gray }}>/ {VOCABULARY.length}</span></div>
             {stats.mastered === 0 && (
               <p style={{ color: C.gray, fontSize: 12, margin: '8px 0 0', lineHeight: 1.4 }}>Get a word right twice in a row to master it.</p>
             )}
@@ -581,8 +579,7 @@ function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onSt
             <button onClick={onStartMasteredQuiz}
               style={{ display: 'block', margin: '6px auto 0', background: 'none', border: 'none', color: C.gold, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline' }}>Quiz yourself →</button>
           )}
-          {/* Dots pinned to bottom */}
-          <div style={{ minHeight: 28, display: 'flex', alignItems: 'flex-end', padding: '8px 6px 6px' }}>
+          <div style={{ minHeight: 28, display: 'flex', alignItems: 'flex-end', padding: '8px 6px 6px', background: 'white' }}>
             <div style={{ display: 'flex', flexWrap: 'wrap', alignContent: 'flex-end', gap: 1.5, width: '100%' }}>
               {Array.from({ length: stats.mastered }, (_, i) => (
                 <div key={i} style={{ width: 3.5, height: 3.5, borderRadius: '50%', background: BUCKET_CFG.mastered.dot }} />
@@ -1078,20 +1075,19 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
         <div style={{ width: '100%', maxWidth: 340, display: 'flex', gap: 8, marginBottom: 16 }}>
           {/* Learning panel */}
           <div style={{ flex: 1, background: 'white', borderRadius: 16, border: '2px solid #F0F0F0', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ padding: '14px 12px 0', flex: '0 0 auto' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, marginBottom: 2 }}>
+            <div style={{ padding: '14px 12px 0', flex: '0 0 auto', textAlign: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
                 <span style={{ fontSize: 14 }}>📚</span>
                 <span style={{ fontSize: 13, fontWeight: 800, color: C.blue }}>Learning</span>
               </div>
-              <div style={{ fontSize: 28, fontWeight: 900, color: C.blue, textAlign: 'center', lineHeight: 1 }}>{stats.learning}</div>
-              <p style={{ fontSize: 11, color: C.gray, textAlign: 'center', margin: '4px 0 0', lineHeight: 1.3 }}>Words you've gotten wrong</p>
+              <div style={{ fontSize: 36, fontWeight: 900, color: C.blue, lineHeight: 1, marginTop: 4 }}>{stats.learning}</div>
+              <p style={{ fontSize: 11, color: C.gray, margin: '6px 0 0', lineHeight: 1.3 }}>Words you've gotten wrong</p>
             </div>
             {stats.learning > 0 && (
               <button onClick={() => onComplete('learningQuiz')}
                 style={{ display: 'block', margin: '6px auto 0', background: 'none', border: 'none', color: C.blue, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline', flex: '0 0 auto' }}>Practice them →</button>
             )}
-            {/* Dots pinned to bottom */}
-            <div style={{ flex: 1, minHeight: 24, display: 'flex', alignItems: 'flex-end', padding: '6px 4px 4px' }}>
+            <div style={{ flex: 1, minHeight: 24, display: 'flex', alignItems: 'flex-end', padding: '6px 4px 4px', background: 'white' }}>
               <div style={{ display: 'flex', flexWrap: 'wrap', alignContent: 'flex-end', gap: 1.5, width: '100%' }}>
                 {Array.from({ length: stats.learning }, (_, i) => (
                   <div key={i} style={{ width: 3.5, height: 3.5, borderRadius: '50%', background: BUCKET_CFG.learning.dot }} />
@@ -1101,20 +1097,19 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
           </div>
           {/* Reviewing panel */}
           <div style={{ flex: 1, background: 'white', borderRadius: 16, border: '2px solid #F0F0F0', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ padding: '14px 12px 0', flex: '0 0 auto' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, marginBottom: 2 }}>
+            <div style={{ padding: '14px 12px 0', flex: '0 0 auto', textAlign: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
                 <span style={{ fontSize: 14 }}>🔁</span>
                 <span style={{ fontSize: 13, fontWeight: 800, color: C.purple }}>Reviewing</span>
               </div>
-              <div style={{ fontSize: 28, fontWeight: 900, color: C.purple, textAlign: 'center', lineHeight: 1 }}>{stats.review}</div>
-              <p style={{ fontSize: 11, color: C.gray, textAlign: 'center', margin: '4px 0 0', lineHeight: 1.3 }}>Words you've gotten right once</p>
+              <div style={{ fontSize: 36, fontWeight: 900, color: C.purple, lineHeight: 1, marginTop: 4 }}>{stats.review}</div>
+              <p style={{ fontSize: 11, color: C.gray, margin: '6px 0 0', lineHeight: 1.3 }}>Words you've gotten right once</p>
             </div>
             {stats.review > 0 && (
               <button onClick={() => onComplete('reviewQuiz')}
                 style={{ display: 'block', margin: '6px auto 0', background: 'none', border: 'none', color: C.purple, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline', flex: '0 0 auto' }}>Master them →</button>
             )}
-            {/* Dots pinned to bottom */}
-            <div style={{ flex: 1, minHeight: 24, display: 'flex', alignItems: 'flex-end', padding: '6px 4px 4px' }}>
+            <div style={{ flex: 1, minHeight: 24, display: 'flex', alignItems: 'flex-end', padding: '6px 4px 4px', background: 'white' }}>
               <div style={{ display: 'flex', flexWrap: 'wrap', alignContent: 'flex-end', gap: 1.5, width: '100%' }}>
                 {Array.from({ length: stats.review }, (_, i) => (
                   <div key={i} style={{ width: 3.5, height: 3.5, borderRadius: '50%', background: BUCKET_CFG.review.dot }} />
@@ -1131,7 +1126,7 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
               <span style={{ fontSize: 22 }}>⭐</span>
               <span style={{ fontSize: 18, fontWeight: 800, color: C.gold }}>Mastered</span>
             </div>
-            <div style={{ fontSize: 32, fontWeight: 900, color: C.gold, marginTop: 4 }}>{stats.mastered} <span style={{ fontSize: 20, fontWeight: 800, color: C.gray }}>/ {VOCABULARY.length}</span></div>
+            <div style={{ fontSize: 40, fontWeight: 900, color: C.gold, lineHeight: 1, marginTop: 6 }}>{stats.mastered} <span style={{ fontSize: 22, fontWeight: 800, color: C.gray }}>/ {VOCABULARY.length}</span></div>
             {stats.mastered === 0 && (
               <p style={{ color: C.gray, fontSize: 12, margin: '8px 0 0', lineHeight: 1.4 }}>Get a word right twice in a row to master it.</p>
             )}
@@ -1140,8 +1135,7 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
             <button onClick={() => onComplete('masteredQuiz')}
               style={{ display: 'block', margin: '6px auto 0', background: 'none', border: 'none', color: C.gold, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline' }}>Quiz yourself →</button>
           )}
-          {/* Dots pinned to bottom */}
-          <div style={{ minHeight: 28, display: 'flex', alignItems: 'flex-end', padding: '8px 6px 6px' }}>
+          <div style={{ minHeight: 28, display: 'flex', alignItems: 'flex-end', padding: '8px 6px 6px', background: 'white' }}>
             <div style={{ display: 'flex', flexWrap: 'wrap', alignContent: 'flex-end', gap: 1.5, width: '100%' }}>
               {Array.from({ length: stats.mastered }, (_, i) => (
                 <div key={i} style={{ width: 3.5, height: 3.5, borderRadius: '50%', background: BUCKET_CFG.mastered.dot }} />
