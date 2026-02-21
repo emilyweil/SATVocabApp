@@ -7,65 +7,6 @@ import VOCABULARY from './data/words.json'
 // ═══════════════════════════════════════════════════════════════
 // CAT MASCOT (inline SVG)
 // ═══════════════════════════════════════════════════════════════
-const CatMascot = ({ size = 120, style = {} }) => (
-  <svg width={size} height={size} viewBox="0 0 200 200" fill="none" style={style}>
-    {/* Tail */}
-    <path d="M150 155c15-5 30-20 35-40s0-35-10-30-10 25-15 40-15 25-20 30" fill="#C4894B" stroke="#A0703A" strokeWidth="2"/>
-    {/* Body */}
-    <ellipse cx="100" cy="145" rx="50" ry="40" fill="#C4894B"/>
-    {/* Body stripes */}
-    <path d="M70 125c10 5 25 8 40 5s20-8 25-12" stroke="#8B5E3C" strokeWidth="3" strokeLinecap="round" fill="none" opacity="0.5"/>
-    <path d="M65 140c15 5 30 8 50 3s25-10 28-14" stroke="#8B5E3C" strokeWidth="3" strokeLinecap="round" fill="none" opacity="0.5"/>
-    <path d="M70 155c12 4 28 6 45 2s22-8 25-12" stroke="#8B5E3C" strokeWidth="3" strokeLinecap="round" fill="none" opacity="0.5"/>
-    {/* Belly patch */}
-    <ellipse cx="95" cy="150" rx="22" ry="25" fill="#E0C097" opacity="0.7"/>
-    {/* Front paws */}
-    <ellipse cx="75" cy="178" rx="14" ry="8" fill="#C4894B" stroke="#A0703A" strokeWidth="1.5"/>
-    <ellipse cx="120" cy="178" rx="14" ry="8" fill="#C4894B" stroke="#A0703A" strokeWidth="1.5"/>
-    {/* Paw lines */}
-    <path d="M70 178v5M75 178v6M80 178v5" stroke="#A0703A" strokeWidth="1.5" strokeLinecap="round"/>
-    <path d="M115 178v5M120 178v6M125 178v5" stroke="#A0703A" strokeWidth="1.5" strokeLinecap="round"/>
-    {/* Head */}
-    <circle cx="100" cy="85" r="42" fill="#C4894B"/>
-    {/* Head stripes */}
-    <path d="M80 55c5 10 8 20 8 30" stroke="#8B5E3C" strokeWidth="2.5" strokeLinecap="round" fill="none" opacity="0.6"/>
-    <path d="M100 50c0 12 0 25-2 35" stroke="#8B5E3C" strokeWidth="2.5" strokeLinecap="round" fill="none" opacity="0.6"/>
-    <path d="M120 55c-5 10-8 20-8 30" stroke="#8B5E3C" strokeWidth="2.5" strokeLinecap="round" fill="none" opacity="0.6"/>
-    {/* Left ear */}
-    <path d="M62 60L55 25 85 50Z" fill="#C4894B" stroke="#A0703A" strokeWidth="1.5"/>
-    <path d="M65 57L60 32 80 52Z" fill="#E8B4B8"/>
-    {/* Right ear */}
-    <path d="M138 60L145 25 115 50Z" fill="#C4894B" stroke="#A0703A" strokeWidth="1.5"/>
-    <path d="M135 57L140 32 120 52Z" fill="#E8B4B8"/>
-    {/* Eyes - white */}
-    <ellipse cx="82" cy="82" rx="13" ry="14" fill="white"/>
-    <ellipse cx="118" cy="82" rx="13" ry="14" fill="white"/>
-    {/* Eyes - iris */}
-    <ellipse cx="84" cy="83" rx="8" ry="10" fill="#5E9E50"/>
-    <ellipse cx="116" cy="83" rx="8" ry="10" fill="#5E9E50"/>
-    {/* Eyes - pupil */}
-    <ellipse cx="85" cy="83" rx="4" ry="8" fill="#1A1A1A"/>
-    <ellipse cx="115" cy="83" rx="4" ry="8" fill="#1A1A1A"/>
-    {/* Eye shine */}
-    <circle cx="88" cy="78" r="3" fill="white" opacity="0.9"/>
-    <circle cx="118" cy="78" r="3" fill="white" opacity="0.9"/>
-    {/* Nose */}
-    <path d="M96 96l4 5 4-5z" fill="#E8A2A2"/>
-    {/* Mouth */}
-    <path d="M100 101c0 0-5 5-8 4" stroke="#8B5E3C" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
-    <path d="M100 101c0 0 5 5 8 4" stroke="#8B5E3C" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
-    {/* Whiskers */}
-    <line x1="50" y1="90" x2="75" y2="95" stroke="#8B5E3C" strokeWidth="1.5" strokeLinecap="round"/>
-    <line x1="48" y1="98" x2="74" y2="100" stroke="#8B5E3C" strokeWidth="1.5" strokeLinecap="round"/>
-    <line x1="52" y1="106" x2="76" y2="104" stroke="#8B5E3C" strokeWidth="1.5" strokeLinecap="round"/>
-    <line x1="150" y1="90" x2="125" y2="95" stroke="#8B5E3C" strokeWidth="1.5" strokeLinecap="round"/>
-    <line x1="152" y1="98" x2="126" y2="100" stroke="#8B5E3C" strokeWidth="1.5" strokeLinecap="round"/>
-    <line x1="148" y1="106" x2="124" y2="104" stroke="#8B5E3C" strokeWidth="1.5" strokeLinecap="round"/>
-    {/* Cheek blush */}
-    <ellipse cx="70" cy="98" rx="8" ry="5" fill="#F0C0A0" opacity="0.4"/>
-    <ellipse cx="130" cy="98" rx="8" ry="5" fill="#F0C0A0" opacity="0.4"/>
-  </svg>
-)
 
 // ═══════════════════════════════════════════════════════════════
 // COLORS
@@ -196,13 +137,7 @@ const BUCKET_CFG = {
   mastered: { label: 'Mastered', icon: '⭐', color: C.gold, dot: '#FCCF7E', borderActive: 'rgba(245,166,35,0.5)' },
 }
 
-const BUCKET_ANIM_CSS = `
-@keyframes bucket-dotPop {
-  0% { transform: scale(0); opacity: 0; }
-  50% { transform: scale(2.2); opacity: 1; }
-  100% { transform: scale(1); opacity: 1; }
-}
-`
+
 
 function FlyingPill({ word, from, to, sourceColor, targetColor, onDone }) {
   const outerRef = useRef(null)
@@ -260,7 +195,7 @@ function FlyingPill({ word, from, to, sourceColor, targetColor, onDone }) {
   )
 }
 
-function QuizBucket({ cfg, count, totalWords, newDotKey, isTarget, innerRef }) {
+function QuizBucket({ cfg, count, totalWords, isTarget, innerRef }) {
   return (
     <div ref={innerRef} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 5 }}>
@@ -268,48 +203,19 @@ function QuizBucket({ cfg, count, totalWords, newDotKey, isTarget, innerRef }) {
         <span style={{ fontSize: 9, fontWeight: 800, color: cfg.color, letterSpacing: 0.5, textTransform: 'uppercase' }}>{cfg.label}</span>
       </div>
       <div style={{
-        width: '100%', height: 72, position: 'relative',
+        width: '100%', height: 52, position: 'relative',
         borderRadius: 12,
         border: `2px solid ${isTarget ? cfg.borderActive : '#E8E8E8'}`,
         background: 'white', overflow: 'hidden',
         transition: 'border-color 0.3s, box-shadow 0.3s',
         boxShadow: isTarget ? `0 0 16px ${cfg.color}25` : '0 1px 4px rgba(0,0,0,0.04)',
-        padding: 3,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}>
-        {/* Dot grid */}
-        <div style={{
-          display: 'flex', flexWrap: 'wrap', alignContent: 'flex-end',
-          width: '100%', height: '100%', gap: 1.5,
-        }}>
-          {Array.from({ length: count }, (_, i) => (
-            <div key={i} style={{
-              width: 3.5, height: 3.5, borderRadius: '50%',
-              background: cfg.dot,
-              animation: (newDotKey && i === count - 1) ? 'bucket-dotPop 0.4s cubic-bezier(0.34,1.56,0.64,1)' : 'none',
-            }} />
-          ))}
-        </div>
-        {/* Count overlay */}
-        <div style={{
-          position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-          pointerEvents: 'none',
-        }}>
-          <span style={{
-            fontSize: count > 99 ? 18 : 22, fontWeight: 900,
-            color: count > 0 ? cfg.color : '#E0E0E0',
-            opacity: count > 0 ? 0.85 : 1,
-            textShadow: count > 0 ? '0 1px 4px rgba(255,255,255,0.9), 0 0 8px rgba(255,255,255,0.8)' : 'none',
-            lineHeight: 1,
-          }}>{count}</span>
-        </div>
-        {/* Empty state */}
-        {count === 0 && (
-          <div style={{
-            position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <span style={{ fontSize: 9, color: '#D5D5D5', fontWeight: 600 }}>—</span>
-          </div>
-        )}
+        <span style={{
+          fontSize: count > 99 ? 18 : 22, fontWeight: 900,
+          color: count > 0 ? cfg.color : '#E0E0E0',
+          lineHeight: 1,
+        }}>{count}</span>
       </div>
     </div>
   )
@@ -362,7 +268,7 @@ function LoginScreen({ onAuthComplete }) {
 
   return (
     <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-      <CatMascot size={140} style={{ marginBottom: 16 }} />
+      
       <h1 style={{ fontSize: 28, fontWeight: 800, color: C.grayDark, margin: '0 0 4px' }}>SAT Vocab</h1>
       <p style={{ color: C.gray, margin: '0 0 32px', fontSize: 15 }}>Master 1,000 SAT words, one day at a time!</p>
 
@@ -401,7 +307,7 @@ function WelcomePanel({ name, onDismiss, isFirstTime }) {
   return (
     <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <div style={{ maxWidth: 400, margin: '0 auto', padding: 24, textAlign: 'center' }}>
-        <div style={{ marginTop: 16 }}><CatMascot size={80} /></div>
+        
         <h1 style={{ fontSize: 24, fontWeight: 800, color: C.grayDark, margin: '20px 0 8px' }}>
           {isFirstTime ? `Welcome, ${name}! 🎉` : 'How It Works'}
         </h1>
@@ -491,8 +397,7 @@ function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onSt
       </div>
       <div style={{ maxWidth: 400, margin: '0 auto', padding: 24 }}>
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
-          <CatMascot size={80} />
-          <h2 style={{ fontSize: 20, fontWeight: 800, color: C.grayDark, margin: '12px 0 4px' }}>
+                    <h2 style={{ fontSize: 20, fontWeight: 800, color: C.grayDark, margin: '12px 0 4px' }}>
             {dayDone ? '🎉 Day complete!' : `Hey, ${profile.name}!`}
           </h2>
           <p style={{ color: C.gray, margin: 0, fontSize: 14 }}>
@@ -515,9 +420,9 @@ function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onSt
         {/* Stat panels with embedded dots */}
         <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
           {/* Learning panel */}
-          <div style={{ flex: 1, background: 'white', borderRadius: 16, border: '2px solid #F0F0F0', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ flex: 1, background: 'white', borderRadius: 16, border: '2px solid #F0F0F0', padding: '14px 12px' }}>
             <div onClick={() => learningWords.length > 0 && onBrowse({ title: 'Learning', words: learningWords, color: C.blue })}
-              style={{ cursor: learningWords.length > 0 ? 'pointer' : 'default', padding: '14px 12px 0', flex: '0 0 auto', textAlign: 'center' }}>
+              style={{ cursor: learningWords.length > 0 ? 'pointer' : 'default', textAlign: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
                 <span style={{ fontSize: 14 }}>📚</span>
                 <span style={{ fontSize: 13, fontWeight: 800, color: C.blue }}>Learning</span>
@@ -527,20 +432,14 @@ function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onSt
             </div>
             {stats.learning > 0 && (
               <button onClick={onStartLearningQuiz}
-                style={{ display: 'block', margin: '6px auto 0', background: 'none', border: 'none', color: C.blue, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline', flex: '0 0 auto' }}>Practice them →</button>
+                style={{ display: 'block', margin: '6px auto 0', background: 'none', border: 'none', color: C.blue, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline' }}>Practice them →</button>
             )}
-            <div style={{ flex: 1, minHeight: 24, display: 'flex', alignItems: 'flex-end', padding: '6px 4px 4px', background: 'white' }}>
-              <div style={{ display: 'flex', flexWrap: 'wrap', alignContent: 'flex-end', gap: 1.5, width: '100%' }}>
-                {Array.from({ length: stats.learning }, (_, i) => (
-                  <div key={i} style={{ width: 3.5, height: 3.5, borderRadius: '50%', background: BUCKET_CFG.learning.dot }} />
-                ))}
-              </div>
-            </div>
+
           </div>
           {/* Reviewing panel */}
-          <div style={{ flex: 1, background: 'white', borderRadius: 16, border: '2px solid #F0F0F0', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ flex: 1, background: 'white', borderRadius: 16, border: '2px solid #F0F0F0', padding: '14px 12px' }}>
             <div onClick={() => reviewingWords.length > 0 && onBrowse({ title: 'Reviewing', words: reviewingWords, color: C.purple })}
-              style={{ cursor: reviewingWords.length > 0 ? 'pointer' : 'default', padding: '14px 12px 0', flex: '0 0 auto', textAlign: 'center' }}>
+              style={{ cursor: reviewingWords.length > 0 ? 'pointer' : 'default', textAlign: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
                 <span style={{ fontSize: 14 }}>🔁</span>
                 <span style={{ fontSize: 13, fontWeight: 800, color: C.purple }}>Reviewing</span>
@@ -550,22 +449,16 @@ function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onSt
             </div>
             {stats.review > 0 && (
               <button onClick={onStartReviewQuiz}
-                style={{ display: 'block', margin: '6px auto 0', background: 'none', border: 'none', color: C.purple, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline', flex: '0 0 auto' }}>Master them →</button>
+                style={{ display: 'block', margin: '6px auto 0', background: 'none', border: 'none', color: C.purple, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline' }}>Master them →</button>
             )}
-            <div style={{ flex: 1, minHeight: 24, display: 'flex', alignItems: 'flex-end', padding: '6px 4px 4px', background: 'white' }}>
-              <div style={{ display: 'flex', flexWrap: 'wrap', alignContent: 'flex-end', gap: 1.5, width: '100%' }}>
-                {Array.from({ length: stats.review }, (_, i) => (
-                  <div key={i} style={{ width: 3.5, height: 3.5, borderRadius: '50%', background: BUCKET_CFG.review.dot }} />
-                ))}
-              </div>
-            </div>
+
           </div>
         </div>
 
         {/* Mastered count card */}
-        <div style={{ background: 'white', borderRadius: 16, border: '2px solid #F0F0F0', marginBottom: 20, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ background: 'white', borderRadius: 16, border: '2px solid #F0F0F0', marginBottom: 20 }}>
           <div onClick={() => stats.mastered > 0 && onBrowse({ title: 'Mastered', words: masteredWords, color: C.gold })}
-            style={{ cursor: stats.mastered > 0 ? 'pointer' : 'default', padding: '16px 16px 0', textAlign: 'center' }}>
+            style={{ cursor: stats.mastered > 0 ? 'pointer' : 'default', padding: '16px', textAlign: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
               <span style={{ fontSize: 22 }}>⭐</span>
               <span style={{ fontSize: 18, fontWeight: 800, color: C.gold }}>Mastered</span>
@@ -577,13 +470,7 @@ function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onSt
             <button onClick={onStartMasteredQuiz}
               style={{ display: 'block', margin: '6px auto 0', background: 'none', border: 'none', color: C.gold, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline' }}>Quiz yourself →</button>
           )}
-          <div style={{ minHeight: 28, display: 'flex', alignItems: 'flex-end', padding: '8px 6px 6px', background: 'white' }}>
-            <div style={{ display: 'flex', flexWrap: 'wrap', alignContent: 'flex-end', gap: 1.5, width: '100%' }}>
-              {Array.from({ length: stats.mastered }, (_, i) => (
-                <div key={i} style={{ width: 3.5, height: 3.5, borderRadius: '50%', background: BUCKET_CFG.mastered.dot }} />
-              ))}
-            </div>
-          </div>
+
         </div>
 
         {!dayDone ? (
@@ -613,10 +500,10 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
   const [sessionReviewWords, setSessionReviewWords] = useState([])
   const [isReviewQuiz, setIsReviewQuiz] = useState(initialMode === 'reviewQuiz' || initialMode === 'learningQuiz' || initialMode === 'masteredQuiz')
   const [confettiKey, setConfettiKey] = useState(0)
+  const [milestoneMsg, setMilestoneMsg] = useState(null) // e.g. { count: 10, group: 1 }
 
   // Bucket animation state
   const [flyingPill, setFlyingPill] = useState(null)
-  const [newDotKeys, setNewDotKeys] = useState({ learning: 0, review: 0, mastered: 0 })
   const bucketRefs = { learning: useRef(null), review: useRef(null), mastered: useRef(null) }
   const wordCardRef = useRef(null)
   const pendingUpdate = useRef(null) // stores { word, card, wasCorrect } until animation ends
@@ -661,7 +548,6 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
     if (!flyingPill) return
     const { target } = flyingPill
     applyPendingUpdate()
-    setNewDotKeys(p => ({ ...p, [target]: p[target] + 1 }))
     setFlyingPill(null)
   }, [flyingPill])
 
@@ -744,6 +630,16 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
     // Confetti if mastering
     if (isCorrect && existRep >= 1 && initialMode !== 'masteredQuiz') {
       setConfettiKey(k => k + 1)
+      // Check for milestone (every 10 mastered words)
+      const currentMastered = liveBuckets.mastered
+      const newMastered = currentMastered + 1
+      if (newMastered % 10 === 0) {
+        setMilestoneMsg({ count: newMastered, group: newMastered / 10 })
+      } else {
+        setMilestoneMsg(null)
+      }
+    } else {
+      setMilestoneMsg(null)
     }
 
     // Pre-compute the card update (applied when animation ends)
@@ -897,7 +793,7 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
   // ── LOADING ──
   if (phase === 'init') return (
     <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-      <CatMascot size={80} style={{ marginBottom: 8 }} /><Spinner text="Preparing your words..." />
+      <Spinner text="Preparing your words..." />
     </div>
   )
 
@@ -951,7 +847,6 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
     const curBucket = getBucket(q.word)
     return (
       <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', flexDirection: 'column' }}>
-        <style>{BUCKET_ANIM_CSS}</style>
         <ConfettiBurst active={confettiKey} />
         {flyingPill && <FlyingPill {...flyingPill} onDone={onFlyDone} />}
         <div style={{ background: 'white', padding: '12px 20px', borderBottom: '2px solid #F0F0F0' }}>
@@ -971,7 +866,6 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
                 cfg={cfg}
                 count={liveBuckets[key]}
                 totalWords={VOCABULARY.length}
-                newDotKey={newDotKeys[key]}
                 isTarget={flyingPill?.target === key}
                 innerRef={bucketRefs[key]}
               />
@@ -1031,6 +925,13 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
                   </p>
                 </div>
               )}
+              {willMaster && milestoneMsg && (
+                <div style={{ background: `linear-gradient(135deg, ${C.gold}18, ${C.gold}08)`, border: `2px solid ${C.gold}40`, borderRadius: 12, padding: '12px 16px', marginBottom: 12, textAlign: 'center' }}>
+                  <div style={{ fontSize: 24, marginBottom: 4 }}>🏆</div>
+                  <div style={{ fontSize: 16, fontWeight: 900, color: C.gold }}>Milestone: {milestoneMsg.count} Words Mastered!</div>
+                  <p style={{ fontSize: 12, color: C.gray, margin: '4px 0 0' }}>Group {milestoneMsg.group} of 100 complete</p>
+                </div>
+              )}
               <button onClick={continueQuiz} style={{ width: '100%', padding: '14px 0', background: isCorrect ? C.green : C.red, color: 'white', fontWeight: 700, fontSize: 15, border: 'none', borderRadius: 14, cursor: 'pointer' }}>Continue</button>
             </div>
             )
@@ -1053,7 +954,7 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
     return (
       <div style={{ minHeight: '100vh', background: `linear-gradient(180deg, ${C.greenLight} 0%, ${C.bg} 40%)`, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 24 }}>
         <div style={{ marginTop: 16 }}>
-          <CatMascot size={90} />
+          
         </div>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: 'white', padding: '16px 32px', borderRadius: 20, border: '2px solid #F0F0F0', marginTop: 16, marginBottom: 8 }}>
           <FlameIcon size={36} active />
@@ -1072,8 +973,8 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
         {/* Stat panels with embedded dots */}
         <div style={{ width: '100%', maxWidth: 340, display: 'flex', gap: 8, marginBottom: 16 }}>
           {/* Learning panel */}
-          <div style={{ flex: 1, background: 'white', borderRadius: 16, border: '2px solid #F0F0F0', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ padding: '14px 12px 0', flex: '0 0 auto', textAlign: 'center' }}>
+          <div style={{ flex: 1, background: 'white', borderRadius: 16, border: '2px solid #F0F0F0', padding: '14px 12px' }}>
+            <div style={{ textAlign: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
                 <span style={{ fontSize: 14 }}>📚</span>
                 <span style={{ fontSize: 13, fontWeight: 800, color: C.blue }}>Learning</span>
@@ -1083,19 +984,13 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
             </div>
             {stats.learning > 0 && (
               <button onClick={() => onComplete('learningQuiz')}
-                style={{ display: 'block', margin: '6px auto 0', background: 'none', border: 'none', color: C.blue, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline', flex: '0 0 auto' }}>Practice them →</button>
+                style={{ display: 'block', margin: '6px auto 0', background: 'none', border: 'none', color: C.blue, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline' }}>Practice them →</button>
             )}
-            <div style={{ flex: 1, minHeight: 24, display: 'flex', alignItems: 'flex-end', padding: '6px 4px 4px', background: 'white' }}>
-              <div style={{ display: 'flex', flexWrap: 'wrap', alignContent: 'flex-end', gap: 1.5, width: '100%' }}>
-                {Array.from({ length: stats.learning }, (_, i) => (
-                  <div key={i} style={{ width: 3.5, height: 3.5, borderRadius: '50%', background: BUCKET_CFG.learning.dot }} />
-                ))}
-              </div>
-            </div>
+
           </div>
           {/* Reviewing panel */}
-          <div style={{ flex: 1, background: 'white', borderRadius: 16, border: '2px solid #F0F0F0', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ padding: '14px 12px 0', flex: '0 0 auto', textAlign: 'center' }}>
+          <div style={{ flex: 1, background: 'white', borderRadius: 16, border: '2px solid #F0F0F0', padding: '14px 12px' }}>
+            <div style={{ textAlign: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
                 <span style={{ fontSize: 14 }}>🔁</span>
                 <span style={{ fontSize: 13, fontWeight: 800, color: C.purple }}>Reviewing</span>
@@ -1105,21 +1000,15 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
             </div>
             {stats.review > 0 && (
               <button onClick={() => onComplete('reviewQuiz')}
-                style={{ display: 'block', margin: '6px auto 0', background: 'none', border: 'none', color: C.purple, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline', flex: '0 0 auto' }}>Master them →</button>
+                style={{ display: 'block', margin: '6px auto 0', background: 'none', border: 'none', color: C.purple, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline' }}>Master them →</button>
             )}
-            <div style={{ flex: 1, minHeight: 24, display: 'flex', alignItems: 'flex-end', padding: '6px 4px 4px', background: 'white' }}>
-              <div style={{ display: 'flex', flexWrap: 'wrap', alignContent: 'flex-end', gap: 1.5, width: '100%' }}>
-                {Array.from({ length: stats.review }, (_, i) => (
-                  <div key={i} style={{ width: 3.5, height: 3.5, borderRadius: '50%', background: BUCKET_CFG.review.dot }} />
-                ))}
-              </div>
-            </div>
+
           </div>
         </div>
 
         {/* Mastered count card */}
-        <div style={{ width: '100%', maxWidth: 340, background: 'white', borderRadius: 16, border: '2px solid #F0F0F0', marginBottom: 24, overflow: 'hidden', display: 'flex', flexDirection: 'column', textAlign: 'center' }}>
-          <div style={{ padding: '16px 16px 0' }}>
+        <div style={{ width: '100%', maxWidth: 340, background: 'white', borderRadius: 16, border: '2px solid #F0F0F0', marginBottom: 24, textAlign: 'center' }}>
+          <div style={{ padding: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
               <span style={{ fontSize: 22 }}>⭐</span>
               <span style={{ fontSize: 18, fontWeight: 800, color: C.gold }}>Mastered</span>
@@ -1131,13 +1020,7 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
             <button onClick={() => onComplete('masteredQuiz')}
               style={{ display: 'block', margin: '6px auto 0', background: 'none', border: 'none', color: C.gold, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline' }}>Quiz yourself →</button>
           )}
-          <div style={{ minHeight: 28, display: 'flex', alignItems: 'flex-end', padding: '8px 6px 6px', background: 'white' }}>
-            <div style={{ display: 'flex', flexWrap: 'wrap', alignContent: 'flex-end', gap: 1.5, width: '100%' }}>
-              {Array.from({ length: stats.mastered }, (_, i) => (
-                <div key={i} style={{ width: 3.5, height: 3.5, borderRadius: '50%', background: BUCKET_CFG.mastered.dot }} />
-              ))}
-            </div>
-          </div>
+
         </div>
 
         <div style={{ width: '100%', maxWidth: 340, display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -1185,7 +1068,7 @@ function WordListScreen({ profile, srsCards, onBack }) {
       </div>
       <div style={{ maxWidth: 400, margin: '0 auto', padding: 16 }}>
         {currentWords.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '40px 0' }}><CatMascot size={80} /><p style={{ color: C.gray, marginTop: 12 }}>No words here yet!</p></div>
+          <div style={{ textAlign: 'center', padding: '40px 0' }}><p style={{ fontSize: 32, marginBottom: 8 }}>📚</p><p style={{ color: C.gray, marginTop: 12 }}>No words here yet!</p></div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {currentWords.map(word => {
@@ -1223,8 +1106,7 @@ function FlashcardBrowser({ title, words, srsCards, color, onBack }) {
         <span style={{ fontWeight: 700, color: C.grayDark, fontSize: 17 }}>{title}</span>
       </div>
       <div style={{ textAlign: 'center', padding: '60px 24px' }}>
-        <CatMascot size={80} />
-        <p style={{ color: C.gray, marginTop: 16, fontSize: 15 }}>No words in this category yet!</p>
+                <p style={{ color: C.gray, marginTop: 16, fontSize: 15 }}>No words in this category yet!</p>
         <button onClick={onBack} style={{ marginTop: 16, padding: '12px 28px', background: color, color: 'white', fontWeight: 700, fontSize: 14, border: 'none', borderRadius: 14, cursor: 'pointer' }}>Go Back</button>
       </div>
     </div>
@@ -1426,7 +1308,7 @@ export default function App() {
 
   if (screen === 'loading') return (
     <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-      <CatMascot size={120} style={{ marginBottom: 16 }} /><Spinner text="Loading..." />
+      <Spinner text="Loading..." />
     </div>
   )
 
@@ -1434,7 +1316,7 @@ export default function App() {
 
   if (!profile) return (
     <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-      <CatMascot size={120} style={{ marginBottom: 16 }} /><Spinner text="Loading your progress..." />
+      <Spinner text="Loading your progress..." />
     </div>
   )
 
