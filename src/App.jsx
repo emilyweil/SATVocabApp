@@ -570,10 +570,8 @@ function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onSt
               <span style={{ fontSize: 22 }}>⭐</span>
               <span style={{ fontSize: 18, fontWeight: 800, color: C.gold }}>Mastered</span>
             </div>
-            <div style={{ fontSize: 40, fontWeight: 900, color: C.gold, lineHeight: 1, marginTop: 6 }}>{stats.mastered} <span style={{ fontSize: 22, fontWeight: 800, color: C.gray }}>/ {VOCABULARY.length}</span></div>
-            {stats.mastered === 0 && (
-              <p style={{ color: C.gray, fontSize: 12, margin: '8px 0 0', lineHeight: 1.4 }}>Get a word right twice in a row to master it.</p>
-            )}
+            <div style={{ fontSize: 36, fontWeight: 900, color: C.gold, lineHeight: 1, marginTop: 4 }}>{stats.mastered} <span style={{ fontSize: 22, fontWeight: 800, color: C.gray }}>/ {VOCABULARY.length}</span></div>
+            <p style={{ fontSize: 11, color: C.gray, margin: '6px 0 0', lineHeight: 1.3 }}>Words you've gotten right twice in a row</p>
           </div>
           {stats.mastered > 0 && (
             <button onClick={onStartMasteredQuiz}
@@ -1126,10 +1124,8 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
               <span style={{ fontSize: 22 }}>⭐</span>
               <span style={{ fontSize: 18, fontWeight: 800, color: C.gold }}>Mastered</span>
             </div>
-            <div style={{ fontSize: 40, fontWeight: 900, color: C.gold, lineHeight: 1, marginTop: 6 }}>{stats.mastered} <span style={{ fontSize: 22, fontWeight: 800, color: C.gray }}>/ {VOCABULARY.length}</span></div>
-            {stats.mastered === 0 && (
-              <p style={{ color: C.gray, fontSize: 12, margin: '8px 0 0', lineHeight: 1.4 }}>Get a word right twice in a row to master it.</p>
-            )}
+            <div style={{ fontSize: 36, fontWeight: 900, color: C.gold, lineHeight: 1, marginTop: 4 }}>{stats.mastered} <span style={{ fontSize: 22, fontWeight: 800, color: C.gray }}>/ {VOCABULARY.length}</span></div>
+            <p style={{ fontSize: 11, color: C.gray, margin: '6px 0 0', lineHeight: 1.3 }}>Words you've gotten right twice in a row</p>
           </div>
           {stats.mastered > 0 && (
             <button onClick={() => onComplete('masteredQuiz')}
