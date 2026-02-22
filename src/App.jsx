@@ -456,21 +456,35 @@ function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onSt
         </div>
 
         {/* Mastered count card */}
-        <div style={{ background: 'white', borderRadius: 16, border: '2px solid #F0F0F0', marginBottom: 20 }}>
+        <div style={{ background: 'white', borderRadius: 16, border: '2px solid #F0F0F0', marginBottom: 20, padding: 16 }}>
           <div onClick={() => stats.mastered > 0 && onBrowse({ title: 'Mastered', words: masteredWords, color: C.gold })}
-            style={{ cursor: stats.mastered > 0 ? 'pointer' : 'default', padding: '16px', textAlign: 'center' }}>
+            style={{ cursor: stats.mastered > 0 ? 'pointer' : 'default', textAlign: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
               <span style={{ fontSize: 22 }}>⭐</span>
               <span style={{ fontSize: 18, fontWeight: 800, color: C.gold }}>Mastered</span>
             </div>
-            <div style={{ fontSize: 36, fontWeight: 900, color: C.gold, lineHeight: 1, marginTop: 4 }}>{stats.mastered} <span style={{ fontSize: 22, fontWeight: 800, color: C.gray }}>/ {VOCABULARY.length}</span></div>
+            <div style={{ fontSize: 36, fontWeight: 900, color: C.gold, lineHeight: 1, marginTop: 4 }}>{stats.mastered}</div>
             <p style={{ fontSize: 11, color: C.gray, margin: '6px 0 0', lineHeight: 1.3 }}>Words you've gotten right twice in a row</p>
           </div>
           {stats.mastered > 0 && (
             <button onClick={onStartMasteredQuiz}
-              style={{ display: 'block', margin: '6px auto 0', background: 'none', border: 'none', color: C.gold, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline' }}>Quiz yourself →</button>
+              style={{ display: 'block', margin: '8px auto 12px', background: 'none', border: 'none', color: C.gold, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline' }}>Quiz yourself →</button>
           )}
-
+          {/* Progress toward next group of 10 */}
+          {(() => {
+            const progress = stats.mastered % 10
+            return (
+              <div style={{ marginTop: stats.mastered > 0 ? 0 : 12 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                  <span style={{ fontSize: 11, color: C.gray, fontWeight: 600 }}>Progress to next group of 10</span>
+                  <span style={{ fontSize: 11, color: C.gold, fontWeight: 700 }}>{progress}/10</span>
+                </div>
+                <div style={{ height: 8, background: '#F0F0F0', borderRadius: 4, overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: `${(progress / 10) * 100}%`, background: C.gold, borderRadius: 4, transition: 'width 0.3s' }} />
+                </div>
+              </div>
+            )
+          })()}
         </div>
 
         {!dayDone ? (
@@ -1007,20 +1021,34 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
         </div>
 
         {/* Mastered count card */}
-        <div style={{ width: '100%', maxWidth: 340, background: 'white', borderRadius: 16, border: '2px solid #F0F0F0', marginBottom: 24, textAlign: 'center' }}>
-          <div style={{ padding: '16px' }}>
+        <div style={{ width: '100%', maxWidth: 340, background: 'white', borderRadius: 16, border: '2px solid #F0F0F0', marginBottom: 24, padding: 16, textAlign: 'center' }}>
+          <div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
               <span style={{ fontSize: 22 }}>⭐</span>
               <span style={{ fontSize: 18, fontWeight: 800, color: C.gold }}>Mastered</span>
             </div>
-            <div style={{ fontSize: 36, fontWeight: 900, color: C.gold, lineHeight: 1, marginTop: 4 }}>{stats.mastered} <span style={{ fontSize: 22, fontWeight: 800, color: C.gray }}>/ {VOCABULARY.length}</span></div>
+            <div style={{ fontSize: 36, fontWeight: 900, color: C.gold, lineHeight: 1, marginTop: 4 }}>{stats.mastered}</div>
             <p style={{ fontSize: 11, color: C.gray, margin: '6px 0 0', lineHeight: 1.3 }}>Words you've gotten right twice in a row</p>
           </div>
           {stats.mastered > 0 && (
             <button onClick={() => onComplete('masteredQuiz')}
-              style={{ display: 'block', margin: '6px auto 0', background: 'none', border: 'none', color: C.gold, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline' }}>Quiz yourself →</button>
+              style={{ display: 'block', margin: '8px auto 12px', background: 'none', border: 'none', color: C.gold, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline' }}>Quiz yourself →</button>
           )}
-
+          {/* Progress toward next group of 10 */}
+          {(() => {
+            const progress = stats.mastered % 10
+            return (
+              <div style={{ marginTop: stats.mastered > 0 ? 0 : 12, textAlign: 'left' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                  <span style={{ fontSize: 11, color: C.gray, fontWeight: 600 }}>Progress to next group of 10</span>
+                  <span style={{ fontSize: 11, color: C.gold, fontWeight: 700 }}>{progress}/10</span>
+                </div>
+                <div style={{ height: 8, background: '#F0F0F0', borderRadius: 4, overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: `${(progress / 10) * 100}%`, background: C.gold, borderRadius: 4, transition: 'width 0.3s' }} />
+                </div>
+              </div>
+            )
+          })()}
         </div>
 
         <div style={{ width: '100%', maxWidth: 340, display: 'flex', flexDirection: 'column', gap: 10 }}>
