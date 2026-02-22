@@ -46,7 +46,7 @@ const SRSBadge = ({ interval, status }) => {
   const colors = { new: { bg: '#E8F5FE', t: C.blue }, learning: { bg: C.blueLight, t: C.blue }, review: { bg: C.purpleLight, t: C.purple }, mastered: { bg: C.goldLight, t: C.gold } }
   const col = colors[status] || colors.new
   const label = status === 'mastered' ? '✓ Mastered' : status === 'new' ? 'New' : `Next: ${getIntervalLabel(interval)}`
-  return <span style={{ padding: '3px 10px', background: col.bg, color: col.t, borderRadius: 20, fontSize: 11, fontWeight: 700 }}>{label}</span>
+  return <span style={{ padding: '3px 10px', background: col.bg, color: col.t, borderRadius: 20, fontSize: 12, fontWeight: 700 }}>{label}</span>
 }
 
 const StrengthBars = ({ repetition, size = 20 }) => (
@@ -160,6 +160,18 @@ const GENERAL_MESSAGES = [
   { word: 'Formidable', body: 'You\'re formidable!', def: 'Inspiring respect or awe through being impressively powerful' },
   { word: 'Ebullient', body: 'Sending ebullient good vibes!', def: 'Cheerful and full of energy; enthusiastic' },
 ]
+const ENCOURAGEMENT_WORDS = [
+  { word: 'Perspicacious', def: 'Having keen mental perception and understanding' },
+  { word: 'Indomitable', def: 'Impossible to defeat or discourage' },
+  { word: 'Sagacious', def: 'Having or showing keen discernment and good judgment' },
+  { word: 'Assiduous', def: 'Showing great care and perseverance' },
+  { word: 'Intrepid', def: 'Fearless; adventurous' },
+  { word: 'Astute', def: 'Having the ability to notice and understand things clearly' },
+  { word: 'Stalwart', def: 'Loyal, reliable, and hardworking' },
+  { word: 'Voracious', def: 'Wanting or devouring great quantities' },
+  { word: 'Luminous', def: 'Shining; full of light and intelligence' },
+  { word: 'Effulgent', def: 'Shining brightly; radiant' },
+]
 
 
 
@@ -224,7 +236,7 @@ function QuizBucket({ cfg, count, totalWords, isTarget, innerRef }) {
     <div ref={innerRef} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginBottom: 5 }}>
         <span style={{ fontSize: 11 }}>{cfg.icon}</span>
-        <span style={{ fontSize: 9, fontWeight: 800, color: cfg.color, letterSpacing: 0.5, textTransform: 'uppercase' }}>{cfg.label}</span>
+        <span style={{ fontSize: 11, fontWeight: 800, color: cfg.color, letterSpacing: 0.5, textTransform: 'uppercase' }}>{cfg.label}</span>
       </div>
       <div style={{
         width: '100%', height: 52, position: 'relative',
@@ -380,7 +392,7 @@ function WelcomePanel({ name, onDismiss, isFirstTime }) {
         </div>
 
         <p style={{ color: C.gray, fontSize: 13, margin: '0 0 20px', lineHeight: 1.5 }}>
-          You'll learn <strong>5 new words</strong> each day. Build a streak, and before you know it, you'll be an SAT vocab pro! 🐱
+          You'll learn <strong>5 new words</strong> each day. Build a streak, and before you know it, you'll be an SAT vocab pro!
         </p>
 
         <button onClick={onDismiss} style={{ width: '100%', padding: '18px 0', background: C.green, color: 'white', fontWeight: 700, fontSize: 16, border: 'none', borderRadius: 16, cursor: 'pointer', boxShadow: `0 4px 0 ${C.greenDark}` }}>
@@ -458,7 +470,7 @@ function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onSt
                     <span style={{ fontWeight: 700, fontSize: 13, color: C.grayDark }}>{m.from_name}</span>
                   </div>
                   <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: C.purple }}>{m.message_body}</p>
-                  <p style={{ margin: '2px 0 0', fontSize: 10, color: C.gray }}><em>{m.vocab_word}</em> — {
+                  <p style={{ margin: '2px 0 0', fontSize: 12, color: C.gray }}><em>{m.vocab_word}</em> — {
                     [...CONGRATS_MESSAGES, ...GENERAL_MESSAGES].find(v => v.word === m.vocab_word)?.def || ''
                   }</p>
                 </div>
@@ -473,7 +485,8 @@ function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onSt
       )}
       <div style={{ maxWidth: 400, margin: '0 auto', padding: 24 }}>
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
-                    <h2 style={{ fontSize: 20, fontWeight: 800, color: C.grayDark, margin: '12px 0 4px' }}>
+          <p style={{ fontSize: 12, fontWeight: 800, color: C.purple, letterSpacing: 1.5, textTransform: 'uppercase', margin: '0 0 8px' }}>🎯 1,000 Word SAT Challenge</p>
+                    <h2 style={{ fontSize: 20, fontWeight: 800, color: C.grayDark, margin: '0 0 4px' }}>
             {dayDone ? '🎉 Day complete!' : `Hey, ${profile.name}!`}
           </h2>
           <p style={{ color: C.gray, margin: 0, fontSize: 14 }}>
@@ -504,7 +517,7 @@ function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onSt
                 <span style={{ fontSize: 13, fontWeight: 800, color: C.blue }}>Learning</span>
               </div>
               <div style={{ fontSize: 36, fontWeight: 900, color: C.blue, lineHeight: 1, marginTop: 4 }}>{stats.learning}</div>
-              <p style={{ fontSize: 11, color: C.gray, margin: '6px 0 0', lineHeight: 1.3 }}>Words you've gotten wrong</p>
+              <p style={{ fontSize: 13, color: C.gray, margin: '6px 0 0', lineHeight: 1.3 }}>Words you've gotten wrong</p>
             </div>
             {stats.learning > 0 && (
               <button onClick={onStartLearningQuiz}
@@ -521,7 +534,7 @@ function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onSt
                 <span style={{ fontSize: 13, fontWeight: 800, color: C.purple }}>Reviewing</span>
               </div>
               <div style={{ fontSize: 36, fontWeight: 900, color: C.purple, lineHeight: 1, marginTop: 4 }}>{stats.review}</div>
-              <p style={{ fontSize: 11, color: C.gray, margin: '6px 0 0', lineHeight: 1.3 }}>Words you've gotten right once</p>
+              <p style={{ fontSize: 13, color: C.gray, margin: '6px 0 0', lineHeight: 1.3 }}>Words you've gotten right once</p>
             </div>
             {stats.review > 0 && (
               <button onClick={onStartReviewQuiz}
@@ -539,8 +552,8 @@ function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onSt
               <span style={{ fontSize: 22 }}>⭐</span>
               <span style={{ fontSize: 18, fontWeight: 800, color: C.gold }}>Mastered</span>
             </div>
-            <div style={{ fontSize: 36, fontWeight: 900, color: C.gold, lineHeight: 1, marginTop: 4 }}>{stats.mastered}</div>
-            <p style={{ fontSize: 11, color: C.gray, margin: '6px 0 0', lineHeight: 1.3 }}>Words you've gotten right twice in a row</p>
+            <div style={{ fontSize: 36, fontWeight: 900, color: C.gold, lineHeight: 1, marginTop: 4 }}>{stats.mastered}<span style={{ fontSize: 20, fontWeight: 800, color: C.gray }}> / {VOCABULARY.length}</span></div>
+            <p style={{ fontSize: 13, color: C.gray, margin: '6px 0 0', lineHeight: 1.3 }}>Words you've gotten right twice in a row</p>
           </div>
           {stats.mastered > 0 && (
             <button onClick={onStartMasteredQuiz}
@@ -552,8 +565,8 @@ function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onSt
             return (
               <div style={{ marginTop: stats.mastered > 0 ? 0 : 12 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                  <span style={{ fontSize: 11, color: C.gray, fontWeight: 600 }}>Progress to next group of 10</span>
-                  <span style={{ fontSize: 11, color: C.gold, fontWeight: 700 }}>{progress}/10</span>
+                  <span style={{ fontSize: 12, color: C.gray, fontWeight: 600 }}>Progress to next group of 10</span>
+                  <span style={{ fontSize: 12, color: C.gold, fontWeight: 700 }}>{progress}/10</span>
                 </div>
                 <div style={{ height: 8, background: '#F0F0F0', borderRadius: 4, overflow: 'hidden' }}>
                   <div style={{ height: '100%', width: `${(progress / 10) * 100}%`, background: C.gold, borderRadius: 4, transition: 'width 0.3s' }} />
@@ -591,6 +604,7 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
   const [isReviewQuiz, setIsReviewQuiz] = useState(initialMode === 'reviewQuiz' || initialMode === 'learningQuiz' || initialMode === 'masteredQuiz')
   const [confettiKey, setConfettiKey] = useState(0)
   const [milestoneMsg, setMilestoneMsg] = useState(null) // e.g. { count: 10, group: 1 }
+  const [feedbackWillMaster, setFeedbackWillMaster] = useState(false) // captured at answer time
 
   // Bucket animation state
   const [flyingPill, setFlyingPill] = useState(null)
@@ -727,7 +741,9 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
     const existRep = existCard ? (parseInt(existCard.repetition, 10) || 0) : 0
 
     // Confetti if mastering
-    if (isCorrect && existRep >= 1 && initialMode !== 'masteredQuiz') {
+    const willMaster = isCorrect && existRep >= 1 && initialMode !== 'masteredQuiz'
+    setFeedbackWillMaster(willMaster)
+    if (willMaster) {
       setConfettiKey(k => k + 1)
       // Check for milestone (every 10 mastered words)
       const currentMastered = liveBuckets.mastered
@@ -910,11 +926,11 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
           <div style={{ maxWidth: 400, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 12 }}>
             <button onClick={onComplete} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.gray, fontSize: 20 }}>✕</button>
             <div style={{ flex: 1, height: 12, background: '#E5E5E5', borderRadius: 6, overflow: 'hidden' }}><div style={{ height: '100%', width: `${((cardIndex + 1) / sessionNewWords.length) * 100}%`, background: C.blue, borderRadius: 6, transition: 'width 0.3s' }} /></div>
-            <span style={{ fontSize: 11, fontWeight: 700, color: C.gray }}>New word {cardIndex + 1} of {sessionNewWords.length}</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: C.gray }}>New word {cardIndex + 1} of {sessionNewWords.length}</span>
           </div>
         </div>
         <div style={{ maxWidth: 400, margin: '0 auto', padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <p style={{ color: C.gray, fontSize: 13, margin: '0 0 20px' }}>Tap card to flip</p>
+          {profile.sessions_completed === 0 && <p style={{ color: C.gray, fontSize: 13, margin: '0 0 20px' }}>Tap card to flip</p>}
           <div onClick={() => setFlipped(!flipped)} style={{ width: '100%', maxWidth: 340, height: 280, cursor: 'pointer', perspective: 1000 }}>
             <div style={{ position: 'relative', width: '100%', height: '100%', transition: 'transform 0.5s', transformStyle: 'preserve-3d', transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)' }}>
               <div style={{ position: 'absolute', inset: 0, backfaceVisibility: 'hidden', background: 'white', borderRadius: 20, padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', border: '2px solid #F0F0F0' }}>
@@ -956,7 +972,7 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
           <div style={{ maxWidth: 400, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 12 }}>
             <button onClick={handleQuitQuiz} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.gray, fontSize: 20 }}>✕</button>
             <div style={{ flex: 1, height: 12, background: '#E5E5E5', borderRadius: 6, overflow: 'hidden' }}><div style={{ height: '100%', width: `${((qIndex + 1) / quizWords.length) * 100}%`, background: C.green, borderRadius: 6, transition: 'width 0.3s' }} /></div>
-            <span style={{ fontSize: 11, fontWeight: 700, color: C.gray }}>{initialMode === 'learningQuiz' ? 'Practice' : initialMode === 'reviewQuiz' ? 'Review' : initialMode === 'masteredQuiz' ? 'Mastery Check' : 'Quiz'} {qIndex + 1} of {quizWords.length}</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: C.gray }}>{initialMode === 'learningQuiz' ? 'Practice' : initialMode === 'reviewQuiz' ? 'Review' : initialMode === 'masteredQuiz' ? 'Mastery Check' : 'Quiz'} {qIndex + 1} of {quizWords.length}</span>
           </div>
         </div>
         <div style={{ maxWidth: 400, margin: '0 auto', padding: '16px 16px 24px', width: '100%', boxSizing: 'border-box' }}>
@@ -983,11 +999,11 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 20 }}>
               <h2 style={{ fontSize: 28, fontWeight: 800, color: curBucket ? BUCKET_CFG[curBucket].color : C.green, margin: 0 }}>{q.word}</h2>
               {curBucket ? (
-                <span style={{ padding: '2px 8px', borderRadius: 8, fontSize: 10, fontWeight: 700, background: BUCKET_CFG[curBucket].color + '18', color: BUCKET_CFG[curBucket].color }}>
+                <span style={{ padding: '2px 8px', borderRadius: 8, fontSize: 11, fontWeight: 700, background: BUCKET_CFG[curBucket].color + '18', color: BUCKET_CFG[curBucket].color }}>
                   {BUCKET_CFG[curBucket].label.toUpperCase()}
                 </span>
               ) : (
-                <span style={{ padding: '2px 8px', borderRadius: 8, fontSize: 10, fontWeight: 700, background: '#D7FFB8', color: C.green }}>
+                <span style={{ padding: '2px 8px', borderRadius: 8, fontSize: 11, fontWeight: 700, background: '#D7FFB8', color: C.green }}>
                   NEW
                 </span>
               )}
@@ -1004,9 +1020,7 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
             })}
           </div>
           {showFeedback && (() => {
-            const existCard = localCards[q.word]
-            const existRep = existCard ? (parseInt(existCard.repetition, 10) || 0) : 0
-            const willMaster = isCorrect && existRep >= 1 && initialMode !== 'masteredQuiz'
+            const willMaster = feedbackWillMaster
             const isMasteredQuizWrong = !isCorrect && initialMode === 'masteredQuiz'
             return (
             <div style={{ background: isCorrect ? C.greenLight : C.redLight, padding: 16, borderRadius: 16, marginTop: 16 }}>
@@ -1032,7 +1046,7 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
                 <div style={{ background: `linear-gradient(135deg, ${C.gold}18, ${C.gold}08)`, border: `2px solid ${C.gold}40`, borderRadius: 12, padding: '12px 16px', marginBottom: 12, textAlign: 'center' }}>
                   <div style={{ fontSize: 24, marginBottom: 4 }}>🏆</div>
                   <div style={{ fontSize: 16, fontWeight: 900, color: C.gold }}>Milestone: {milestoneMsg.count} Words Mastered!</div>
-                  <p style={{ fontSize: 12, color: C.gray, margin: '4px 0 0' }}>Group {milestoneMsg.group} of 100 complete</p>
+                  <p style={{ fontSize: 13, color: C.gray, margin: '4px 0 0' }}>Group {milestoneMsg.group} of 100 complete</p>
                 </div>
               )}
               <button onClick={continueQuiz} style={{ width: '100%', padding: '14px 0', background: isCorrect ? C.green : C.red, color: 'white', fontWeight: 700, fontSize: 15, border: 'none', borderRadius: 14, cursor: 'pointer' }}>Continue</button>
@@ -1054,8 +1068,13 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
     const alreadyDoneToday = profile.today_complete && profile.last_session_date === today
     const displayStreak = alreadyDoneToday ? profile.streak : (profile.last_session_date !== today ? profile.streak + 1 : profile.streak)
 
+    // Pick an encouragement word (deterministic per day so it doesn't change on re-render)
+    const dayHash = today.split('-').reduce((a, b) => a + parseInt(b), 0)
+    const encourageWord = ENCOURAGEMENT_WORDS[dayHash % ENCOURAGEMENT_WORDS.length]
+
     return (
       <div style={{ minHeight: '100vh', background: `linear-gradient(180deg, ${C.greenLight} 0%, ${C.bg} 40%)`, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 24 }}>
+        <ConfettiBurst active={1} />
         <div style={{ marginTop: 16 }}>
           
         </div>
@@ -1069,9 +1088,16 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
         <h2 style={{ fontSize: 22, fontWeight: 800, color: C.grayDark, margin: '8px 0 4px' }}>
           {isSprint ? 'Extra practice done! 💪' : displayStreak === 1 ? 'Day 1 — great start!' : displayStreak < 7 ? `${displayStreak}-day streak!` : `${displayStreak}-day streak! 🔥`}
         </h2>
-        <p style={{ color: C.gray, margin: '0 0 24px', fontSize: 14 }}>
+        <p style={{ color: C.gray, margin: '0 0 12px', fontSize: 14 }}>
           {isSprint ? 'Great effort! Keep building that knowledge.' : displayStreak >= 7 ? "You're on fire! Keep it going!" : 'Come back tomorrow to keep your streak alive!'}
         </p>
+
+        {/* Encouragement vocab word */}
+        <div style={{ width: '100%', maxWidth: 340, background: 'white', borderRadius: 16, border: '2px solid #F0F0F0', padding: 16, marginBottom: 16, textAlign: 'center' }}>
+          <p style={{ fontSize: 13, color: C.gray, margin: '0 0 4px' }}>Today's word of encouragement:</p>
+          <p style={{ fontSize: 22, fontWeight: 900, color: C.purple, margin: '0 0 4px' }}>You are {encourageWord.word.toLowerCase()}!</p>
+          <p style={{ fontSize: 13, color: C.gray, margin: 0, fontStyle: 'italic' }}>{encourageWord.word} — {encourageWord.def}</p>
+        </div>
 
         {/* Stat panels with embedded dots */}
         <div style={{ width: '100%', maxWidth: 340, display: 'flex', gap: 8, marginBottom: 16 }}>
@@ -1083,7 +1109,7 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
                 <span style={{ fontSize: 13, fontWeight: 800, color: C.blue }}>Learning</span>
               </div>
               <div style={{ fontSize: 36, fontWeight: 900, color: C.blue, lineHeight: 1, marginTop: 4 }}>{stats.learning}</div>
-              <p style={{ fontSize: 11, color: C.gray, margin: '6px 0 0', lineHeight: 1.3 }}>Words you've gotten wrong</p>
+              <p style={{ fontSize: 13, color: C.gray, margin: '6px 0 0', lineHeight: 1.3 }}>Words you've gotten wrong</p>
             </div>
             {stats.learning > 0 && (
               <button onClick={() => onComplete('learningQuiz')}
@@ -1099,7 +1125,7 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
                 <span style={{ fontSize: 13, fontWeight: 800, color: C.purple }}>Reviewing</span>
               </div>
               <div style={{ fontSize: 36, fontWeight: 900, color: C.purple, lineHeight: 1, marginTop: 4 }}>{stats.review}</div>
-              <p style={{ fontSize: 11, color: C.gray, margin: '6px 0 0', lineHeight: 1.3 }}>Words you've gotten right once</p>
+              <p style={{ fontSize: 13, color: C.gray, margin: '6px 0 0', lineHeight: 1.3 }}>Words you've gotten right once</p>
             </div>
             {stats.review > 0 && (
               <button onClick={() => onComplete('reviewQuiz')}
@@ -1116,8 +1142,8 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
               <span style={{ fontSize: 22 }}>⭐</span>
               <span style={{ fontSize: 18, fontWeight: 800, color: C.gold }}>Mastered</span>
             </div>
-            <div style={{ fontSize: 36, fontWeight: 900, color: C.gold, lineHeight: 1, marginTop: 4 }}>{stats.mastered}</div>
-            <p style={{ fontSize: 11, color: C.gray, margin: '6px 0 0', lineHeight: 1.3 }}>Words you've gotten right twice in a row</p>
+            <div style={{ fontSize: 36, fontWeight: 900, color: C.gold, lineHeight: 1, marginTop: 4 }}>{stats.mastered}<span style={{ fontSize: 20, fontWeight: 800, color: C.gray }}> / {VOCABULARY.length}</span></div>
+            <p style={{ fontSize: 13, color: C.gray, margin: '6px 0 0', lineHeight: 1.3 }}>Words you've gotten right twice in a row</p>
           </div>
           {stats.mastered > 0 && (
             <button onClick={() => onComplete('masteredQuiz')}
@@ -1129,8 +1155,8 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
             return (
               <div style={{ marginTop: stats.mastered > 0 ? 0 : 12, textAlign: 'left' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                  <span style={{ fontSize: 11, color: C.gray, fontWeight: 600 }}>Progress to next group of 10</span>
-                  <span style={{ fontSize: 11, color: C.gold, fontWeight: 700 }}>{progress}/10</span>
+                  <span style={{ fontSize: 12, color: C.gray, fontWeight: 600 }}>Progress to next group of 10</span>
+                  <span style={{ fontSize: 12, color: C.gold, fontWeight: 700 }}>{progress}/10</span>
                 </div>
                 <div style={{ height: 8, background: '#F0F0F0', borderRadius: 4, overflow: 'hidden' }}>
                   <div style={{ height: '100%', width: `${(progress / 10) * 100}%`, background: C.gold, borderRadius: 4, transition: 'width 0.3s' }} />
@@ -1149,10 +1175,16 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
               <button onClick={() => onComplete('friends')} style={{ padding: '10px 24px', background: C.purple, color: 'white', fontWeight: 700, fontSize: 13, border: 'none', borderRadius: 12, cursor: 'pointer' }}>Tell your friends! 💬</button>
             </div>
           )}
-          <button onClick={() => onComplete('done')} style={{ width: '100%', padding: '16px 0', background: C.green, color: 'white', fontWeight: 700, fontSize: 16, border: 'none', borderRadius: 16, cursor: 'pointer', boxShadow: `0 4px 0 ${C.greenDark}` }}>Done for Today! 🎉</button>
+          {/* Celebration message instead of Done button */}
+          <div style={{ background: `linear-gradient(135deg, ${C.green}15, ${C.green}05)`, border: `2px solid ${C.green}30`, borderRadius: 16, padding: 20, textAlign: 'center' }}>
+            <div style={{ fontSize: 36, marginBottom: 6 }}>🎉</div>
+            <p style={{ fontWeight: 800, fontSize: 16, color: C.greenDark, margin: '0 0 4px' }}>You did it! Session complete!</p>
+            <p style={{ fontSize: 13, color: C.gray, margin: 0 }}>See you tomorrow for more words.</p>
+          </div>
           {(VOCABULARY.length - stats.totalIntroduced > 0) && (
             <button onClick={() => { onComplete('sprint') }} style={{ width: '100%', padding: '16px 0', background: C.blue, color: 'white', fontWeight: 700, fontSize: 15, border: 'none', borderRadius: 16, cursor: 'pointer', boxShadow: `0 4px 0 ${C.blueDark}` }}>Learn More New Words</button>
           )}
+          <button onClick={() => onComplete('done')} style={{ width: '100%', padding: '12px 0', background: 'transparent', color: C.gray, fontWeight: 600, fontSize: 14, border: 'none', cursor: 'pointer' }}>Back to Home</button>
         </div>
       </div>
     )
@@ -1206,7 +1238,7 @@ function WordListScreen({ profile, srsCards, onBack }) {
                     {c && <SRSBadge interval={c.interval} status={c.status} />}
                   </div>
                   <p style={{ color: C.gray, fontSize: 13, margin: '4px 0 0', lineHeight: 1.4 }}>{data.definition}</p>
-                  {c && <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}><StrengthBars repetition={c.repetition} size={16} /><span style={{ fontSize: 11, color: C.gray }}>{c.repetition} correct in a row</span></div>}
+                  {c && <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}><StrengthBars repetition={c.repetition} size={16} /><span style={{ fontSize: 12, color: C.gray }}>{c.repetition} correct in a row</span></div>}
                 </div>
               )
             })}
@@ -1249,7 +1281,7 @@ function FlashcardBrowser({ title, words, srsCards, color, onBack }) {
           <div style={{ flex: 1, height: 12, background: '#E5E5E5', borderRadius: 6, overflow: 'hidden' }}>
             <div style={{ height: '100%', width: `${((index + 1) / words.length) * 100}%`, background: color, borderRadius: 6, transition: 'width 0.3s' }} />
           </div>
-          <span style={{ fontSize: 11, fontWeight: 700, color: C.gray }}>{index + 1} / {words.length}</span>
+          <span style={{ fontSize: 12, fontWeight: 700, color: C.gray }}>{index + 1} / {words.length}</span>
         </div>
       </div>
       <div style={{ maxWidth: 400, margin: '0 auto', padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -1257,7 +1289,6 @@ function FlashcardBrowser({ title, words, srsCards, color, onBack }) {
           <span style={{ color, fontWeight: 700, fontSize: 14, textTransform: 'uppercase', letterSpacing: 1 }}>{title}</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
-          <p style={{ color: C.gray, fontSize: 13, margin: 0 }}>Tap card to flip</p>
           {card && <SRSBadge interval={card.interval} status={card.status} />}
         </div>
         <div onClick={() => setFlipped(!flipped)} style={{ width: '100%', maxWidth: 340, height: 280, cursor: 'pointer', perspective: 1000 }}>
@@ -1305,7 +1336,7 @@ function MessageComposer({ toUser, messageType, onSend, onClose }) {
               background: i === selectedIdx ? C.purple + '08' : 'white', cursor: 'pointer', textAlign: 'left',
             }}>
               <div style={{ fontWeight: 700, fontSize: 14, color: i === selectedIdx ? C.purple : C.grayDark }}>{m.body}</div>
-              <div style={{ fontSize: 11, color: C.gray, marginTop: 2 }}><em>{m.word}</em> — {m.def}</div>
+              <div style={{ fontSize: 12, color: C.gray, marginTop: 2 }}><em>{m.word}</em> — {m.def}</div>
             </button>
           ))}
         </div>
@@ -1415,6 +1446,12 @@ function FriendsScreen({ userId, onBack }) {
           {unreadCount > 0 && <span style={{ position: 'absolute', top: 4, right: '25%', background: C.red, color: 'white', fontSize: 9, fontWeight: 800, borderRadius: 10, padding: '1px 5px', minWidth: 16, textAlign: 'center' }}>{unreadCount}</span>}
         </button>
       </div>
+      {/* Explanation banner */}
+      <div style={{ background: `linear-gradient(135deg, ${C.purple}08, ${C.blue}08)`, padding: '12px 20px', borderBottom: '1px solid #F0F0F0' }}>
+        <p style={{ fontSize: 13, color: C.grayDark, margin: 0, textAlign: 'center', lineHeight: 1.4 }}>
+          📚 Learn together! Follow friends to send vocab-powered encouragement and celebrate each other's milestones.
+        </p>
+      </div>
 
       <div style={{ maxWidth: 400, margin: '0 auto', padding: 16 }}>
         {/* Sent confirmation toast */}
@@ -1445,7 +1482,7 @@ function FriendsScreen({ userId, onBack }) {
                             </div>
                             <span style={{ fontWeight: 700, fontSize: 14, color: C.grayDark }}>{f.name}</span>
                           </div>
-                          <button onClick={() => handleUnfollow(f.id)} style={{ background: 'none', border: `1px solid ${C.red}30`, borderRadius: 8, padding: '4px 10px', fontSize: 11, fontWeight: 600, color: C.red, cursor: 'pointer' }}>Unfollow</button>
+                          <button onClick={() => handleUnfollow(f.id)} style={{ background: 'none', border: `1px solid ${C.red}30`, borderRadius: 8, padding: '4px 10px', fontSize: 12, fontWeight: 600, color: C.red, cursor: 'pointer' }}>Unfollow</button>
                         </div>
                         <div style={{ display: 'flex', gap: 6 }}>
                           <button onClick={() => setComposeTo({ user: f, type: 'congrats' })} style={{ flex: 1, padding: '8px 0', background: C.gold + '15', border: `1px solid ${C.gold}40`, borderRadius: 10, fontSize: 12, fontWeight: 700, color: C.gold, cursor: 'pointer' }}>🏆 Congratulate</button>
@@ -1519,10 +1556,10 @@ function FriendsScreen({ userId, onBack }) {
                           {!m.read && <span style={{ fontSize: 8, color: C.purple }}>●</span>}
                         </div>
                         <p style={{ margin: '0 0 4px', fontSize: 15, fontWeight: 700, color: C.purple }}>{m.message_body}</p>
-                        <p style={{ margin: 0, fontSize: 11, color: C.gray }}><em>{m.vocab_word}</em> — {
+                        <p style={{ margin: 0, fontSize: 12, color: C.gray }}><em>{m.vocab_word}</em> — {
                           [...CONGRATS_MESSAGES, ...GENERAL_MESSAGES].find(v => v.word === m.vocab_word)?.def || ''
                         }</p>
-                        <p style={{ margin: '4px 0 0', fontSize: 10, color: '#C0C0C0' }}>{new Date(m.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</p>
+                        <p style={{ margin: '4px 0 0', fontSize: 12, color: '#C0C0C0' }}>{new Date(m.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</p>
                       </div>
                     ))}
                   </div>
