@@ -2,7 +2,20 @@ import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { supabase } from './lib/supabase.js'
 import { getProfile, updateProfile, createProfile, getSRSCards, upsertSRSCards, searchUsers, getFollowing, followUser, unfollowUser, sendMessage, getMessages, getUnreadCount, markMessagesRead } from './lib/db.js'
 import { getToday, createSRSCard, updateSRSCard, isDueForReview, getIntervalLabel, buildDailySession, getStats } from './lib/srs.js'
-import VOCABULARY from './data/words.json'
+import VOCABULARY_RAW from './data/words.json'
+
+// Deterministic shuffle so word order is mixed but consistent
+function seededShuffle(arr, seed = 42) {
+  const shuffled = [...arr]
+  let s = seed
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    s = (s * 16807 + 0) % 2147483647
+    const j = s % (i + 1)
+    ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+  }
+  return shuffled
+}
+const VOCABULARY = seededShuffle(VOCABULARY_RAW)
 
 // ═══════════════════════════════════════════════════════════════
 // CAT MASCOT (inline SVG)
@@ -499,8 +512,8 @@ function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onSt
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: 'white', padding: '16px 32px', borderRadius: 20, border: '2px solid #F0F0F0' }}>
             <FlameIcon size={36} active={profile.streak > 0} />
             <div>
-              <div style={{ fontSize: 36, fontWeight: 900, color: profile.streak > 0 ? '#FF9600' : C.gray, lineHeight: 1 }}>{profile.streak}</div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: C.gray, marginTop: 2 }}>day streak{profile.best_streak > 1 ? ` · Best: ${profile.best_streak}` : ''}</div>
+              <div style={{ fontSize: 36, fontWeight: 900, color: profile.streak > 0 ? C.red : C.gray, lineHeight: 1 }}>{profile.streak}</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: profile.streak > 0 ? C.red : C.gray, marginTop: 2 }}>day streak{profile.best_streak > 1 ? ` · Best: ${profile.best_streak}` : ''}</div>
             </div>
           </div>
           {dayDone && profile.sprints_today > 0 && <p style={{ color: C.purple, margin: '8px 0 0', fontSize: 13, fontWeight: 600 }}>+{profile.sprints_today * 5} extra practice words today!</p>}
@@ -725,8 +738,9 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
 
   const startQuiz = () => buildAndStartQuiz(sessionNewWords, sessionReviewWords)
 
-  const selectAnswer = (ans) => {
-    if (showFeedback) return
+  const submitAnswer = () => {
+    if (showFeedback || !selected) return
+    const ans = selected
     // Flush any previous pending animation
     if (pendingUpdate.current) applyPendingUpdate()
     if (flyingPill) setFlyingPill(null)
@@ -1016,9 +1030,12 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
                 if (opt === data.definition) { bg = C.greenLight; border = `2px solid ${C.green}`; color = C.greenDark }
                 else if (opt === selected && !isCorrect) { bg = C.redLight; border = `2px solid ${C.red}`; color = C.red }
               } else if (opt === selected) { border = `2px solid ${C.blue}`; bg = '#E8F5FE' }
-              return <button key={i} onClick={() => selectAnswer(opt)} style={{ width: '100%', padding: '14px 16px', textAlign: 'left', background: bg, border, borderRadius: 14, color, fontWeight: 600, fontSize: 14, cursor: showFeedback ? 'default' : 'pointer', lineHeight: 1.4 }}>{opt}</button>
+              return <button key={i} onClick={() => !showFeedback && setSelected(opt)} style={{ width: '100%', padding: '14px 16px', textAlign: 'left', background: bg, border, borderRadius: 14, color, fontWeight: 600, fontSize: 14, cursor: showFeedback ? 'default' : 'pointer', lineHeight: 1.4 }}>{opt}</button>
             })}
           </div>
+          {selected && !showFeedback && (
+            <button onClick={submitAnswer} style={{ width: '100%', padding: '14px 0', marginTop: 12, background: C.green, color: 'white', fontWeight: 700, fontSize: 15, border: 'none', borderRadius: 14, cursor: 'pointer', boxShadow: `0 4px 0 ${C.greenDark}` }}>Submit Answer</button>
+          )}
           {showFeedback && (() => {
             const willMaster = feedbackWillMaster
             const isMasteredQuizWrong = !isCorrect && initialMode === 'masteredQuiz'
@@ -1081,8 +1098,8 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: 'white', padding: '16px 32px', borderRadius: 20, border: '2px solid #F0F0F0', marginTop: 16, marginBottom: 8 }}>
           <FlameIcon size={36} active />
           <div>
-            <div style={{ fontSize: 36, fontWeight: 900, color: '#FF9600', lineHeight: 1 }}>{displayStreak}</div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: C.gray, marginTop: 2 }}>day streak</div>
+            <div style={{ fontSize: 36, fontWeight: 900, color: C.red, lineHeight: 1 }}>{displayStreak}</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: C.red, marginTop: 2 }}>day streak</div>
           </div>
         </div>
         <h2 style={{ fontSize: 22, fontWeight: 800, color: C.grayDark, margin: '8px 0 4px' }}>
