@@ -565,7 +565,7 @@ function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onSt
             return (
               <div style={{ marginTop: stats.mastered > 0 ? 0 : 12 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                  <span style={{ fontSize: 14, color: C.gray, fontWeight: 600 }}>Progress to next group of 10</span>
+                  <span style={{ fontSize: 14, color: C.gold, fontWeight: 500 }}>Progress to next group of 10</span>
                   <span style={{ fontSize: 14, color: C.gold, fontWeight: 700 }}>{progress}/10</span>
                 </div>
                 <div style={{ height: 8, background: '#F0F0F0', borderRadius: 4, overflow: 'hidden' }}>
@@ -581,7 +581,7 @@ function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onSt
         ) : (
           <button onClick={() => onStartSession(true)} style={{ width: '100%', padding: '16px 0', background: C.purple, color: 'white', fontWeight: 700, fontSize: 15, border: 'none', borderRadius: 16, cursor: 'pointer', boxShadow: '0 4px 0 #A855F7' }}>Keep Practicing 💪</button>
         )}
-        <button onClick={onViewWords} style={{ display: 'block', margin: '8px auto 0', background: 'none', border: 'none', color: C.blue, fontWeight: 700, fontSize: 14, cursor: 'pointer', textDecoration: 'underline' }}>Review all the words you've seen →</button>
+        <button onClick={onViewWords} style={{ display: 'block', margin: '20px auto 0', background: 'none', border: 'none', color: '#D946EF', fontWeight: 700, fontSize: 14, cursor: 'pointer', textDecoration: 'underline' }}>Review all the words you've seen →</button>
       </div>
     </div>
   )
@@ -1155,7 +1155,7 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
             return (
               <div style={{ marginTop: stats.mastered > 0 ? 0 : 12, textAlign: 'left' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                  <span style={{ fontSize: 14, color: C.gray, fontWeight: 600 }}>Progress to next group of 10</span>
+                  <span style={{ fontSize: 14, color: C.gold, fontWeight: 500 }}>Progress to next group of 10</span>
                   <span style={{ fontSize: 14, color: C.gold, fontWeight: 700 }}>{progress}/10</span>
                 </div>
                 <div style={{ height: 8, background: '#F0F0F0', borderRadius: 4, overflow: 'hidden' }}>
