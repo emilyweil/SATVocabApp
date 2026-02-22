@@ -85,3 +85,89 @@ export async function upsertSRSCards(userId, cardsMap) {
     .upsert(rows, { onConflict: 'user_id,word' })
   if (error) throw error
 }
+
+// ── Social: Follows ──
+
+export async function searchUsers(query) {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id, name')
+    .ilike('name', `%${query}%`)
+    .limit(20)
+  if (error) throw error
+  return data || []
+}
+
+export async function getFollowing(userId) {
+  const { data, error } = await supabase
+    .from('follows')
+    .select('following_id, profiles!follows_following_id_fkey(id, name)')
+    .eq('follower_id', userId)
+  if (error) throw error
+  return (data || []).map(r => r.profiles).filter(Boolean)
+}
+
+export async function followUser(userId, targetId) {
+  const { error } = await supabase
+    .from('follows')
+    .upsert({ follower_id: userId, following_id: targetId }, { onConflict: 'follower_id,following_id' })
+  if (error) throw error
+}
+
+export async function unfollowUser(userId, targetId) {
+  const { error } = await supabase
+    .from('follows')
+    .delete()
+    .eq('follower_id', userId)
+    .eq('following_id', targetId)
+  if (error) throw error
+}
+
+// ── Social: Messages ──
+
+export async function sendMessage(fromId, toId, vocabWord, messageBody, messageType = 'general') {
+  const { error } = await supabase
+    .from('messages')
+    .insert({
+      from_user: fromId,
+      to_user: toId,
+      vocab_word: vocabWord,
+      message_body: messageBody,
+      message_type: messageType,
+      read: false,
+    })
+  if (error) throw error
+}
+
+export async function getMessages(userId) {
+  const { data, error } = await supabase
+    .from('messages')
+    .select('*, profiles!messages_from_user_fkey(name)')
+    .eq('to_user', userId)
+    .order('created_at', { ascending: false })
+    .limit(50)
+  if (error) throw error
+  return (data || []).map(m => ({
+    ...m,
+    from_name: m.profiles?.name || 'Someone',
+  }))
+}
+
+export async function getUnreadCount(userId) {
+  const { count, error } = await supabase
+    .from('messages')
+    .select('*', { count: 'exact', head: true })
+    .eq('to_user', userId)
+    .eq('read', false)
+  if (error) throw error
+  return count || 0
+}
+
+export async function markMessagesRead(userId) {
+  const { error } = await supabase
+    .from('messages')
+    .update({ read: true })
+    .eq('to_user', userId)
+    .eq('read', false)
+  if (error) throw error
+}

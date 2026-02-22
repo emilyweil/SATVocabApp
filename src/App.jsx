@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { supabase } from './lib/supabase.js'
-import { getProfile, updateProfile, createProfile, getSRSCards, upsertSRSCards } from './lib/db.js'
+import { getProfile, updateProfile, createProfile, getSRSCards, upsertSRSCards, searchUsers, getFollowing, followUser, unfollowUser, sendMessage, getMessages, getUnreadCount, markMessagesRead } from './lib/db.js'
 import { getToday, createSRSCard, updateSRSCard, isDueForReview, getIntervalLabel, buildDailySession, getStats } from './lib/srs.js'
 import VOCABULARY from './data/words.json'
 
@@ -136,6 +136,30 @@ const BUCKET_CFG = {
   review:   { label: 'Review',   icon: '🔁', color: C.purple, dot: '#E2BFFF', borderActive: 'rgba(168,85,247,0.5)' },
   mastered: { label: 'Mastered', icon: '⭐', color: C.gold, dot: '#FCCF7E', borderActive: 'rgba(245,166,35,0.5)' },
 }
+
+// ═══════════════════════════════════════════════════════════════
+// VOCAB MESSAGES — SAT words used as social messages
+// ═══════════════════════════════════════════════════════════════
+const CONGRATS_MESSAGES = [
+  { word: 'Felicitations', body: 'Felicitations on your milestone!', def: 'Expressions of good wishes; congratulations' },
+  { word: 'Commendations', body: 'Commendations on your achievement!', def: 'Praise; expressions of approval for merit' },
+  { word: 'Laudable', body: 'What a laudable achievement!', def: 'Deserving praise and commendation' },
+  { word: 'Monumental', body: 'A truly monumental milestone!', def: 'Great in importance, extent, or size' },
+  { word: 'Prodigious', body: 'Prodigious progress — well done!', def: 'Remarkably great in extent, size, or degree' },
+  { word: 'Exemplary', body: 'Truly exemplary effort!', def: 'Serving as a desirable model; outstanding' },
+  { word: 'Superlative', body: 'Superlative work!', def: 'Of the highest quality or degree' },
+  { word: 'Illustrious', body: 'An illustrious accomplishment!', def: 'Well known and esteemed; renowned' },
+]
+const GENERAL_MESSAGES = [
+  { word: 'Salutations', body: 'Salutations, friend!', def: 'A greeting; an expression of goodwill' },
+  { word: 'Persevere', body: 'Persevere — you\'ve got this!', def: 'To continue in a course of action despite difficulty' },
+  { word: 'Indefatigable', body: 'You\'re absolutely indefatigable!', def: 'Persisting tirelessly; untiring' },
+  { word: 'Tenacious', body: 'Keep being tenacious!', def: 'Persistent; holding firmly to something' },
+  { word: 'Diligent', body: 'You\'re truly diligent!', def: 'Having or showing care and conscientiousness in work' },
+  { word: 'Resolute', body: 'Stay resolute!', def: 'Admirably purposeful, determined, and unwavering' },
+  { word: 'Formidable', body: 'You\'re formidable!', def: 'Inspiring respect or awe through being impressively powerful' },
+  { word: 'Ebullient', body: 'Sending ebullient good vibes!', def: 'Cheerful and full of energy; enthusiastic' },
+]
 
 
 
@@ -370,7 +394,7 @@ function WelcomePanel({ name, onDismiss, isFirstTime }) {
 // ═══════════════════════════════════════════════════════════════
 // HOME SCREEN
 // ═══════════════════════════════════════════════════════════════
-function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onStartLearningQuiz, onStartMasteredQuiz, onViewWords, onLogout, onBrowse, onShowHowItWorks }) {
+function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onStartLearningQuiz, onStartMasteredQuiz, onViewWords, onLogout, onBrowse, onShowHowItWorks, onFriends, unreadCount }) {
   const stats = getStats(profile.words_introduced, srsCards)
   const today = getToday()
   const dayDone = profile.today_complete && profile.last_session_date === today
@@ -393,7 +417,13 @@ function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onSt
     <div style={{ minHeight: '100vh', background: C.bg }}>
       <div style={{ background: 'white', padding: '12px 20px', borderBottom: '2px solid #F0F0F0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <button onClick={onShowHowItWorks} style={{ background: 'none', border: 'none', color: C.blue, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>How it works</button>
-        <button onClick={onLogout} style={{ background: 'none', border: 'none', color: C.gray, cursor: 'pointer', fontSize: 13 }}>Sign Out</button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <button onClick={onFriends} style={{ background: 'none', border: 'none', color: C.purple, cursor: 'pointer', fontSize: 13, fontWeight: 600, position: 'relative' }}>
+            Friends
+            {unreadCount > 0 && <span style={{ position: 'absolute', top: -6, right: -10, background: C.red, color: 'white', fontSize: 9, fontWeight: 800, borderRadius: 10, padding: '1px 5px', minWidth: 16, textAlign: 'center' }}>{unreadCount}</span>}
+          </button>
+          <button onClick={onLogout} style={{ background: 'none', border: 'none', color: C.gray, cursor: 'pointer', fontSize: 13 }}>Sign Out</button>
+        </div>
       </div>
       <div style={{ maxWidth: 400, margin: '0 auto', padding: 24 }}>
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
@@ -1052,6 +1082,14 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
         </div>
 
         <div style={{ width: '100%', maxWidth: 340, display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {stats.mastered > 0 && stats.mastered % 10 === 0 && (
+            <div style={{ background: `linear-gradient(135deg, ${C.purple}10, ${C.gold}10)`, border: `2px solid ${C.purple}30`, borderRadius: 16, padding: 16, textAlign: 'center', marginBottom: 4 }}>
+              <div style={{ fontSize: 28, marginBottom: 4 }}>🏆🎉</div>
+              <p style={{ fontWeight: 800, fontSize: 15, color: C.purple, margin: '0 0 4px' }}>Milestone: {stats.mastered} words mastered!</p>
+              <p style={{ fontSize: 12, color: C.gray, margin: '0 0 10px' }}>Share the news with your friends!</p>
+              <button onClick={() => onComplete('friends')} style={{ padding: '10px 24px', background: C.purple, color: 'white', fontWeight: 700, fontSize: 13, border: 'none', borderRadius: 12, cursor: 'pointer' }}>Tell your friends! 💬</button>
+            </div>
+          )}
           <button onClick={() => onComplete('done')} style={{ width: '100%', padding: '16px 0', background: C.green, color: 'white', fontWeight: 700, fontSize: 16, border: 'none', borderRadius: 16, cursor: 'pointer', boxShadow: `0 4px 0 ${C.greenDark}` }}>Done for Today! 🎉</button>
           {(VOCABULARY.length - stats.totalIntroduced > 0) && (
             <button onClick={() => { onComplete('sprint') }} style={{ width: '100%', padding: '16px 0', background: C.blue, color: 'white', fontWeight: 700, fontSize: 15, border: 'none', borderRadius: 16, cursor: 'pointer', boxShadow: `0 4px 0 ${C.blueDark}` }}>Learn More New Words</button>
@@ -1188,18 +1226,271 @@ function FlashcardBrowser({ title, words, srsCards, color, onBack }) {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// FRIENDS SCREEN
+// ═══════════════════════════════════════════════════════════════
+function MessageComposer({ toUser, messageType, onSend, onClose }) {
+  const messages = messageType === 'congrats' ? CONGRATS_MESSAGES : GENERAL_MESSAGES
+  const [selectedIdx, setSelectedIdx] = useState(0)
+  const selected = messages[selectedIdx]
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+      <div style={{ background: 'white', borderRadius: 20, padding: 24, width: '100%', maxWidth: 360 }}>
+        <h3 style={{ margin: '0 0 4px', fontSize: 16, fontWeight: 800, color: C.grayDark }}>
+          {messageType === 'congrats' ? `Congratulate ${toUser.name}!` : `Send ${toUser.name} a message`}
+        </h3>
+        <p style={{ color: C.gray, fontSize: 12, margin: '0 0 16px' }}>Pick a vocab word to send:</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 280, overflowY: 'auto', marginBottom: 16 }}>
+          {messages.map((m, i) => (
+            <button key={m.word} onClick={() => setSelectedIdx(i)} style={{
+              padding: '10px 12px', borderRadius: 12, border: i === selectedIdx ? `2px solid ${C.purple}` : '2px solid #E5E5E5',
+              background: i === selectedIdx ? C.purple + '08' : 'white', cursor: 'pointer', textAlign: 'left',
+            }}>
+              <div style={{ fontWeight: 700, fontSize: 14, color: i === selectedIdx ? C.purple : C.grayDark }}>{m.body}</div>
+              <div style={{ fontSize: 11, color: C.gray, marginTop: 2 }}><em>{m.word}</em> — {m.def}</div>
+            </button>
+          ))}
+        </div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button onClick={onClose} style={{ flex: 1, padding: '12px 0', background: '#F0F0F0', border: 'none', borderRadius: 12, fontWeight: 700, fontSize: 14, cursor: 'pointer', color: C.gray }}>Cancel</button>
+          <button onClick={() => onSend(selected)} style={{ flex: 1, padding: '12px 0', background: C.purple, border: 'none', borderRadius: 12, fontWeight: 700, fontSize: 14, cursor: 'pointer', color: 'white' }}>Send</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function FriendsScreen({ userId, onBack }) {
+  const [tab, setTab] = useState('friends') // friends | find | inbox
+  const [following, setFollowing] = useState([])
+  const [messages, setMessages] = useState([])
+  const [unreadCount, setUnreadCount] = useState(0)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState([])
+  const [searching, setSearching] = useState(false)
+  const [composeTo, setComposeTo] = useState(null) // { user, type }
+  const [sendingStatus, setSendingStatus] = useState(null) // 'sent' message
+  const [loading, setLoading] = useState(true)
+
+  const loadData = async () => {
+    try {
+      const [f, m, u] = await Promise.all([getFollowing(userId), getMessages(userId), getUnreadCount(userId)])
+      setFollowing(f)
+      setMessages(m)
+      setUnreadCount(u)
+    } catch (e) { console.error('Friends load error:', e) }
+    setLoading(false)
+  }
+
+  useEffect(() => { loadData() }, [])
+
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) return
+    setSearching(true)
+    try {
+      const results = await searchUsers(searchQuery.trim())
+      setSearchResults(results.filter(r => r.id !== userId))
+    } catch (e) { console.error('Search error:', e) }
+    setSearching(false)
+  }
+
+  const handleFollow = async (targetId) => {
+    try {
+      await followUser(userId, targetId)
+      await loadData()
+      // Update search results to reflect follow
+      const f = await getFollowing(userId)
+      setFollowing(f)
+    } catch (e) { console.error('Follow error:', e) }
+  }
+
+  const handleUnfollow = async (targetId) => {
+    try {
+      await unfollowUser(userId, targetId)
+      const f = await getFollowing(userId)
+      setFollowing(f)
+    } catch (e) { console.error('Unfollow error:', e) }
+  }
+
+  const handleSendMessage = async (msg) => {
+    if (!composeTo) return
+    try {
+      await sendMessage(userId, composeTo.user.id, msg.word, msg.body, composeTo.type)
+      setComposeTo(null)
+      setSendingStatus(`Sent "${msg.body}" to ${composeTo.user.name}!`)
+      setTimeout(() => setSendingStatus(null), 3000)
+    } catch (e) { console.error('Send error:', e) }
+  }
+
+  const handleOpenInbox = async () => {
+    setTab('inbox')
+    if (unreadCount > 0) {
+      try {
+        await markMessagesRead(userId)
+        setUnreadCount(0)
+        const m = await getMessages(userId)
+        setMessages(m)
+      } catch (e) { console.error('Mark read error:', e) }
+    }
+  }
+
+  const followingIds = new Set(following.map(f => f.id))
+
+  const tabStyle = (t) => ({
+    flex: 1, padding: '10px 0', border: 'none', borderBottom: tab === t ? `3px solid ${C.purple}` : '3px solid transparent',
+    background: 'none', fontWeight: 700, fontSize: 13, color: tab === t ? C.purple : C.gray, cursor: 'pointer', position: 'relative',
+  })
+
+  return (
+    <div style={{ minHeight: '100vh', background: C.bg }}>
+      {composeTo && <MessageComposer toUser={composeTo.user} messageType={composeTo.type} onSend={handleSendMessage} onClose={() => setComposeTo(null)} />}
+      <div style={{ background: 'white', padding: '12px 20px', borderBottom: '2px solid #F0F0F0', display: 'flex', alignItems: 'center', gap: 12 }}>
+        <button onClick={onBack} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.gray, fontSize: 20 }}>←</button>
+        <h2 style={{ fontSize: 18, fontWeight: 800, color: C.grayDark, margin: 0 }}>Friends</h2>
+      </div>
+      {/* Tabs */}
+      <div style={{ display: 'flex', background: 'white', borderBottom: '1px solid #F0F0F0' }}>
+        <button onClick={() => setTab('friends')} style={tabStyle('friends')}>Friends ({following.length})</button>
+        <button onClick={() => setTab('find')} style={tabStyle('find')}>Find</button>
+        <button onClick={handleOpenInbox} style={tabStyle('inbox')}>
+          Inbox
+          {unreadCount > 0 && <span style={{ position: 'absolute', top: 4, right: '25%', background: C.red, color: 'white', fontSize: 9, fontWeight: 800, borderRadius: 10, padding: '1px 5px', minWidth: 16, textAlign: 'center' }}>{unreadCount}</span>}
+        </button>
+      </div>
+
+      <div style={{ maxWidth: 400, margin: '0 auto', padding: 16 }}>
+        {/* Sent confirmation toast */}
+        {sendingStatus && (
+          <div style={{ background: C.greenLight, border: `2px solid ${C.green}`, borderRadius: 12, padding: '10px 14px', marginBottom: 12, fontSize: 13, fontWeight: 600, color: C.greenDark, textAlign: 'center' }}>
+            ✅ {sendingStatus}
+          </div>
+        )}
+
+        {loading ? <Spinner text="Loading..." /> : (
+          <>
+            {/* ── FRIENDS TAB ── */}
+            {tab === 'friends' && (
+              <div>
+                {following.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '40px 0' }}>
+                    <p style={{ fontSize: 32, marginBottom: 8 }}>👋</p>
+                    <p style={{ color: C.gray, fontSize: 14 }}>No friends yet! Use the Find tab to search for friends.</p>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {following.map(f => (
+                      <div key={f.id} style={{ background: 'white', borderRadius: 14, padding: '12px 14px', border: '2px solid #F0F0F0' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <div style={{ width: 32, height: 32, borderRadius: '50%', background: C.purple + '20', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 800, color: C.purple }}>
+                              {f.name.charAt(0).toUpperCase()}
+                            </div>
+                            <span style={{ fontWeight: 700, fontSize: 14, color: C.grayDark }}>{f.name}</span>
+                          </div>
+                          <button onClick={() => handleUnfollow(f.id)} style={{ background: 'none', border: `1px solid ${C.red}30`, borderRadius: 8, padding: '4px 10px', fontSize: 11, fontWeight: 600, color: C.red, cursor: 'pointer' }}>Unfollow</button>
+                        </div>
+                        <div style={{ display: 'flex', gap: 6 }}>
+                          <button onClick={() => setComposeTo({ user: f, type: 'congrats' })} style={{ flex: 1, padding: '8px 0', background: C.gold + '15', border: `1px solid ${C.gold}40`, borderRadius: 10, fontSize: 12, fontWeight: 700, color: C.gold, cursor: 'pointer' }}>🏆 Congratulate</button>
+                          <button onClick={() => setComposeTo({ user: f, type: 'general' })} style={{ flex: 1, padding: '8px 0', background: C.purple + '10', border: `1px solid ${C.purple}30`, borderRadius: 10, fontSize: 12, fontWeight: 700, color: C.purple, cursor: 'pointer' }}>💬 Message</button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ── FIND TAB ── */}
+            {tab === 'find' && (
+              <div>
+                <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+                  <input
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleSearch()}
+                    placeholder="Search by name..."
+                    style={{ flex: 1, padding: '10px 14px', borderRadius: 12, border: '2px solid #E5E5E5', fontSize: 14, outline: 'none' }}
+                  />
+                  <button onClick={handleSearch} disabled={searching} style={{ padding: '10px 18px', background: C.purple, color: 'white', border: 'none', borderRadius: 12, fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>
+                    {searching ? '...' : 'Search'}
+                  </button>
+                </div>
+                {searchResults.length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {searchResults.map(r => {
+                      const isFollowing = followingIds.has(r.id)
+                      return (
+                        <div key={r.id} style={{ background: 'white', borderRadius: 14, padding: '12px 14px', border: '2px solid #F0F0F0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <div style={{ width: 32, height: 32, borderRadius: '50%', background: C.blue + '20', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 800, color: C.blue }}>
+                              {r.name.charAt(0).toUpperCase()}
+                            </div>
+                            <span style={{ fontWeight: 700, fontSize: 14, color: C.grayDark }}>{r.name}</span>
+                          </div>
+                          {isFollowing ? (
+                            <button onClick={() => handleUnfollow(r.id)} style={{ padding: '6px 14px', background: 'white', border: `2px solid ${C.gray}30`, borderRadius: 10, fontSize: 12, fontWeight: 700, color: C.gray, cursor: 'pointer' }}>Following ✓</button>
+                          ) : (
+                            <button onClick={() => handleFollow(r.id)} style={{ padding: '6px 14px', background: C.purple, border: 'none', borderRadius: 10, fontSize: 12, fontWeight: 700, color: 'white', cursor: 'pointer' }}>Follow</button>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+                {searchResults.length === 0 && searchQuery && !searching && (
+                  <p style={{ color: C.gray, textAlign: 'center', fontSize: 13, marginTop: 20 }}>No users found. Try a different name.</p>
+                )}
+              </div>
+            )}
+
+            {/* ── INBOX TAB ── */}
+            {tab === 'inbox' && (
+              <div>
+                {messages.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '40px 0' }}>
+                    <p style={{ fontSize: 32, marginBottom: 8 }}>📬</p>
+                    <p style={{ color: C.gray, fontSize: 14 }}>No messages yet!</p>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {messages.map(m => (
+                      <div key={m.id} style={{ background: m.read ? 'white' : C.purple + '06', borderRadius: 14, padding: '12px 14px', border: m.read ? '2px solid #F0F0F0' : `2px solid ${C.purple}20` }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                          <span style={{ fontSize: 14 }}>{m.message_type === 'congrats' ? '🏆' : '💬'}</span>
+                          <span style={{ fontWeight: 700, fontSize: 13, color: C.grayDark }}>{m.from_name}</span>
+                          {!m.read && <span style={{ fontSize: 8, color: C.purple }}>●</span>}
+                        </div>
+                        <p style={{ margin: '0 0 4px', fontSize: 15, fontWeight: 700, color: C.purple }}>{m.message_body}</p>
+                        <p style={{ margin: 0, fontSize: 11, color: C.gray }}><em>{m.vocab_word}</em> — {
+                          [...CONGRATS_MESSAGES, ...GENERAL_MESSAGES].find(v => v.word === m.vocab_word)?.def || ''
+                        }</p>
+                        <p style={{ margin: '4px 0 0', fontSize: 10, color: '#C0C0C0' }}>{new Date(m.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════
 // MAIN APP
 // ═══════════════════════════════════════════════════════════════
 export default function App() {
   const [authUser, setAuthUser] = useState(null)
   const [profile, setProfile] = useState(null)
   const [srsCards, setSrsCards] = useState({})
-  const [screen, setScreen] = useState('loading') // loading | login | home | session | words | browse
+  const [screen, setScreen] = useState('loading') // loading | login | home | session | words | browse | friends
   const [isSprint, setIsSprint] = useState(false)
   const [sessionKey, setSessionKey] = useState(0)
   const [sessionMode, setSessionMode] = useState('normal') // 'normal' | 'reviewQuiz' | 'learningQuiz'
   const [browseCategory, setBrowseCategory] = useState(null) // { title, words, color }
   const [showWelcome, setShowWelcome] = useState(false)
+  const [unreadCount, setUnreadCount] = useState(0)
 
   // Check for existing session on mount
   useEffect(() => {
@@ -1227,6 +1518,8 @@ export default function App() {
   const loadUserData = async (userId, changeScreen = true) => {
     try {
       const [prof, cards] = await Promise.all([getProfile(userId), getSRSCards(userId)])
+      // Load unread message count (non-blocking)
+      getUnreadCount(userId).then(c => setUnreadCount(c)).catch(() => {})
       console.log(`[loadUserData] Loaded ${Object.keys(cards).length} cards from DB`)
       // Log a sample of card states
       const cardList = Object.values(cards)
@@ -1362,6 +1655,7 @@ export default function App() {
         else if (action === 'reviewQuiz') { startReviewQuiz() }
         else if (action === 'learningQuiz') { startLearningQuiz() }
         else if (action === 'masteredQuiz') { startMasteredQuiz() }
+        else if (action === 'friends') { setScreen('friends') }
         else { setScreen('home') }
       }) }}
     />
@@ -1376,6 +1670,13 @@ export default function App() {
       srsCards={srsCards}
       color={browseCategory.color}
       onBack={() => setScreen('home')}
+    />
+  )
+
+  if (screen === 'friends') return (
+    <FriendsScreen
+      userId={authUser.id}
+      onBack={() => { setScreen('home'); getUnreadCount(authUser.id).then(c => setUnreadCount(c)).catch(() => {}) }}
     />
   )
 
@@ -1399,6 +1700,8 @@ export default function App() {
       onLogout={handleLogout}
       onBrowse={(cat) => { setBrowseCategory(cat); setScreen('browse') }}
       onShowHowItWorks={() => setShowWelcome('howItWorks')}
+      onFriends={() => setScreen('friends')}
+      unreadCount={unreadCount}
     />
   )
 }
