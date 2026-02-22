@@ -50,8 +50,8 @@ function getWordData(word) {
 // ═══════════════════════════════════════════════════════════════
 const FlameIcon = ({ size = 24, active = true }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-    <path d="M12 2C12 2 4 10 4 15C4 19.4 7.6 22 12 22C16.4 22 20 19.4 20 15C20 10 12 2 12 2Z" fill={active ? '#FF9600' : '#E5E5E5'} />
-    <path d="M12 8C12 8 8 13 8 16C8 18.8 9.8 20 12 20C14.2 20 16 18.8 16 16C16 13 12 8 12 8Z" fill={active ? '#FFC800' : '#AFAFAF'} />
+    <path d="M12 2C12 2 4 10 4 15C4 19.4 7.6 22 12 22C16.4 22 20 19.4 20 15C20 10 12 2 12 2Z" fill={active ? '#FF4B4B' : '#E5E5E5'} />
+    <path d="M12 8C12 8 8 13 8 16C8 18.8 9.8 20 12 20C14.2 20 16 18.8 16 16C16 13 12 8 12 8Z" fill={active ? '#FF7676' : '#AFAFAF'} />
   </svg>
 )
 
@@ -513,7 +513,7 @@ function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onSt
             <FlameIcon size={36} active={profile.streak > 0} />
             <div>
               <div style={{ fontSize: 36, fontWeight: 900, color: profile.streak > 0 ? C.red : C.gray, lineHeight: 1 }}>{profile.streak}</div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: profile.streak > 0 ? C.red : C.gray, marginTop: 2 }}>day streak{profile.best_streak > 1 ? ` · Best: ${profile.best_streak}` : ''}</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: profile.streak > 0 ? C.red : C.gray, marginTop: 2 }}>Day Streak{profile.best_streak > 1 ? ` · Best: ${profile.best_streak}` : ''}</div>
             </div>
           </div>
           {dayDone && profile.sprints_today > 0 && <p style={{ color: C.purple, margin: '8px 0 0', fontSize: 13, fontWeight: 600 }}>+{profile.sprints_today * 5} extra practice words today!</p>}
@@ -1099,7 +1099,7 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
           <FlameIcon size={36} active />
           <div>
             <div style={{ fontSize: 36, fontWeight: 900, color: C.red, lineHeight: 1 }}>{displayStreak}</div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: C.red, marginTop: 2 }}>day streak</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: C.red, marginTop: 2 }}>Day Streak</div>
           </div>
         </div>
         <h2 style={{ fontSize: 22, fontWeight: 800, color: C.grayDark, margin: '8px 0 4px' }}>
