@@ -500,7 +500,7 @@ function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onSt
             <FlameIcon size={36} active={profile.streak > 0} />
             <div>
               <div style={{ fontSize: 36, fontWeight: 900, color: profile.streak > 0 ? '#FF9600' : C.gray, lineHeight: 1 }}>{profile.streak}</div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: C.gray, marginTop: 2 }}>day streak{profile.best_streak > 1 ? ` · Best: ${profile.best_streak}` : ''}</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: C.gray, marginTop: 2 }}>day streak{profile.best_streak > 1 ? ` · Best: ${profile.best_streak}` : ''}</div>
             </div>
           </div>
           {dayDone && profile.sprints_today > 0 && <p style={{ color: C.purple, margin: '8px 0 0', fontSize: 13, fontWeight: 600 }}>+{profile.sprints_today * 5} extra practice words today!</p>}
@@ -565,8 +565,8 @@ function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onSt
             return (
               <div style={{ marginTop: stats.mastered > 0 ? 0 : 12 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                  <span style={{ fontSize: 12, color: C.gray, fontWeight: 600 }}>Progress to next group of 10</span>
-                  <span style={{ fontSize: 12, color: C.gold, fontWeight: 700 }}>{progress}/10</span>
+                  <span style={{ fontSize: 14, color: C.gray, fontWeight: 600 }}>Progress to next group of 10</span>
+                  <span style={{ fontSize: 14, color: C.gold, fontWeight: 700 }}>{progress}/10</span>
                 </div>
                 <div style={{ height: 8, background: '#F0F0F0', borderRadius: 4, overflow: 'hidden' }}>
                   <div style={{ height: '100%', width: `${(progress / 10) * 100}%`, background: C.gold, borderRadius: 4, transition: 'width 0.3s' }} />
@@ -581,7 +581,7 @@ function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onSt
         ) : (
           <button onClick={() => onStartSession(true)} style={{ width: '100%', padding: '16px 0', background: C.purple, color: 'white', fontWeight: 700, fontSize: 15, border: 'none', borderRadius: 16, cursor: 'pointer', boxShadow: '0 4px 0 #A855F7' }}>Keep Practicing 💪</button>
         )}
-        <button onClick={onViewWords} style={{ width: '100%', padding: '14px 0', background: 'transparent', color: C.gray, fontWeight: 600, fontSize: 14, border: 'none', cursor: 'pointer', marginTop: 8 }}>Review all the words you've seen</button>
+        <button onClick={onViewWords} style={{ display: 'block', margin: '8px auto 0', background: 'none', border: 'none', color: C.blue, fontWeight: 700, fontSize: 14, cursor: 'pointer', textDecoration: 'underline' }}>Review all the words you've seen →</button>
       </div>
     </div>
   )
@@ -1082,7 +1082,7 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
           <FlameIcon size={36} active />
           <div>
             <div style={{ fontSize: 36, fontWeight: 900, color: '#FF9600', lineHeight: 1 }}>{displayStreak}</div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: C.gray, marginTop: 2 }}>day streak</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: C.gray, marginTop: 2 }}>day streak</div>
           </div>
         </div>
         <h2 style={{ fontSize: 22, fontWeight: 800, color: C.grayDark, margin: '8px 0 4px' }}>
@@ -1155,8 +1155,8 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
             return (
               <div style={{ marginTop: stats.mastered > 0 ? 0 : 12, textAlign: 'left' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                  <span style={{ fontSize: 12, color: C.gray, fontWeight: 600 }}>Progress to next group of 10</span>
-                  <span style={{ fontSize: 12, color: C.gold, fontWeight: 700 }}>{progress}/10</span>
+                  <span style={{ fontSize: 14, color: C.gray, fontWeight: 600 }}>Progress to next group of 10</span>
+                  <span style={{ fontSize: 14, color: C.gold, fontWeight: 700 }}>{progress}/10</span>
                 </div>
                 <div style={{ height: 8, background: '#F0F0F0', borderRadius: 4, overflow: 'hidden' }}>
                   <div style={{ height: '100%', width: `${(progress / 10) * 100}%`, background: C.gold, borderRadius: 4, transition: 'width 0.3s' }} />
