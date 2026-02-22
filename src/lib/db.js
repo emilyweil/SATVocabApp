@@ -99,12 +99,21 @@ export async function searchUsers(query) {
 }
 
 export async function getFollowing(userId) {
-  const { data, error } = await supabase
+  // Fetch follow records
+  const { data: followData, error: followError } = await supabase
     .from('follows')
-    .select('following_id, profiles!follows_following_id_fkey(id, name)')
+    .select('following_id')
     .eq('follower_id', userId)
-  if (error) throw error
-  return (data || []).map(r => r.profiles).filter(Boolean)
+  if (followError) throw followError
+  const ids = (followData || []).map(r => r.following_id)
+  if (ids.length === 0) return []
+  // Fetch profile names for those IDs
+  const { data: profiles, error: profError } = await supabase
+    .from('profiles')
+    .select('id, name')
+    .in('id', ids)
+  if (profError) throw profError
+  return profiles || []
 }
 
 export async function followUser(userId, targetId) {
@@ -142,14 +151,23 @@ export async function sendMessage(fromId, toId, vocabWord, messageBody, messageT
 export async function getMessages(userId) {
   const { data, error } = await supabase
     .from('messages')
-    .select('*, profiles!messages_from_user_fkey(name)')
+    .select('*')
     .eq('to_user', userId)
     .order('created_at', { ascending: false })
     .limit(50)
   if (error) throw error
-  return (data || []).map(m => ({
+  if (!data || data.length === 0) return []
+  // Fetch sender names
+  const senderIds = [...new Set(data.map(m => m.from_user))]
+  const { data: senders } = await supabase
+    .from('profiles')
+    .select('id, name')
+    .in('id', senderIds)
+  const nameMap = {}
+  ;(senders || []).forEach(s => { nameMap[s.id] = s.name })
+  return data.map(m => ({
     ...m,
-    from_name: m.profiles?.name || 'Someone',
+    from_name: nameMap[m.from_user] || 'Someone',
   }))
 }
 

@@ -394,10 +394,25 @@ function WelcomePanel({ name, onDismiss, isFirstTime }) {
 // ═══════════════════════════════════════════════════════════════
 // HOME SCREEN
 // ═══════════════════════════════════════════════════════════════
-function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onStartLearningQuiz, onStartMasteredQuiz, onViewWords, onLogout, onBrowse, onShowHowItWorks, onFriends, unreadCount }) {
+function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onStartLearningQuiz, onStartMasteredQuiz, onViewWords, onLogout, onBrowse, onShowHowItWorks, onFriends, unreadCount, userId }) {
   const stats = getStats(profile.words_introduced, srsCards)
   const today = getToday()
   const dayDone = profile.today_complete && profile.last_session_date === today
+
+  // Load unread messages for popup
+  const [inboxPreview, setInboxPreview] = useState(null)
+  const [showMsgPopup, setShowMsgPopup] = useState(false)
+  useEffect(() => {
+    if (unreadCount > 0 && userId) {
+      getMessages(userId).then(msgs => {
+        const unread = msgs.filter(m => !m.read)
+        if (unread.length > 0) {
+          setInboxPreview(unread)
+          setShowMsgPopup(true)
+        }
+      }).catch(() => {})
+    }
+  }, [unreadCount, userId])
 
   const introduced = profile.words_introduced || []
   const learningWords = introduced.filter(w => {
@@ -425,6 +440,37 @@ function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onSt
           <button onClick={onLogout} style={{ background: 'none', border: 'none', color: C.gray, cursor: 'pointer', fontSize: 13 }}>Sign Out</button>
         </div>
       </div>
+      {/* Unread messages popup */}
+      {showMsgPopup && inboxPreview && inboxPreview.length > 0 && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div style={{ background: 'white', borderRadius: 20, padding: 24, width: '100%', maxWidth: 340 }}>
+            <div style={{ textAlign: 'center', marginBottom: 12 }}>
+              <span style={{ fontSize: 32 }}>💬</span>
+              <h3 style={{ fontSize: 18, fontWeight: 800, color: C.grayDark, margin: '8px 0 4px' }}>
+                {inboxPreview.length === 1 ? 'New message!' : `${inboxPreview.length} new messages!`}
+              </h3>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 240, overflowY: 'auto', marginBottom: 16 }}>
+              {inboxPreview.slice(0, 5).map(m => (
+                <div key={m.id} style={{ background: C.purple + '08', borderRadius: 12, padding: '10px 12px', border: `1px solid ${C.purple}20` }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+                    <span style={{ fontSize: 12 }}>{m.message_type === 'congrats' ? '🏆' : '💬'}</span>
+                    <span style={{ fontWeight: 700, fontSize: 13, color: C.grayDark }}>{m.from_name}</span>
+                  </div>
+                  <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: C.purple }}>{m.message_body}</p>
+                  <p style={{ margin: '2px 0 0', fontSize: 10, color: C.gray }}><em>{m.vocab_word}</em> — {
+                    [...CONGRATS_MESSAGES, ...GENERAL_MESSAGES].find(v => v.word === m.vocab_word)?.def || ''
+                  }</p>
+                </div>
+              ))}
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button onClick={() => { setShowMsgPopup(false); markMessagesRead(userId).catch(() => {}) }} style={{ flex: 1, padding: '12px 0', background: '#F0F0F0', border: 'none', borderRadius: 12, fontWeight: 700, fontSize: 14, cursor: 'pointer', color: C.gray }}>Dismiss</button>
+              <button onClick={() => { setShowMsgPopup(false); markMessagesRead(userId).catch(() => {}); onFriends() }} style={{ flex: 1, padding: '12px 0', background: C.purple, border: 'none', borderRadius: 12, fontWeight: 700, fontSize: 14, cursor: 'pointer', color: 'white' }}>Open Inbox</button>
+            </div>
+          </div>
+        </div>
+      )}
       <div style={{ maxWidth: 400, margin: '0 auto', padding: 24 }}>
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
                     <h2 style={{ fontSize: 20, fontWeight: 800, color: C.grayDark, margin: '12px 0 4px' }}>
@@ -555,6 +601,10 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
   // Local mutable copy of cards for this session
   const [localCards, setLocalCards] = useState({ ...srsCards })
   const [localIntroduced, setLocalIntroduced] = useState([...(profile.words_introduced || [])])
+  // Ref-based mirror of localCards — always up to date even before React re-renders.
+  // This is the authoritative source for handleQuitQuiz saves.
+  const cardsRef = useRef({ ...srsCards })
+  const introducedRef = useRef([...(profile.words_introduced || [])])
 
   // Compute live bucket counts from localCards
   const liveBuckets = useMemo(() => {
@@ -579,12 +629,17 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
   }
 
   // Apply pending card update to localCards (called by onFlyDone or continueQuiz)
+  // Does NOT clear pendingUpdate.current — that's done by continueQuiz/handleQuitQuiz
+  // so quit-mid-quiz can always access the latest card state.
   const applyPendingUpdate = () => {
     const pending = pendingUpdate.current
     if (!pending) return
+    // Update refs immediately (synchronous — always up to date)
+    cardsRef.current = { ...cardsRef.current, [pending.word]: pending.card }
+    if (!introducedRef.current.includes(pending.word)) introducedRef.current = [...introducedRef.current, pending.word]
+    // Update React state (async — triggers re-render)
     setLocalCards(prev => ({ ...prev, [pending.word]: pending.card }))
     setLocalIntroduced(prev => prev.includes(pending.word) ? prev : [...prev, pending.word])
-    pendingUpdate.current = null
   }
 
   // Handle flying pill landing in bucket
@@ -738,6 +793,7 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
       // Animation already finished and applied - card is in localCards
       updatedCard = localCards[w.word] || createSRSCard(w.word)
     }
+    pendingUpdate.current = null // Clear after extracting
 
     const newResults = [...results, { word: w.word, wasCorrect, newCard: updatedCard }]
     if (qIndex < quizWords.length - 1) {
@@ -752,30 +808,31 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
   // Save progress and exit when user quits mid-quiz
   const handleQuitQuiz = async () => {
     let allResults = [...results]
-    let cardsToSave = { ...localCards }
-    let introducedToSave = [...localIntroduced]
+    // Use refs (not state) as base — refs are always up to date synchronously
+    let cardsToSave = { ...cardsRef.current }
+    let introducedToSave = [...introducedRef.current]
 
-    // If feedback is showing, use the pending card update
-    if (showFeedback && quizWords[qIndex]) {
-      const w = quizWords[qIndex]
-      if (pendingUpdate.current && pendingUpdate.current.word === w.word) {
-        cardsToSave[w.word] = pendingUpdate.current.card
-        allResults.push({ word: w.word, wasCorrect: pendingUpdate.current.wasCorrect, newCard: pendingUpdate.current.card })
-        pendingUpdate.current = null
+    // Apply any pending card update (unapplied answer or animation in progress)
+    if (pendingUpdate.current) {
+      const p = pendingUpdate.current
+      cardsToSave[p.word] = p.card
+      if (!introducedToSave.includes(p.word)) introducedToSave.push(p.word)
+      if (!allResults.some(r => r.word === p.word)) {
+        allResults.push({ word: p.word, wasCorrect: p.wasCorrect, newCard: p.card })
       }
+      pendingUpdate.current = null
     }
 
-    if (allResults.length > 0) {
-      console.log(`[handleQuitQuiz] Saving ${allResults.length} partial results before exiting`)
-      allResults.forEach(r => { if (!introducedToSave.includes(r.word)) introducedToSave.push(r.word) })
-      await saveToDB(cardsToSave, introducedToSave, false, allResults)
-    }
+    // Always save current card state
+    allResults.forEach(r => { if (!introducedToSave.includes(r.word)) introducedToSave.push(r.word) })
+    console.log(`[handleQuitQuiz] Saving ${Object.keys(cardsToSave).length} cards, ${allResults.length} new results`)
+    await saveToDB(cardsToSave, introducedToSave, false, allResults)
     onComplete()
   }
 
   const finishQuiz = async (quizResults) => {
-    const newCards = { ...localCards }
-    const newIntroduced = [...localIntroduced]
+    const newCards = { ...cardsRef.current }
+    const newIntroduced = [...introducedRef.current]
     quizResults.forEach(r => { newCards[r.word] = r.newCard; if (!newIntroduced.includes(r.word)) newIntroduced.push(r.word) })
     sessionNewWords.forEach(w => { if (!newIntroduced.includes(w)) newIntroduced.push(w); if (!newCards[w]) newCards[w] = createSRSCard(w) })
 
@@ -785,6 +842,8 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
 
     setLocalCards(newCards)
     setLocalIntroduced(newIntroduced)
+    cardsRef.current = newCards
+    introducedRef.current = newIntroduced
     setResults(quizResults)
 
     await completeDayAndSave(newCards, newIntroduced, quizResults)
@@ -1692,6 +1751,7 @@ export default function App() {
     <HomeScreen
       profile={profile}
       srsCards={srsCards}
+      userId={authUser.id}
       onStartSession={startSession}
       onStartReviewQuiz={startReviewQuiz}
       onStartLearningQuiz={startLearningQuiz}
