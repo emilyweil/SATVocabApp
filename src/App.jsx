@@ -318,8 +318,8 @@ function LoginScreen({ onAuthComplete }) {
   return (
     <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
       
-      <h1 style={{ fontSize: 28, fontWeight: 800, color: C.grayDark, margin: '0 0 4px' }}>Vocab Master</h1>
-      <p style={{ color: C.gray, margin: '0 0 32px', fontSize: 15 }}>Master 1,000 words, one day at a time!</p>
+      <h1 style={{ fontSize: 28, fontWeight: 800, color: C.grayDark, margin: '0 0 4px' }}>Daily Vocab</h1>
+      <p style={{ color: C.gray, margin: '0 0 32px', fontSize: 15 }}>5 words a day. That's it! 🎯</p>
 
       {!mode ? (
         <div style={{ width: '100%', maxWidth: 320, display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -361,55 +361,41 @@ function WelcomePanel({ name, onDismiss, isFirstTime }) {
           {isFirstTime ? `Welcome, ${name}! 🎉` : 'How It Works'}
         </h1>
         <p style={{ color: C.gray, fontSize: 15, margin: '0 0 28px', lineHeight: 1.5 }}>
-          Your mission: master all <strong>1,000 words</strong>. Here's how it works:
+          It's super simple — just 3 steps each day:
         </p>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 28, textAlign: 'left' }}>
-          <div style={{ background: 'white', borderRadius: 16, padding: 16, border: '2px solid #F0F0F0' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-              <span style={{ fontSize: 24 }}>📚</span>
-              <span style={{ fontSize: 16, fontWeight: 800, color: C.blue }}>Learning</span>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 28, textAlign: 'left' }}>
+          <div style={{ background: 'white', borderRadius: 16, padding: 16, border: '2px solid #F0F0F0', display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div style={{ width: 44, height: 44, borderRadius: '50%', background: C.blueLight, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0 }}>📖</div>
+            <div>
+              <p style={{ fontWeight: 800, fontSize: 15, color: C.grayDark, margin: '0 0 2px' }}>Flip through 5 new words</p>
+              <p style={{ color: C.gray, fontSize: 14, margin: 0, lineHeight: 1.4 }}>See each word, its meaning, and a sentence.</p>
             </div>
-            <p style={{ color: C.gray, fontSize: 14, margin: 0, lineHeight: 1.5 }}>
-              New words start here. You'll see them on flashcards, then answer a quiz. Get one wrong? It stays here until you nail it.
-            </p>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ fontSize: 18, color: C.gray }}>↓ get it right once</span>
-          </div>
-
-          <div style={{ background: 'white', borderRadius: 16, padding: 16, border: '2px solid #F0F0F0' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-              <span style={{ fontSize: 24 }}>🔄</span>
-              <span style={{ fontSize: 16, fontWeight: 800, color: C.purple }}>Reviewing</span>
+          <div style={{ background: 'white', borderRadius: 16, padding: 16, border: '2px solid #F0F0F0', display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div style={{ width: 44, height: 44, borderRadius: '50%', background: C.greenLight, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0 }}>✍️</div>
+            <div>
+              <p style={{ fontWeight: 800, fontSize: 15, color: C.grayDark, margin: '0 0 2px' }}>Take a quick quiz</p>
+              <p style={{ color: C.gray, fontSize: 14, margin: 0, lineHeight: 1.4 }}>Pick the right definition. No pressure!</p>
             </div>
-            <p style={{ color: C.gray, fontSize: 14, margin: 0, lineHeight: 1.5 }}>
-              Almost there! These are words you've gotten right once. One more correct answer and they're mastered.
-            </p>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ fontSize: 18, color: C.gray }}>↓ get it right again</span>
-          </div>
-
-          <div style={{ background: 'white', borderRadius: 16, padding: 16, border: '2px solid #F0F0F0' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-              <span style={{ fontSize: 24 }}>⭐</span>
-              <span style={{ fontSize: 16, fontWeight: 800, color: C.gold }}>Mastered</span>
+          <div style={{ background: 'white', borderRadius: 16, padding: 16, border: '2px solid #F0F0F0', display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div style={{ width: 44, height: 44, borderRadius: '50%', background: C.purpleLight, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0 }}>💜</div>
+            <div>
+              <p style={{ fontWeight: 800, fontSize: 15, color: C.grayDark, margin: '0 0 2px' }}>Send a friend some love</p>
+              <p style={{ color: C.gray, fontSize: 14, margin: 0, lineHeight: 1.4 }}>Build a fun vocab message to encourage a friend!</p>
             </div>
-            <p style={{ color: C.gray, fontSize: 14, margin: 0, lineHeight: 1.5 }}>
-              You know it! Two correct answers in a row means this word is yours. Keep going until all 1,000 are here!
-            </p>
           </div>
         </div>
 
         <p style={{ color: C.gray, fontSize: 14, margin: '0 0 20px', lineHeight: 1.5 }}>
-          You'll learn <strong>5 new words</strong> each day. Build a streak, and before you know it, you'll be a vocab pro!
+          Do it every day and watch your streak grow! 🔥
         </p>
 
         <button onClick={onDismiss} style={{ width: '100%', padding: '18px 0', background: C.green, color: 'white', fontWeight: 700, fontSize: 16, border: 'none', borderRadius: 16, cursor: 'pointer', boxShadow: `0 4px 0 ${C.greenDark}` }}>
-          {isFirstTime ? "Let's Get Started! 🚀" : 'Got it! ✓'}
+          {isFirstTime ? "Let's Go! 🚀" : 'Got it! ✓'}
         </button>
       </div>
     </div>
@@ -419,39 +405,35 @@ function WelcomePanel({ name, onDismiss, isFirstTime }) {
 // ═══════════════════════════════════════════════════════════════
 // HOME SCREEN
 // ═══════════════════════════════════════════════════════════════
-function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onStartLearningQuiz, onStartMasteredQuiz, onViewWords, onLogout, onBrowse, onShowHowItWorks, onFriends, unreadCount, userId }) {
-  const stats = getStats(profile.words_introduced, srsCards)
+function HomeScreen({ profile, srsCards, onStartSession, onLogout, onShowHowItWorks, onFriends, unreadCount, userId }) {
   const today = getToday()
   const dayDone = profile.today_complete && profile.last_session_date === today
 
-  // Load unread messages for popup
-  const [inboxPreview, setInboxPreview] = useState(null)
-  const [showMsgPopup, setShowMsgPopup] = useState(false)
+  // Load encouragement: friend message or vocab word
+  const [friendMsg, setFriendMsg] = useState(null)
+  const [encourageReady, setEncourageReady] = useState(false)
   useEffect(() => {
-    if (unreadCount > 0 && userId) {
+    if (userId) {
       getMessages(userId).then(msgs => {
         const unread = msgs.filter(m => !m.read)
         if (unread.length > 0) {
-          setInboxPreview(unread)
-          setShowMsgPopup(true)
+          setFriendMsg(unread[0]) // show most recent
         }
-      }).catch(() => {})
+        setEncourageReady(true)
+      }).catch(() => setEncourageReady(true))
+    } else {
+      setEncourageReady(true)
     }
-  }, [unreadCount, userId])
+  }, [userId])
 
-  const introduced = profile.words_introduced || []
-  const learningWords = introduced.filter(w => {
-    const c = srsCards[w]; if (!c) return false
-    return (parseInt(c.repetition, 10) || 0) === 0
-  })
-  const reviewingWords = introduced.filter(w => {
-    const c = srsCards[w]; if (!c) return false
-    return (parseInt(c.repetition, 10) || 0) === 1
-  })
-  const masteredWords = introduced.filter(w => {
-    const c = srsCards[w]; if (!c) return false
-    return (parseInt(c.repetition, 10) || 0) >= 2
-  })
+  // Pick encouragement word (deterministic per day)
+  const dayHash = today.split('-').reduce((a, b) => a + parseInt(b), 0)
+  const encourageWord = ENCOURAGEMENT_WORDS[dayHash % ENCOURAGEMENT_WORDS.length]
+
+  const dismissFriendMsg = () => {
+    if (friendMsg) markMessagesRead(userId).catch(() => {})
+    setFriendMsg(null)
+  }
 
   return (
     <div style={{ minHeight: '100vh', background: C.bg }}>
@@ -465,136 +447,58 @@ function HomeScreen({ profile, srsCards, onStartSession, onStartReviewQuiz, onSt
           <button onClick={onLogout} style={{ background: 'none', border: 'none', color: C.gray, cursor: 'pointer', fontSize: 13 }}>Sign Out</button>
         </div>
       </div>
-      {/* Unread messages popup */}
-      {showMsgPopup && inboxPreview && inboxPreview.length > 0 && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-          <div style={{ background: 'white', borderRadius: 20, padding: 24, width: '100%', maxWidth: 340 }}>
-            <div style={{ textAlign: 'center', marginBottom: 12 }}>
-              <span style={{ fontSize: 32 }}>💬</span>
-              <h3 style={{ fontSize: 18, fontWeight: 800, color: C.grayDark, margin: '8px 0 4px' }}>
-                {inboxPreview.length === 1 ? 'New message!' : `${inboxPreview.length} new messages!`}
-              </h3>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 240, overflowY: 'auto', marginBottom: 16 }}>
-              {inboxPreview.slice(0, 5).map(m => (
-                <div key={m.id} style={{ background: C.purple + '08', borderRadius: 12, padding: '10px 12px', border: `1px solid ${C.purple}20` }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
-                    <span style={{ fontSize: 12 }}>{m.message_type === 'congrats' ? '🏆' : '💬'}</span>
-                    <span style={{ fontWeight: 700, fontSize: 13, color: C.grayDark }}>{m.from_name}</span>
-                  </div>
-                  <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: C.purple }}>{m.message_body}</p>
-                  <p style={{ margin: '2px 0 0', fontSize: 12, color: C.gray }}><em>{m.vocab_word}</em> — {
-                    [...CONGRATS_MESSAGES, ...GENERAL_MESSAGES].find(v => v.word === m.vocab_word)?.def || ''
-                  }</p>
-                </div>
-              ))}
-            </div>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <button onClick={() => { setShowMsgPopup(false); markMessagesRead(userId).catch(() => {}) }} style={{ flex: 1, padding: '12px 0', background: '#F0F0F0', border: 'none', borderRadius: 12, fontWeight: 700, fontSize: 14, cursor: 'pointer', color: C.gray }}>Dismiss</button>
-              <button onClick={() => { setShowMsgPopup(false); markMessagesRead(userId).catch(() => {}); onFriends() }} style={{ flex: 1, padding: '12px 0', background: C.purple, border: 'none', borderRadius: 12, fontWeight: 700, fontSize: 14, cursor: 'pointer', color: 'white' }}>Open Inbox</button>
-            </div>
-          </div>
-        </div>
-      )}
       <div style={{ maxWidth: 400, margin: '0 auto', padding: 24 }}>
+        {/* Greeting */}
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
-          <p style={{ fontSize: 15, fontWeight: 800, color: C.purple, letterSpacing: 1.5, textTransform: 'uppercase', margin: '0 0 8px' }}>🎯 1,000 Word Challenge</p>
-                    <h2 style={{ fontSize: 20, fontWeight: 800, color: C.grayDark, margin: '0 0 4px' }}>
-            {dayDone ? '🎉 Day complete!' : `Hey, ${profile.name}!`}
+          <h2 style={{ fontSize: 22, fontWeight: 800, color: C.grayDark, margin: '0 0 4px' }}>
+            {dayDone ? '🎉 You did it today!' : `Hey, ${profile.name}!`}
           </h2>
           <p style={{ color: C.gray, margin: 0, fontSize: 14 }}>
-            {dayDone ? 'Great work today. See you tomorrow!' : "Complete today's session to keep your streak."}
+            {dayDone ? 'Come back tomorrow to keep your streak alive.' : 'Ready for your 5 words?'}
           </p>
         </div>
 
-        {/* Streak — prominent center display */}
-        <div style={{ textAlign: 'center', marginBottom: 24 }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: 'white', padding: '16px 32px', borderRadius: 20, border: '2px solid #F0F0F0' }}>
-            <FlameIcon size={36} active={profile.streak > 0} />
+        {/* Streak — the ONE metric */}
+        <div style={{ textAlign: 'center', marginBottom: 28 }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: 'white', padding: '20px 36px', borderRadius: 20, border: '2px solid #F0F0F0' }}>
+            <FlameIcon size={42} active={profile.streak > 0} />
             <div>
-              <div style={{ fontSize: 36, fontWeight: 900, color: profile.streak > 0 ? C.red : C.gray, lineHeight: 1 }}>{profile.streak}</div>
-              <div style={{ fontSize: 16, fontWeight: 700, color: profile.streak > 0 ? C.red : C.gray, marginTop: 2 }}>Day Streak{profile.best_streak > 1 ? ` · Best: ${profile.best_streak}` : ''}</div>
+              <div style={{ fontSize: 42, fontWeight: 900, color: profile.streak > 0 ? C.red : C.gray, lineHeight: 1 }}>{profile.streak}</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: profile.streak > 0 ? C.red : C.gray, marginTop: 2 }}>Day Streak</div>
             </div>
-          </div>
-          {dayDone && profile.sprints_today > 0 && <p style={{ color: C.purple, margin: '8px 0 0', fontSize: 13, fontWeight: 600 }}>+{profile.sprints_today * 5} extra practice words today!</p>}
-        </div>
-
-        {/* Stat panels with embedded dots */}
-        <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-          {/* Learning panel */}
-          <div style={{ flex: 1, background: 'white', borderRadius: 16, border: '2px solid #F0F0F0', padding: '14px 12px' }}>
-            <div onClick={() => learningWords.length > 0 && onBrowse({ title: 'Learning', words: learningWords, color: C.blue })}
-              style={{ cursor: learningWords.length > 0 ? 'pointer' : 'default', textAlign: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
-                <span style={{ fontSize: 14 }}>📚</span>
-                <span style={{ fontSize: 16, fontWeight: 800, color: C.blue }}>Learning</span>
-              </div>
-              <div style={{ fontSize: 36, fontWeight: 900, color: C.blue, lineHeight: 1, marginTop: 4 }}>{stats.learning}</div>
-              <p style={{ fontSize: 14, color: C.gray, margin: '6px 0 0', lineHeight: 1.3 }}>Words you've gotten wrong</p>
-            </div>
-            {stats.learning > 0 && (
-              <button onClick={onStartLearningQuiz}
-                style={{ display: 'block', margin: '6px auto 0', background: 'none', border: 'none', color: C.blue, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline' }}>Practice them →</button>
-            )}
-
-          </div>
-          {/* Reviewing panel */}
-          <div style={{ flex: 1, background: 'white', borderRadius: 16, border: '2px solid #F0F0F0', padding: '14px 12px' }}>
-            <div onClick={() => reviewingWords.length > 0 && onBrowse({ title: 'Reviewing', words: reviewingWords, color: C.purple })}
-              style={{ cursor: reviewingWords.length > 0 ? 'pointer' : 'default', textAlign: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
-                <span style={{ fontSize: 14 }}>🔁</span>
-                <span style={{ fontSize: 16, fontWeight: 800, color: C.purple }}>Reviewing</span>
-              </div>
-              <div style={{ fontSize: 36, fontWeight: 900, color: C.purple, lineHeight: 1, marginTop: 4 }}>{stats.review}</div>
-              <p style={{ fontSize: 14, color: C.gray, margin: '6px 0 0', lineHeight: 1.3 }}>Words you've gotten right once</p>
-            </div>
-            {stats.review > 0 && (
-              <button onClick={onStartReviewQuiz}
-                style={{ display: 'block', margin: '6px auto 0', background: 'none', border: 'none', color: C.purple, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline' }}>Master them →</button>
-            )}
-
           </div>
         </div>
 
-        {/* Mastered count card */}
-        <div style={{ background: 'white', borderRadius: 16, border: '2px solid #F0F0F0', marginBottom: 20, padding: 16 }}>
-          <div onClick={() => stats.mastered > 0 && onBrowse({ title: 'Mastered', words: masteredWords, color: C.gold })}
-            style={{ cursor: stats.mastered > 0 ? 'pointer' : 'default', textAlign: 'center' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-              <span style={{ fontSize: 22 }}>⭐</span>
-              <span style={{ fontSize: 22, fontWeight: 800, color: C.gold }}>Mastered</span>
-            </div>
-            <div style={{ fontSize: 36, fontWeight: 900, color: C.gold, lineHeight: 1, marginTop: 4 }}>{stats.mastered}<span style={{ fontSize: 20, fontWeight: 800, color: C.gray }}> / {VOCABULARY.length}</span></div>
-            <p style={{ fontSize: 14, color: C.gray, margin: '6px 0 0', lineHeight: 1.3 }}>Words you've gotten right twice in a row</p>
-          </div>
-          {stats.mastered > 0 && (
-            <button onClick={onStartMasteredQuiz}
-              style={{ display: 'block', margin: '8px auto 12px', background: 'none', border: 'none', color: C.gold, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline' }}>Quiz yourself →</button>
-          )}
-          {/* Progress toward next group of 10 */}
-          {(() => {
-            const progress = stats.mastered % 10
-            return (
-              <div style={{ marginTop: stats.mastered > 0 ? 0 : 12 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                  <span style={{ fontSize: 14, color: C.gold, fontWeight: 500 }}>Progress to next group of 10</span>
-                  <span style={{ fontSize: 14, color: C.gold, fontWeight: 700 }}>{progress}/10</span>
+        {/* Encouragement card: friend message OR vocab word */}
+        {encourageReady && (
+          <div style={{ background: 'white', borderRadius: 20, border: '2px solid #F0F0F0', padding: 20, marginBottom: 24, textAlign: 'center' }}>
+            {friendMsg ? (
+              <>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 8 }}>
+                  <span style={{ fontSize: 20 }}>💌</span>
+                  <span style={{ fontWeight: 700, fontSize: 14, color: C.purple }}>{friendMsg.from_name} says:</span>
                 </div>
-                <div style={{ height: 8, background: '#F0F0F0', borderRadius: 4, overflow: 'hidden' }}>
-                  <div style={{ height: '100%', width: `${(progress / 10) * 100}%`, background: C.gold, borderRadius: 4, transition: 'width 0.3s' }} />
-                </div>
-              </div>
-            )
-          })()}
-        </div>
-
-        {!dayDone ? (
-          <button onClick={() => onStartSession(false)} style={{ width: '100%', padding: '18px 0', background: C.green, color: 'white', fontWeight: 700, fontSize: 16, border: 'none', borderRadius: 16, cursor: 'pointer', boxShadow: `0 4px 0 ${C.greenDark}` }}>Start Today's Session</button>
-        ) : (
-          <button onClick={() => onStartSession(true)} style={{ width: '100%', padding: '16px 0', background: C.purple, color: 'white', fontWeight: 700, fontSize: 15, border: 'none', borderRadius: 16, cursor: 'pointer', boxShadow: '0 4px 0 #A855F7' }}>Keep Practicing 💪</button>
+                <p style={{ fontSize: 18, fontWeight: 800, color: C.purple, margin: '0 0 6px' }}>{friendMsg.message_body}</p>
+                <p style={{ fontSize: 13, color: C.gray, margin: '0 0 12px', fontStyle: 'italic' }}>
+                  {friendMsg.vocab_word} — {[...CONGRATS_MESSAGES, ...GENERAL_MESSAGES].find(v => v.word === friendMsg.vocab_word)?.def || ''}
+                </p>
+                <button onClick={dismissFriendMsg} style={{ background: 'none', border: 'none', color: C.gray, cursor: 'pointer', fontSize: 12 }}>Dismiss</button>
+              </>
+            ) : (
+              <>
+                <p style={{ fontSize: 20, fontWeight: 900, color: C.purple, margin: '0 0 6px' }}>You are {encourageWord.word.toLowerCase()}!</p>
+                <p style={{ fontSize: 14, color: C.gray, margin: 0, fontStyle: 'italic' }}>{encourageWord.word} — {encourageWord.def}</p>
+              </>
+            )}
+          </div>
         )}
-        <button onClick={onViewWords} style={{ display: 'block', margin: '20px auto 0', background: 'none', border: 'none', color: '#D946EF', fontWeight: 700, fontSize: 14, cursor: 'pointer', textDecoration: 'underline' }}>Review all the words you've seen →</button>
+
+        {/* Start button */}
+        {!dayDone ? (
+          <button onClick={() => onStartSession(false)} style={{ width: '100%', padding: '18px 0', background: C.green, color: 'white', fontWeight: 700, fontSize: 16, border: 'none', borderRadius: 16, cursor: 'pointer', boxShadow: `0 4px 0 ${C.greenDark}` }}>Start Today's Words 📖</button>
+        ) : (
+          <button onClick={() => onStartSession(true)} style={{ width: '100%', padding: '16px 0', background: C.purple, color: 'white', fontWeight: 700, fontSize: 15, border: 'none', borderRadius: 16, cursor: 'pointer', boxShadow: '0 4px 0 #A855F7' }}>Practice More 💪</button>
+        )}
       </div>
     </div>
   )
@@ -986,24 +890,10 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
           <div style={{ maxWidth: 400, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 12 }}>
             <button onClick={handleQuitQuiz} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.gray, fontSize: 20 }}>✕</button>
             <div style={{ flex: 1, height: 12, background: '#E5E5E5', borderRadius: 6, overflow: 'hidden' }}><div style={{ height: '100%', width: `${((qIndex + 1) / quizWords.length) * 100}%`, background: C.green, borderRadius: 6, transition: 'width 0.3s' }} /></div>
-            <span style={{ fontSize: 12, fontWeight: 700, color: C.gray }}>{initialMode === 'learningQuiz' ? 'Practice' : initialMode === 'reviewQuiz' ? 'Review' : initialMode === 'masteredQuiz' ? 'Mastery Check' : 'Quiz'} {qIndex + 1} of {quizWords.length}</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: C.gray }}>Quiz {qIndex + 1} of {quizWords.length}</span>
           </div>
         </div>
         <div style={{ maxWidth: 400, margin: '0 auto', padding: '16px 16px 24px', width: '100%', boxSizing: 'border-box' }}>
-
-          {/* ── Buckets ── */}
-          <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
-            {Object.entries(BUCKET_CFG).map(([key, cfg]) => (
-              <QuizBucket
-                key={key}
-                cfg={cfg}
-                count={liveBuckets[key]}
-                totalWords={VOCABULARY.length}
-                isTarget={flyingPill?.target === key}
-                innerRef={bucketRefs[key]}
-              />
-            ))}
-          </div>
 
           {/* ── Word card ── */}
           <div ref={wordCardRef}>
@@ -1011,12 +901,8 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
               <span style={{ fontSize: 16 }}>✍️</span><p style={{ color: C.grayDark, fontWeight: 700, fontSize: 16, margin: 0 }}>What does this word mean?</p>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 20 }}>
-              <h2 style={{ fontSize: 28, fontWeight: 800, color: curBucket ? BUCKET_CFG[curBucket].color : C.green, margin: 0 }}>{q.word}</h2>
-              {curBucket ? (
-                <span style={{ padding: '2px 8px', borderRadius: 8, fontSize: 11, fontWeight: 700, background: BUCKET_CFG[curBucket].color + '18', color: BUCKET_CFG[curBucket].color }}>
-                  {BUCKET_CFG[curBucket].label.toUpperCase()}
-                </span>
-              ) : (
+              <h2 style={{ fontSize: 28, fontWeight: 800, color: C.grayDark, margin: 0 }}>{q.word}</h2>
+              {!curBucket && (
                 <span style={{ padding: '2px 8px', borderRadius: 8, fontSize: 11, fontWeight: 700, background: '#D7FFB8', color: C.green }}>
                   NEW
                 </span>
@@ -1038,32 +924,20 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
           )}
           {showFeedback && (() => {
             const willMaster = feedbackWillMaster
-            const isMasteredQuizWrong = !isCorrect && initialMode === 'masteredQuiz'
             return (
             <div style={{ background: isCorrect ? C.greenLight : C.redLight, padding: 16, borderRadius: 16, marginTop: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                <span style={{ fontSize: 20 }}>{isCorrect ? (willMaster ? '⭐' : '✅') : '❌'}</span>
-                <span style={{ fontWeight: 800, color: isCorrect ? C.greenDark : C.red, fontSize: 16 }}>{isCorrect ? (willMaster ? 'Mastered!' : (initialMode === 'masteredQuiz' ? 'Still got it!' : 'Correct!')) : 'Not quite!'}</span>
+                <span style={{ fontSize: 20 }}>{isCorrect ? (willMaster ? '🌟' : '✅') : '💪'}</span>
+                <span style={{ fontWeight: 800, color: isCorrect ? C.greenDark : C.red, fontSize: 16 }}>{isCorrect ? (willMaster ? 'Amazing!' : 'Nice!') : 'Almost!'}</span>
               </div>
               {isCorrect ? (
                 <p style={{ margin: '0 0 12px', fontSize: 14, color: C.greenDark }}>
-                  {willMaster ? "That's two in a row — this word is now mastered! 🎉"
-                    : initialMode === 'masteredQuiz' ? 'You know this one well!'
-                    : 'Nice work! Get it right once more to master it.'}
+                  {willMaster ? "You really know this one! 🎉" : 'You got it! Keep it up.'}
                 </p>
               ) : (
                 <div>
                   <p style={{ margin: '0 0 4px', color: C.red, fontSize: 14 }}><strong>{q.word}</strong> means: {data.definition}</p>
-                  <p style={{ margin: '0 0 12px', fontSize: 14, color: C.red }}>
-                    {isMasteredQuizWrong ? "This word moves back to your review list." : "You'll see this word again soon."}
-                  </p>
-                </div>
-              )}
-              {willMaster && milestoneMsg && (
-                <div style={{ background: `linear-gradient(135deg, ${C.gold}18, ${C.gold}08)`, border: `2px solid ${C.gold}40`, borderRadius: 12, padding: '12px 16px', marginBottom: 12, textAlign: 'center' }}>
-                  <div style={{ fontSize: 24, marginBottom: 4 }}>🏆</div>
-                  <div style={{ fontSize: 16, fontWeight: 900, color: C.gold }}>Milestone: {milestoneMsg.count} Words Mastered!</div>
-                  <p style={{ fontSize: 14, color: C.gray, margin: '4px 0 0' }}>Group {milestoneMsg.group} of 100 complete</p>
+                  <p style={{ margin: '0 0 12px', fontSize: 14, color: C.red }}>No worries — you'll see it again soon!</p>
                 </div>
               )}
               <button onClick={continueQuiz} style={{ width: '100%', padding: '14px 0', background: isCorrect ? C.green : C.red, color: 'white', fontWeight: 700, fontSize: 15, border: 'none', borderRadius: 14, cursor: 'pointer' }}>Continue</button>
@@ -1075,134 +949,228 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
     )
   }
 
-  // ── CELEBRATION ──
+  // ── CELEBRATION + MESSAGE BUILDER ──
   if (phase === 'celebration') {
-    const stats = getStats(localIntroduced, localCards)
-    console.log(`[Celebration] Stats: learning=${stats.learning} review=${stats.review} mastered=${stats.mastered}`)
+    return <CelebrationWithMessageBuilder
+      profile={profile}
+      userId={userId}
+      isSprint={isSprint}
+      onComplete={onComplete}
+    />
+  }
 
-    // Compute expected streak (profile prop may be stale before refresh completes)
-    const today = getToday()
-    const alreadyDoneToday = profile.today_complete && profile.last_session_date === today
-    const displayStreak = alreadyDoneToday ? profile.streak : (profile.last_session_date !== today ? profile.streak + 1 : profile.streak)
+  return null
+}
 
-    // Pick an encouragement word (deterministic per day so it doesn't change on re-render)
-    const dayHash = today.split('-').reduce((a, b) => a + parseInt(b), 0)
-    const encourageWord = ENCOURAGEMENT_WORDS[dayHash % ENCOURAGEMENT_WORDS.length]
+// ═══════════════════════════════════════════════════════════════
+// MESSAGE BUILDER — Drag-and-drop vocab message composer
+// ═══════════════════════════════════════════════════════════════
+const MESSAGE_TEMPLATES = [
+  { template: 'You are absolutely ___!', slotLabel: 'adjective' },
+  { template: 'Your effort is truly ___!', slotLabel: 'adjective' },
+  { template: 'Keep being so ___!', slotLabel: 'adjective' },
+  { template: "I think you're ___!", slotLabel: 'adjective' },
+  { template: 'Stay ___!', slotLabel: 'adjective' },
+]
 
+const MESSAGE_WORD_BANK = [
+  { word: 'Indomitable', def: 'Impossible to defeat or discourage' },
+  { word: 'Tenacious', def: 'Persistent; holding firmly to something' },
+  { word: 'Formidable', def: 'Impressively powerful' },
+  { word: 'Exemplary', def: 'Serving as an outstanding model' },
+  { word: 'Prodigious', def: 'Remarkably great' },
+  { word: 'Ebullient', def: 'Cheerful and full of energy' },
+  { word: 'Resolute', def: 'Determined and unwavering' },
+  { word: 'Luminous', def: 'Shining brightly; radiant' },
+  { word: 'Intrepid', def: 'Fearless; adventurous' },
+  { word: 'Sagacious', def: 'Having keen judgment' },
+  { word: 'Diligent', def: 'Careful and hardworking' },
+  { word: 'Laudable', def: 'Deserving praise' },
+]
+
+function CelebrationWithMessageBuilder({ profile, userId, isSprint, onComplete }) {
+  const [step, setStep] = useState('celebrate') // celebrate | pickFriend | buildMsg | sent
+  const [friends, setFriends] = useState([])
+  const [selectedFriend, setSelectedFriend] = useState(null)
+  const [selectedWord, setSelectedWord] = useState(null)
+  const [showDef, setShowDef] = useState(null) // word to show definition for
+  const [sending, setSending] = useState(false)
+
+  const today = getToday()
+  const alreadyDoneToday = profile.today_complete && profile.last_session_date === today
+  const displayStreak = alreadyDoneToday ? profile.streak : (profile.last_session_date !== today ? profile.streak + 1 : profile.streak)
+
+  // Pick a random template
+  const [templateIdx] = useState(() => Math.floor(Math.random() * MESSAGE_TEMPLATES.length))
+  const tmpl = MESSAGE_TEMPLATES[templateIdx]
+
+  // Shuffle word bank
+  const [wordBank] = useState(() => [...MESSAGE_WORD_BANK].sort(() => Math.random() - 0.5).slice(0, 8))
+
+  useEffect(() => {
+    if (userId) {
+      getFollowing(userId).then(f => setFriends(f)).catch(() => {})
+    }
+  }, [userId])
+
+  const builtMessage = selectedWord ? tmpl.template.replace('___', selectedWord.word.toLowerCase()) : tmpl.template
+
+  const handleSend = async () => {
+    if (!selectedFriend || !selectedWord) return
+    setSending(true)
+    try {
+      await sendMessage(userId, selectedFriend.id, selectedWord.word, builtMessage, 'general')
+      setStep('sent')
+    } catch (e) { console.error('Send error:', e) }
+    setSending(false)
+  }
+
+  if (step === 'celebrate') {
     return (
       <div style={{ minHeight: '100vh', background: `linear-gradient(180deg, ${C.greenLight} 0%, ${C.bg} 40%)`, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 24 }}>
         <ConfettiBurst active={1} />
-        <div style={{ marginTop: 16 }}>
-          
-        </div>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: 'white', padding: '16px 32px', borderRadius: 20, border: '2px solid #F0F0F0', marginTop: 16, marginBottom: 8 }}>
-          <FlameIcon size={36} active />
+        <div style={{ marginTop: 40 }} />
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: 'white', padding: '20px 36px', borderRadius: 20, border: '2px solid #F0F0F0', marginBottom: 12 }}>
+          <FlameIcon size={42} active />
           <div>
-            <div style={{ fontSize: 36, fontWeight: 900, color: C.red, lineHeight: 1 }}>{displayStreak}</div>
+            <div style={{ fontSize: 42, fontWeight: 900, color: C.red, lineHeight: 1 }}>{displayStreak}</div>
             <div style={{ fontSize: 16, fontWeight: 700, color: C.red, marginTop: 2 }}>Day Streak</div>
           </div>
         </div>
-        <h2 style={{ fontSize: 22, fontWeight: 800, color: C.grayDark, margin: '8px 0 4px' }}>
+        <h2 style={{ fontSize: 22, fontWeight: 800, color: C.grayDark, margin: '8px 0 4px', textAlign: 'center' }}>
           {isSprint ? 'Extra practice done! 💪' : displayStreak === 1 ? 'Day 1 — great start!' : displayStreak < 7 ? `${displayStreak}-day streak!` : `${displayStreak}-day streak! 🔥`}
         </h2>
-        <p style={{ color: C.gray, margin: '0 0 12px', fontSize: 14 }}>
-          {isSprint ? 'Great effort! Keep building that knowledge.' : displayStreak >= 7 ? "You're on fire! Keep it going!" : 'Come back tomorrow to keep your streak alive!'}
+        <p style={{ color: C.gray, margin: '0 0 28px', fontSize: 14, textAlign: 'center' }}>
+          {isSprint ? 'Nice extra effort!' : 'Come back tomorrow to keep it going!'}
         </p>
 
-        {/* Encouragement vocab word */}
-        <div style={{ width: '100%', maxWidth: 340, background: 'white', borderRadius: 16, border: '2px solid #F0F0F0', padding: 16, marginBottom: 16, textAlign: 'center' }}>
-          
-          <p style={{ fontSize: 22, fontWeight: 900, color: C.purple, margin: '0 0 4px' }}>You are {encourageWord.word.toLowerCase()}!</p>
-          <p style={{ fontSize: 14, color: C.gray, margin: 0, fontStyle: 'italic' }}>{encourageWord.word} — {encourageWord.def}</p>
-        </div>
-
-        {/* Stat panels with embedded dots */}
-        <div style={{ width: '100%', maxWidth: 340, display: 'flex', gap: 8, marginBottom: 16 }}>
-          {/* Learning panel */}
-          <div style={{ flex: 1, background: 'white', borderRadius: 16, border: '2px solid #F0F0F0', padding: '14px 12px' }}>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
-                <span style={{ fontSize: 14 }}>📚</span>
-                <span style={{ fontSize: 16, fontWeight: 800, color: C.blue }}>Learning</span>
-              </div>
-              <div style={{ fontSize: 36, fontWeight: 900, color: C.blue, lineHeight: 1, marginTop: 4 }}>{stats.learning}</div>
-              <p style={{ fontSize: 14, color: C.gray, margin: '6px 0 0', lineHeight: 1.3 }}>Words you've gotten wrong</p>
+        {/* Prompt to send a friend encouragement */}
+        {friends.length > 0 ? (
+          <div style={{ width: '100%', maxWidth: 340, display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ background: 'white', borderRadius: 20, border: '2px solid #F0F0F0', padding: 20, textAlign: 'center' }}>
+              <span style={{ fontSize: 32 }}>💜</span>
+              <p style={{ fontWeight: 800, fontSize: 16, color: C.purple, margin: '8px 0 4px' }}>Spread the love!</p>
+              <p style={{ fontSize: 14, color: C.gray, margin: '0 0 14px' }}>Build a vocab message and send it to a friend.</p>
+              <button onClick={() => setStep('pickFriend')} style={{ width: '100%', padding: '14px 0', background: C.purple, color: 'white', fontWeight: 700, fontSize: 15, border: 'none', borderRadius: 14, cursor: 'pointer', boxShadow: '0 4px 0 #A855F7' }}>Send a Friend Some Love 💬</button>
             </div>
-            {stats.learning > 0 && (
-              <button onClick={() => onComplete('learningQuiz')}
-                style={{ display: 'block', margin: '6px auto 0', background: 'none', border: 'none', color: C.blue, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline' }}>Practice them →</button>
+            <button onClick={() => onComplete('done')} style={{ padding: '12px 0', background: 'transparent', color: C.gray, fontWeight: 600, fontSize: 14, border: 'none', cursor: 'pointer' }}>Maybe later</button>
+          </div>
+        ) : (
+          <div style={{ width: '100%', maxWidth: 340, display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ background: `linear-gradient(135deg, ${C.green}15, ${C.green}05)`, border: `2px solid ${C.green}30`, borderRadius: 16, padding: 20, textAlign: 'center' }}>
+              <div style={{ fontSize: 36, marginBottom: 6 }}>🎉</div>
+              <p style={{ fontWeight: 800, fontSize: 16, color: C.greenDark, margin: '0 0 4px' }}>Session complete!</p>
+              <p style={{ fontSize: 14, color: C.gray, margin: 0 }}>Add friends to send them encouragement!</p>
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button onClick={() => onComplete('friends')} style={{ flex: 1, padding: '14px 0', background: C.purple, color: 'white', fontWeight: 700, fontSize: 14, border: 'none', borderRadius: 14, cursor: 'pointer' }}>Find Friends</button>
+              <button onClick={() => onComplete('done')} style={{ flex: 1, padding: '14px 0', background: '#F0F0F0', color: C.gray, fontWeight: 700, fontSize: 14, border: 'none', borderRadius: 14, cursor: 'pointer' }}>Done</button>
+            </div>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  if (step === 'pickFriend') {
+    return (
+      <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', flexDirection: 'column' }}>
+        <div style={{ background: 'white', padding: '12px 20px', borderBottom: '2px solid #F0F0F0', display: 'flex', alignItems: 'center', gap: 12 }}>
+          <button onClick={() => setStep('celebrate')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.gray, fontSize: 20 }}>←</button>
+          <span style={{ fontWeight: 700, color: C.grayDark, fontSize: 17 }}>Who's getting the love?</span>
+        </div>
+        <div style={{ maxWidth: 400, margin: '0 auto', padding: 24, width: '100%', boxSizing: 'border-box' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {friends.map(f => (
+              <button key={f.id} onClick={() => { setSelectedFriend(f); setStep('buildMsg') }}
+                style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: 'white', border: '2px solid #F0F0F0', borderRadius: 16, cursor: 'pointer', width: '100%', textAlign: 'left' }}>
+                <div style={{ width: 40, height: 40, borderRadius: '50%', background: C.purple + '20', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, fontWeight: 800, color: C.purple }}>{f.name?.[0]?.toUpperCase()}</div>
+                <span style={{ fontWeight: 700, fontSize: 16, color: C.grayDark }}>{f.name}</span>
+                <span style={{ marginLeft: 'auto', fontSize: 20 }}>→</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (step === 'buildMsg') {
+    return (
+      <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', flexDirection: 'column' }}>
+        <div style={{ background: 'white', padding: '12px 20px', borderBottom: '2px solid #F0F0F0', display: 'flex', alignItems: 'center', gap: 12 }}>
+          <button onClick={() => setStep('pickFriend')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.gray, fontSize: 20 }}>←</button>
+          <span style={{ fontWeight: 700, color: C.grayDark, fontSize: 17 }}>Build your message</span>
+        </div>
+        <div style={{ maxWidth: 400, margin: '0 auto', padding: 24, width: '100%', boxSizing: 'border-box' }}>
+          {/* Message preview */}
+          <div style={{ background: 'white', borderRadius: 20, border: `2px solid ${selectedWord ? C.purple : '#E5E5E5'}`, padding: 20, marginBottom: 20, textAlign: 'center', transition: 'border-color 0.3s' }}>
+            <p style={{ fontSize: 13, color: C.gray, margin: '0 0 8px' }}>To: {selectedFriend?.name}</p>
+            <p style={{ fontSize: 20, fontWeight: 800, color: selectedWord ? C.purple : C.gray, margin: 0, lineHeight: 1.4 }}>
+              {selectedWord
+                ? builtMessage
+                : tmpl.template.replace('___', '______')
+              }
+            </p>
+            {selectedWord && (
+              <p style={{ fontSize: 13, color: C.gray, margin: '8px 0 0', fontStyle: 'italic' }}>
+                {selectedWord.word} — {selectedWord.def}
+              </p>
             )}
-
           </div>
-          {/* Reviewing panel */}
-          <div style={{ flex: 1, background: 'white', borderRadius: 16, border: '2px solid #F0F0F0', padding: '14px 12px' }}>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
-                <span style={{ fontSize: 14 }}>🔁</span>
-                <span style={{ fontSize: 16, fontWeight: 800, color: C.purple }}>Reviewing</span>
-              </div>
-              <div style={{ fontSize: 36, fontWeight: 900, color: C.purple, lineHeight: 1, marginTop: 4 }}>{stats.review}</div>
-              <p style={{ fontSize: 14, color: C.gray, margin: '6px 0 0', lineHeight: 1.3 }}>Words you've gotten right once</p>
-            </div>
-            {stats.review > 0 && (
-              <button onClick={() => onComplete('reviewQuiz')}
-                style={{ display: 'block', margin: '6px auto 0', background: 'none', border: 'none', color: C.purple, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline' }}>Master them →</button>
-            )}
 
-          </div>
-        </div>
-
-        {/* Mastered count card */}
-        <div style={{ width: '100%', maxWidth: 340, background: 'white', borderRadius: 16, border: '2px solid #F0F0F0', marginBottom: 24, padding: 16, textAlign: 'center' }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-              <span style={{ fontSize: 22 }}>⭐</span>
-              <span style={{ fontSize: 22, fontWeight: 800, color: C.gold }}>Mastered</span>
-            </div>
-            <div style={{ fontSize: 36, fontWeight: 900, color: C.gold, lineHeight: 1, marginTop: 4 }}>{stats.mastered}<span style={{ fontSize: 20, fontWeight: 800, color: C.gray }}> / {VOCABULARY.length}</span></div>
-            <p style={{ fontSize: 14, color: C.gray, margin: '6px 0 0', lineHeight: 1.3 }}>Words you've gotten right twice in a row</p>
-          </div>
-          {stats.mastered > 0 && (
-            <button onClick={() => onComplete('masteredQuiz')}
-              style={{ display: 'block', margin: '8px auto 12px', background: 'none', border: 'none', color: C.gold, fontWeight: 700, fontSize: 12, cursor: 'pointer', textDecoration: 'underline' }}>Quiz yourself →</button>
-          )}
-          {/* Progress toward next group of 10 */}
-          {(() => {
-            const progress = stats.mastered % 10
-            return (
-              <div style={{ marginTop: stats.mastered > 0 ? 0 : 12, textAlign: 'left' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                  <span style={{ fontSize: 14, color: C.gold, fontWeight: 500 }}>Progress to next group of 10</span>
-                  <span style={{ fontSize: 14, color: C.gold, fontWeight: 700 }}>{progress}/10</span>
+          {/* Word bank */}
+          <p style={{ fontSize: 14, fontWeight: 700, color: C.grayDark, margin: '0 0 10px' }}>Tap a word to drop it in:</p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 24 }}>
+            {wordBank.map(w => {
+              const isSelected = selectedWord?.word === w.word
+              return (
+                <div key={w.word} style={{ position: 'relative' }}>
+                  <button
+                    onClick={() => { setSelectedWord(isSelected ? null : w); setShowDef(null) }}
+                    style={{
+                      padding: '8px 14px', borderRadius: 12,
+                      background: isSelected ? C.purple : 'white',
+                      color: isSelected ? 'white' : C.purple,
+                      border: `2px solid ${isSelected ? C.purple : C.purple + '40'}`,
+                      fontWeight: 700, fontSize: 14, cursor: 'pointer',
+                      boxShadow: isSelected ? `0 3px 0 #A855F7` : '0 2px 0 #E5E5E5',
+                      transition: 'all 0.2s',
+                    }}>
+                    {w.word}
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setShowDef(showDef === w.word ? null : w.word) }}
+                    style={{ position: 'absolute', top: -4, right: -4, width: 18, height: 18, borderRadius: '50%', background: '#E5E5E5', border: 'none', fontSize: 10, fontWeight: 800, color: C.gray, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>?</button>
+                  {showDef === w.word && (
+                    <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 4, background: C.grayDark, color: 'white', padding: '6px 10px', borderRadius: 8, fontSize: 12, fontWeight: 600, zIndex: 10, whiteSpace: 'nowrap', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }}>
+                      {w.def}
+                    </div>
+                  )}
                 </div>
-                <div style={{ height: 8, background: '#F0F0F0', borderRadius: 4, overflow: 'hidden' }}>
-                  <div style={{ height: '100%', width: `${(progress / 10) * 100}%`, background: C.gold, borderRadius: 4, transition: 'width 0.3s' }} />
-                </div>
-              </div>
-            )
-          })()}
-        </div>
-
-        <div style={{ width: '100%', maxWidth: 340, display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {stats.mastered > 0 && stats.mastered % 10 === 0 && (
-            <div style={{ background: `linear-gradient(135deg, ${C.purple}10, ${C.gold}10)`, border: `2px solid ${C.purple}30`, borderRadius: 16, padding: 16, textAlign: 'center', marginBottom: 4 }}>
-              <div style={{ fontSize: 28, marginBottom: 4 }}>🏆🎉</div>
-              <p style={{ fontWeight: 800, fontSize: 15, color: C.purple, margin: '0 0 4px' }}>Milestone: {stats.mastered} words mastered!</p>
-              <p style={{ fontSize: 12, color: C.gray, margin: '0 0 10px' }}>Share the news with your friends!</p>
-              <button onClick={() => onComplete('friends')} style={{ padding: '10px 24px', background: C.purple, color: 'white', fontWeight: 700, fontSize: 13, border: 'none', borderRadius: 12, cursor: 'pointer' }}>Tell your friends! 💬</button>
-            </div>
-          )}
-          {/* Celebration message instead of Done button */}
-          <div style={{ background: `linear-gradient(135deg, ${C.green}15, ${C.green}05)`, border: `2px solid ${C.green}30`, borderRadius: 16, padding: 20, textAlign: 'center' }}>
-            <div style={{ fontSize: 36, marginBottom: 6 }}>🎉</div>
-            <p style={{ fontWeight: 800, fontSize: 16, color: C.greenDark, margin: '0 0 4px' }}>You did it! Session complete!</p>
-            <p style={{ fontSize: 14, color: C.gray, margin: 0 }}>See you tomorrow for more words.</p>
+              )
+            })}
           </div>
-          {(VOCABULARY.length - stats.totalIntroduced > 0) && (
-            <button onClick={() => { onComplete('sprint') }} style={{ width: '100%', padding: '16px 0', background: C.blue, color: 'white', fontWeight: 700, fontSize: 15, border: 'none', borderRadius: 16, cursor: 'pointer', boxShadow: `0 4px 0 ${C.blueDark}` }}>Learn More New Words</button>
-          )}
-          <button onClick={() => onComplete('done')} style={{ width: '100%', padding: '12px 0', background: 'transparent', color: C.gray, fontWeight: 600, fontSize: 14, border: 'none', cursor: 'pointer' }}>Back to Home</button>
+
+          {/* Send button */}
+          <button onClick={handleSend} disabled={!selectedWord || sending}
+            style={{ width: '100%', padding: '16px 0', background: selectedWord ? C.purple : '#E5E5E5', color: selectedWord ? 'white' : C.gray, fontWeight: 700, fontSize: 16, border: 'none', borderRadius: 16, cursor: selectedWord ? 'pointer' : 'default', boxShadow: selectedWord ? '0 4px 0 #A855F7' : 'none', transition: 'all 0.2s' }}>
+            {sending ? 'Sending...' : `Send to ${selectedFriend?.name} 💜`}
+          </button>
         </div>
+      </div>
+    )
+  }
+
+  if (step === 'sent') {
+    return (
+      <div style={{ minHeight: '100vh', background: `linear-gradient(180deg, ${C.purpleLight} 0%, ${C.bg} 40%)`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+        <ConfettiBurst active={1} />
+        <span style={{ fontSize: 48 }}>💜</span>
+        <h2 style={{ fontSize: 22, fontWeight: 800, color: C.purple, margin: '12px 0 4px' }}>Sent!</h2>
+        <p style={{ fontSize: 16, fontWeight: 700, color: C.grayDark, margin: '0 0 4px', textAlign: 'center' }}>"{builtMessage}"</p>
+        <p style={{ fontSize: 14, color: C.gray, margin: '0 0 28px' }}>→ {selectedFriend?.name}</p>
+        <button onClick={() => onComplete('done')} style={{ padding: '14px 36px', background: C.green, color: 'white', fontWeight: 700, fontSize: 15, border: 'none', borderRadius: 14, cursor: 'pointer', boxShadow: `0 4px 0 ${C.greenDark}` }}>Done for Today! 🎉</button>
       </div>
     )
   }
@@ -1807,12 +1775,7 @@ export default function App() {
       srsCards={srsCards}
       userId={authUser.id}
       onStartSession={startSession}
-      onStartReviewQuiz={startReviewQuiz}
-      onStartLearningQuiz={startLearningQuiz}
-      onStartMasteredQuiz={startMasteredQuiz}
-      onViewWords={() => setScreen('words')}
       onLogout={handleLogout}
-      onBrowse={(cat) => { setBrowseCategory(cat); setScreen('browse') }}
       onShowHowItWorks={() => setShowWelcome('howItWorks')}
       onFriends={() => setScreen('friends')}
       unreadCount={unreadCount}
