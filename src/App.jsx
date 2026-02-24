@@ -142,6 +142,79 @@ function ConfettiBurst({ active }) {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// MINI CELEBRATIONS — varied animations for correct answers
+// ═══════════════════════════════════════════════════════════════
+const CELEBRATIONS = [
+  { emojis: ['🌟', '✨', '⭐', '💫'], label: 'Stellar!' },
+  { emojis: ['🔥', '💥', '⚡', '🌟'], label: 'On fire!' },
+  { emojis: ['💜', '💖', '💗', '💝'], label: 'Lovely!' },
+  { emojis: ['🚀', '⭐', '🌙', '☀️'], label: 'Liftoff!' },
+  { emojis: ['🦋', '🌸', '🌺', '🌈'], label: 'Beautiful!' },
+  { emojis: ['🎯', '🏆', '👑', '🥇'], label: 'Bullseye!' },
+  { emojis: ['🐬', '🌊', '🐚', '🦈'], label: 'Splashy!' },
+  { emojis: ['🎸', '🎵', '🎶', '🎤'], label: 'Rock on!' },
+  { emojis: ['🍕', '🎂', '🍩', '🧁'], label: 'Sweet!' },
+  { emojis: ['🦄', '🌈', '✨', '💫'], label: 'Magic!' },
+]
+
+function MiniCelebration({ triggerKey }) {
+  const [particles, setParticles] = useState([])
+  const [celebIdx, setCelebIdx] = useState(0)
+
+  useEffect(() => {
+    if (!triggerKey) return
+    const idx = triggerKey % CELEBRATIONS.length
+    setCelebIdx(idx)
+    const { emojis } = CELEBRATIONS[idx]
+    const newP = Array.from({ length: 12 }, (_, i) => ({
+      id: i,
+      emoji: emojis[i % emojis.length],
+      x: 50 + (Math.random() - 0.5) * 30,
+      y: 50 + (Math.random() - 0.5) * 10,
+      angle: (i / 12) * 360 + Math.random() * 30,
+      speed: 2 + Math.random() * 4,
+      size: 18 + Math.random() * 14,
+      delay: Math.random() * 0.2,
+    }))
+    setParticles(newP)
+    const timer = setTimeout(() => setParticles([]), 1500)
+    return () => clearTimeout(timer)
+  }, [triggerKey])
+
+  if (particles.length === 0) return null
+  return (
+    <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 9999, overflow: 'hidden' }}>
+      <style>{`
+        @keyframes emoji-burst {
+          0% { transform: translate(0, 0) scale(0.3) rotate(0deg); opacity: 1; }
+          40% { transform: translate(var(--dx2), var(--dy2)) scale(1.2) rotate(var(--rot)); opacity: 1; }
+          100% { transform: translate(var(--dx), var(--dy)) scale(0.4) rotate(var(--rot2)); opacity: 0; }
+        }
+      `}</style>
+      {particles.map(p => {
+        const rad = (p.angle * Math.PI) / 180
+        const dx = Math.cos(rad) * p.speed * 50
+        const dy = Math.sin(rad) * p.speed * 35 + 80
+        return (
+          <div key={p.id} style={{
+            position: 'absolute',
+            left: `${p.x}%`,
+            top: `${p.y}%`,
+            fontSize: p.size,
+            '--dx': `${dx}px`, '--dy': `${dy}px`,
+            '--dx2': `${dx * 0.5}px`, '--dy2': `${dy * 0.3 - 20}px`,
+            '--rot': `${(Math.random() - 0.5) * 60}deg`,
+            '--rot2': `${(Math.random() - 0.5) * 120}deg`,
+            animation: `emoji-burst 1.2s cubic-bezier(0.22, 1, 0.36, 1) ${p.delay}s forwards`,
+            opacity: 0,
+          }}>{p.emoji}</div>
+        )
+      })}
+    </div>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════
 // QUIZ BUCKET ANIMATIONS
 // ═══════════════════════════════════════════════════════════════
 const BUCKET_CFG = {
@@ -522,6 +595,7 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
   const [confettiKey, setConfettiKey] = useState(0)
   const [milestoneMsg, setMilestoneMsg] = useState(null) // e.g. { count: 10, group: 1 }
   const [feedbackWillMaster, setFeedbackWillMaster] = useState(false) // captured at answer time
+  const [miniCelebKey, setMiniCelebKey] = useState(0) // triggers varied celebrations
 
   // Bucket animation state
   const [flyingPill, setFlyingPill] = useState(null)
@@ -661,6 +735,10 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
     // Confetti if mastering
     const willMaster = isCorrect && existRep >= 1 && initialMode !== 'masteredQuiz'
     setFeedbackWillMaster(willMaster)
+    // Mini celebration on every correct answer
+    if (isCorrect) {
+      setMiniCelebKey(k => k + 1)
+    }
     if (willMaster) {
       setConfettiKey(k => k + 1)
       // Check for milestone (every 10 mastered words)
@@ -848,7 +926,6 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
           </div>
         </div>
         <div style={{ maxWidth: 400, margin: '0 auto', padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          {profile.sessions_completed === 0 && <p style={{ color: C.gray, fontSize: 14, margin: '0 0 20px' }}>Tap card to flip</p>}
           <div onClick={() => setFlipped(!flipped)} style={{ width: '100%', maxWidth: 340, height: 280, cursor: 'pointer', perspective: 1000 }}>
             <div style={{ position: 'relative', width: '100%', height: '100%', transition: 'transform 0.5s', transformStyle: 'preserve-3d', transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)' }}>
               <div style={{ position: 'absolute', inset: 0, backfaceVisibility: 'hidden', background: 'white', borderRadius: 20, padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', border: '2px solid #F0F0F0' }}>
@@ -885,6 +962,7 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
     return (
       <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', flexDirection: 'column' }}>
         <ConfettiBurst active={confettiKey} />
+        <MiniCelebration triggerKey={miniCelebKey} />
         {flyingPill && <FlyingPill {...flyingPill} onDone={onFlyDone} />}
         <div style={{ background: 'white', padding: '12px 20px', borderBottom: '2px solid #F0F0F0' }}>
           <div style={{ maxWidth: 400, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -924,11 +1002,12 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
           )}
           {showFeedback && (() => {
             const willMaster = feedbackWillMaster
+            const celebLabel = CELEBRATIONS[(miniCelebKey) % CELEBRATIONS.length]?.label || 'Nice!'
             return (
             <div style={{ background: isCorrect ? C.greenLight : C.redLight, padding: 16, borderRadius: 16, marginTop: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                 <span style={{ fontSize: 20 }}>{isCorrect ? (willMaster ? '🌟' : '✅') : '💪'}</span>
-                <span style={{ fontWeight: 800, color: isCorrect ? C.greenDark : C.red, fontSize: 16 }}>{isCorrect ? (willMaster ? 'Amazing!' : 'Nice!') : 'Almost!'}</span>
+                <span style={{ fontWeight: 800, color: isCorrect ? C.greenDark : C.red, fontSize: 16 }}>{isCorrect ? (willMaster ? 'Amazing!' : celebLabel) : 'Almost!'}</span>
               </div>
               {isCorrect ? (
                 <p style={{ margin: '0 0 12px', fontSize: 14, color: C.greenDark }}>
@@ -963,49 +1042,132 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
 }
 
 // ═══════════════════════════════════════════════════════════════
-// MESSAGE BUILDER — Drag-and-drop vocab message composer
+// MAD LIBS MESSAGE BUILDER — Fill-in-the-blanks vocab fun
 // ═══════════════════════════════════════════════════════════════
-const MESSAGE_TEMPLATES = [
-  { template: 'You are absolutely ___!', slotLabel: 'adjective' },
-  { template: 'Your effort is truly ___!', slotLabel: 'adjective' },
-  { template: 'Keep being so ___!', slotLabel: 'adjective' },
-  { template: "I think you're ___!", slotLabel: 'adjective' },
-  { template: 'Stay ___!', slotLabel: 'adjective' },
+const MADLIB_TEMPLATES = [
+  {
+    text: 'Your {adj1} brain is more {adj2} than a {noun}!',
+    slots: [
+      { id: 'adj1', type: 'adj', label: 'adjective' },
+      { id: 'adj2', type: 'adj', label: 'adjective' },
+      { id: 'noun', type: 'noun', label: 'noun' },
+    ],
+  },
+  {
+    text: 'I hereby declare you the most {adj1} {noun} in the {adj2} universe!',
+    slots: [
+      { id: 'adj1', type: 'adj', label: 'adjective' },
+      { id: 'noun', type: 'noun', label: 'noun' },
+      { id: 'adj2', type: 'adj', label: 'adjective' },
+    ],
+  },
+  {
+    text: 'May your {noun1} always be {adj} and your {noun2} forever {adv}!',
+    slots: [
+      { id: 'noun1', type: 'noun', label: 'noun' },
+      { id: 'adj', type: 'adj', label: 'adjective' },
+      { id: 'noun2', type: 'noun', label: 'noun' },
+      { id: 'adv', type: 'adv', label: 'adverb' },
+    ],
+  },
+  {
+    text: "You're so {adj1} that even a {noun} would be {adj2}!",
+    slots: [
+      { id: 'adj1', type: 'adj', label: 'adjective' },
+      { id: 'noun', type: 'noun', label: 'noun' },
+      { id: 'adj2', type: 'adj', label: 'adjective' },
+    ],
+  },
+  {
+    text: 'A {adj1} {noun1} once said: always be {adj2} like a {noun2}!',
+    slots: [
+      { id: 'adj1', type: 'adj', label: 'adjective' },
+      { id: 'noun1', type: 'noun', label: 'noun' },
+      { id: 'adj2', type: 'adj', label: 'adjective' },
+      { id: 'noun2', type: 'noun', label: 'noun' },
+    ],
+  },
+  {
+    text: 'Breaking news: {adj1} person spotted being {adv} {adj2}!',
+    slots: [
+      { id: 'adj1', type: 'adj', label: 'adjective' },
+      { id: 'adv', type: 'adv', label: 'adverb' },
+      { id: 'adj2', type: 'adj', label: 'adjective' },
+    ],
+  },
 ]
 
-const MESSAGE_WORD_BANK = [
-  { word: 'Indomitable', def: 'Impossible to defeat or discourage' },
-  { word: 'Tenacious', def: 'Persistent; holding firmly to something' },
-  { word: 'Formidable', def: 'Impressively powerful' },
-  { word: 'Exemplary', def: 'Serving as an outstanding model' },
-  { word: 'Prodigious', def: 'Remarkably great' },
-  { word: 'Ebullient', def: 'Cheerful and full of energy' },
-  { word: 'Resolute', def: 'Determined and unwavering' },
-  { word: 'Luminous', def: 'Shining brightly; radiant' },
-  { word: 'Intrepid', def: 'Fearless; adventurous' },
-  { word: 'Sagacious', def: 'Having keen judgment' },
-  { word: 'Diligent', def: 'Careful and hardworking' },
-  { word: 'Laudable', def: 'Deserving praise' },
-]
+const MADLIB_WORDS = {
+  adj: [
+    { word: 'Indomitable', def: 'Impossible to defeat or discourage' },
+    { word: 'Tenacious', def: 'Persistent; holding firmly' },
+    { word: 'Formidable', def: 'Impressively powerful' },
+    { word: 'Exemplary', def: 'Serving as an outstanding model' },
+    { word: 'Prodigious', def: 'Remarkably great' },
+    { word: 'Ebullient', def: 'Cheerful and full of energy' },
+    { word: 'Resplendent', def: 'Dazzling; gorgeous' },
+    { word: 'Luminous', def: 'Shining brightly; radiant' },
+    { word: 'Intrepid', def: 'Fearless; adventurous' },
+    { word: 'Sagacious', def: 'Having keen judgment' },
+    { word: 'Magnanimous', def: 'Very generous or forgiving' },
+    { word: 'Ineffable', def: 'Too great to express in words' },
+    { word: 'Scintillating', def: 'Brilliantly clever or skillful' },
+    { word: 'Gargantuan', def: 'Enormously large' },
+    { word: 'Capricious', def: 'Given to sudden change; unpredictable' },
+  ],
+  noun: [
+    { word: 'Paragon', def: 'A model of excellence' },
+    { word: 'Juggernaut', def: 'A huge, unstoppable force' },
+    { word: 'Phenomenon', def: 'A remarkable occurrence' },
+    { word: 'Enigma', def: 'A mystery; a puzzle' },
+    { word: 'Prodigy', def: 'A young person with exceptional talent' },
+    { word: 'Labyrinth', def: 'A complicated maze' },
+    { word: 'Epiphany', def: 'A sudden brilliant realization' },
+    { word: 'Conundrum', def: 'A confusing problem' },
+    { word: 'Pandemonium', def: 'Wild uproar and chaos' },
+    { word: 'Catalyst', def: 'Something that causes change' },
+    { word: 'Hippopotamus', def: 'A large African mammal' },
+    { word: 'Platypus', def: 'An egg-laying Australian mammal' },
+  ],
+  adv: [
+    { word: 'Voraciously', def: 'In an eager, enthusiastic way' },
+    { word: 'Resolutely', def: 'In a determined manner' },
+    { word: 'Effervescently', def: 'In a bubbly, enthusiastic way' },
+    { word: 'Magnificently', def: 'In an impressively beautiful way' },
+    { word: 'Audaciously', def: 'In a bold, daring manner' },
+    { word: 'Flamboyantly', def: 'In a showy, confident way' },
+    { word: 'Serendipitously', def: 'By happy chance' },
+    { word: 'Spontaneously', def: 'Without planning; impulsively' },
+  ],
+}
 
 function CelebrationWithMessageBuilder({ profile, userId, isSprint, onComplete }) {
   const [step, setStep] = useState('celebrate') // celebrate | pickFriend | buildMsg | sent
   const [friends, setFriends] = useState([])
   const [selectedFriend, setSelectedFriend] = useState(null)
-  const [selectedWord, setSelectedWord] = useState(null)
-  const [showDef, setShowDef] = useState(null) // word to show definition for
   const [sending, setSending] = useState(false)
+
+  // Mad Libs state
+  const [filledSlots, setFilledSlots] = useState({}) // { slotId: { word, def } }
+  const [activeSlot, setActiveSlot] = useState(null) // which slot is being filled
+  const [showDef, setShowDef] = useState(null)
 
   const today = getToday()
   const alreadyDoneToday = profile.today_complete && profile.last_session_date === today
   const displayStreak = alreadyDoneToday ? profile.streak : (profile.last_session_date !== today ? profile.streak + 1 : profile.streak)
 
   // Pick a random template
-  const [templateIdx] = useState(() => Math.floor(Math.random() * MESSAGE_TEMPLATES.length))
-  const tmpl = MESSAGE_TEMPLATES[templateIdx]
+  const [templateIdx] = useState(() => Math.floor(Math.random() * MADLIB_TEMPLATES.length))
+  const tmpl = MADLIB_TEMPLATES[templateIdx]
 
-  // Shuffle word bank
-  const [wordBank] = useState(() => [...MESSAGE_WORD_BANK].sort(() => Math.random() - 0.5).slice(0, 8))
+  // Shuffle word banks once
+  const [shuffledWords] = useState(() => {
+    const result = {}
+    Object.keys(MADLIB_WORDS).forEach(type => {
+      result[type] = [...MADLIB_WORDS[type]].sort(() => Math.random() - 0.5).slice(0, 6)
+    })
+    return result
+  })
 
   useEffect(() => {
     if (userId) {
@@ -1013,13 +1175,45 @@ function CelebrationWithMessageBuilder({ profile, userId, isSprint, onComplete }
     }
   }, [userId])
 
-  const builtMessage = selectedWord ? tmpl.template.replace('___', selectedWord.word.toLowerCase()) : tmpl.template
+  // Auto-select first unfilled slot
+  useEffect(() => {
+    if (step === 'buildMsg' && !activeSlot) {
+      const first = tmpl.slots.find(s => !filledSlots[s.id])
+      if (first) setActiveSlot(first.id)
+    }
+  }, [step])
+
+  // Build the message from template + filled slots
+  const buildMessage = () => {
+    let msg = tmpl.text
+    tmpl.slots.forEach(slot => {
+      const filled = filledSlots[slot.id]
+      msg = msg.replace(`{${slot.id}}`, filled ? filled.word.toLowerCase() : `[${slot.label}]`)
+    })
+    return msg
+  }
+
+  const builtMessage = buildMessage()
+  const allSlotsFilled = tmpl.slots.every(s => filledSlots[s.id])
+  const filledCount = tmpl.slots.filter(s => filledSlots[s.id]).length
+
+  const handleWordTap = (word) => {
+    if (!activeSlot) return
+    const newFilled = { ...filledSlots, [activeSlot]: word }
+    setFilledSlots(newFilled)
+    // Auto-advance to next empty slot
+    const nextEmpty = tmpl.slots.find(s => s.id !== activeSlot && !newFilled[s.id])
+    setActiveSlot(nextEmpty ? nextEmpty.id : null)
+    setShowDef(null)
+  }
 
   const handleSend = async () => {
-    if (!selectedFriend || !selectedWord) return
+    if (!selectedFriend || !allSlotsFilled) return
     setSending(true)
     try {
-      await sendMessage(userId, selectedFriend.id, selectedWord.word, builtMessage, 'general')
+      // Pick the first filled word as the vocab_word for the DB
+      const firstWord = filledSlots[tmpl.slots[0].id]
+      await sendMessage(userId, selectedFriend.id, firstWord.word, builtMessage, 'general')
       setStep('sent')
     } catch (e) { console.error('Send error:', e) }
     setSending(false)
@@ -1096,67 +1290,115 @@ function CelebrationWithMessageBuilder({ profile, userId, isSprint, onComplete }
   }
 
   if (step === 'buildMsg') {
+    const currentSlot = tmpl.slots.find(s => s.id === activeSlot)
+    const currentType = currentSlot?.type
+    const wordsForSlot = currentType ? (shuffledWords[currentType] || []) : []
+
     return (
       <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', flexDirection: 'column' }}>
         <div style={{ background: 'white', padding: '12px 20px', borderBottom: '2px solid #F0F0F0', display: 'flex', alignItems: 'center', gap: 12 }}>
-          <button onClick={() => setStep('pickFriend')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.gray, fontSize: 20 }}>←</button>
-          <span style={{ fontWeight: 700, color: C.grayDark, fontSize: 17 }}>Build your message</span>
+          <button onClick={() => { setStep('pickFriend'); setFilledSlots({}); setActiveSlot(null) }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.gray, fontSize: 20 }}>←</button>
+          <span style={{ fontWeight: 700, color: C.grayDark, fontSize: 17 }}>Mad Libs Message!</span>
+          <span style={{ marginLeft: 'auto', fontSize: 13, fontWeight: 700, color: C.purple }}>{filledCount}/{tmpl.slots.length} words</span>
         </div>
         <div style={{ maxWidth: 400, margin: '0 auto', padding: 24, width: '100%', boxSizing: 'border-box' }}>
-          {/* Message preview */}
-          <div style={{ background: 'white', borderRadius: 20, border: `2px solid ${selectedWord ? C.purple : '#E5E5E5'}`, padding: 20, marginBottom: 20, textAlign: 'center', transition: 'border-color 0.3s' }}>
+          {/* Message preview with clickable blanks */}
+          <div style={{ background: 'white', borderRadius: 20, border: `2px solid ${allSlotsFilled ? C.purple : '#E5E5E5'}`, padding: 20, marginBottom: 20, textAlign: 'center', transition: 'border-color 0.3s' }}>
             <p style={{ fontSize: 13, color: C.gray, margin: '0 0 8px' }}>To: {selectedFriend?.name}</p>
-            <p style={{ fontSize: 20, fontWeight: 800, color: selectedWord ? C.purple : C.gray, margin: 0, lineHeight: 1.4 }}>
-              {selectedWord
-                ? builtMessage
-                : tmpl.template.replace('___', '______')
-              }
+            <p style={{ fontSize: 18, fontWeight: 700, color: C.grayDark, margin: 0, lineHeight: 1.6 }}>
+              {(() => {
+                // Render template with inline slot buttons
+                const parts = tmpl.text.split(/\{(\w+)\}/)
+                return parts.map((part, i) => {
+                  const slot = tmpl.slots.find(s => s.id === part)
+                  if (!slot) return <span key={i}>{part}</span>
+                  const filled = filledSlots[slot.id]
+                  const isActive = activeSlot === slot.id
+                  return (
+                    <button key={i}
+                      onClick={() => { setActiveSlot(slot.id); setShowDef(null) }}
+                      style={{
+                        display: 'inline', padding: '2px 8px', margin: '0 2px',
+                        borderRadius: 8, border: 'none', cursor: 'pointer',
+                        fontWeight: 800, fontSize: 18, lineHeight: 1.6,
+                        background: filled ? C.purple + '18' : isActive ? C.purple + '25' : '#F0F0F0',
+                        color: filled ? C.purple : isActive ? C.purple : C.gray,
+                        textDecoration: isActive && !filled ? 'none' : 'none',
+                        outline: isActive ? `2px solid ${C.purple}` : 'none',
+                        outlineOffset: 1,
+                        transition: 'all 0.2s',
+                      }}>
+                      {filled ? filled.word.toLowerCase() : `[${slot.label}]`}
+                    </button>
+                  )
+                })
+              })()}
             </p>
-            {selectedWord && (
-              <p style={{ fontSize: 13, color: C.gray, margin: '8px 0 0', fontStyle: 'italic' }}>
-                {selectedWord.word} — {selectedWord.def}
-              </p>
-            )}
           </div>
 
-          {/* Word bank */}
-          <p style={{ fontSize: 14, fontWeight: 700, color: C.grayDark, margin: '0 0 10px' }}>Tap a word to drop it in:</p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 24 }}>
-            {wordBank.map(w => {
-              const isSelected = selectedWord?.word === w.word
-              return (
-                <div key={w.word} style={{ position: 'relative' }}>
-                  <button
-                    onClick={() => { setSelectedWord(isSelected ? null : w); setShowDef(null) }}
-                    style={{
-                      padding: '8px 14px', borderRadius: 12,
-                      background: isSelected ? C.purple : 'white',
-                      color: isSelected ? 'white' : C.purple,
-                      border: `2px solid ${isSelected ? C.purple : C.purple + '40'}`,
-                      fontWeight: 700, fontSize: 14, cursor: 'pointer',
-                      boxShadow: isSelected ? `0 3px 0 #A855F7` : '0 2px 0 #E5E5E5',
-                      transition: 'all 0.2s',
-                    }}>
-                    {w.word}
-                  </button>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setShowDef(showDef === w.word ? null : w.word) }}
-                    style={{ position: 'absolute', top: -4, right: -4, width: 18, height: 18, borderRadius: '50%', background: '#E5E5E5', border: 'none', fontSize: 10, fontWeight: 800, color: C.gray, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>?</button>
-                  {showDef === w.word && (
-                    <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 4, background: C.grayDark, color: 'white', padding: '6px 10px', borderRadius: 8, fontSize: 12, fontWeight: 600, zIndex: 10, whiteSpace: 'nowrap', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }}>
-                      {w.def}
+          {/* Word bank for current slot */}
+          {activeSlot && currentSlot && (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                <span style={{ fontSize: 14, fontWeight: 700, color: C.purple }}>Pick {currentSlot.label === 'adjective' ? 'an' : 'a'} {currentSlot.label}:</span>
+                {filledSlots[activeSlot] && (
+                  <button onClick={() => { setFilledSlots(prev => { const n = {...prev}; delete n[activeSlot]; return n }) }}
+                    style={{ background: 'none', border: 'none', color: C.red, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>✕ Clear</button>
+                )}
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
+                {wordsForSlot.map(w => {
+                  const isSelected = filledSlots[activeSlot]?.word === w.word
+                  // Check if used in another slot
+                  const usedElsewhere = Object.entries(filledSlots).some(([sid, f]) => sid !== activeSlot && f.word === w.word)
+                  return (
+                    <div key={w.word} style={{ position: 'relative' }}>
+                      <button
+                        onClick={() => !usedElsewhere && handleWordTap(w)}
+                        style={{
+                          padding: '10px 16px', borderRadius: 14,
+                          background: isSelected ? C.purple : usedElsewhere ? '#F8F8F8' : 'white',
+                          color: isSelected ? 'white' : usedElsewhere ? '#D0D0D0' : C.purple,
+                          border: `2px solid ${isSelected ? C.purple : usedElsewhere ? '#E8E8E8' : C.purple + '40'}`,
+                          fontWeight: 700, fontSize: 15, cursor: usedElsewhere ? 'default' : 'pointer',
+                          boxShadow: isSelected ? '0 3px 0 #A855F7' : usedElsewhere ? 'none' : '0 2px 0 #E5E5E5',
+                          transition: 'all 0.15s',
+                        }}>
+                        {w.word}
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setShowDef(showDef === w.word ? null : w.word) }}
+                        style={{ position: 'absolute', top: -5, right: -5, width: 20, height: 20, borderRadius: '50%', background: '#E5E5E5', border: 'none', fontSize: 11, fontWeight: 800, color: C.gray, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>?</button>
+                      {showDef === w.word && (
+                        <div style={{ position: 'absolute', top: '100%', left: '50%', transform: 'translateX(-50%)', marginTop: 4, background: C.grayDark, color: 'white', padding: '8px 12px', borderRadius: 10, fontSize: 13, fontWeight: 600, zIndex: 10, whiteSpace: 'nowrap', maxWidth: 220, textAlign: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }}>
+                          {w.def}
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              )
-            })}
-          </div>
+                  )
+                })}
+              </div>
+            </>
+          )}
 
-          {/* Send button */}
-          <button onClick={handleSend} disabled={!selectedWord || sending}
-            style={{ width: '100%', padding: '16px 0', background: selectedWord ? C.purple : '#E5E5E5', color: selectedWord ? 'white' : C.gray, fontWeight: 700, fontSize: 16, border: 'none', borderRadius: 16, cursor: selectedWord ? 'pointer' : 'default', boxShadow: selectedWord ? '0 4px 0 #A855F7' : 'none', transition: 'all 0.2s' }}>
-            {sending ? 'Sending...' : `Send to ${selectedFriend?.name} 💜`}
-          </button>
+          {/* All filled — show shuffle & send */}
+          {allSlotsFilled && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <button onClick={() => { setFilledSlots({}); setActiveSlot(tmpl.slots[0].id); setShowDef(null) }}
+                style={{ width: '100%', padding: '12px 0', background: 'white', color: C.purple, fontWeight: 700, fontSize: 14, border: `2px solid ${C.purple}40`, borderRadius: 14, cursor: 'pointer' }}>
+                🔀 Remix it!
+              </button>
+              <button onClick={handleSend} disabled={sending}
+                style={{ width: '100%', padding: '16px 0', background: C.purple, color: 'white', fontWeight: 700, fontSize: 16, border: 'none', borderRadius: 16, cursor: 'pointer', boxShadow: '0 4px 0 #A855F7', transition: 'all 0.2s' }}>
+                {sending ? 'Sending...' : `Send to ${selectedFriend?.name} 💜`}
+              </button>
+            </div>
+          )}
+
+          {/* No active slot and not all filled — prompt */}
+          {!activeSlot && !allSlotsFilled && (
+            <p style={{ textAlign: 'center', color: C.gray, fontSize: 14 }}>Tap a blank above to fill it in!</p>
+          )}
         </div>
       </div>
     )
