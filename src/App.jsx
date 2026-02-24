@@ -159,25 +159,29 @@ const CELEBRATIONS = [
 
 function MiniCelebration({ triggerKey }) {
   const [particles, setParticles] = useState([])
-  const [celebIdx, setCelebIdx] = useState(0)
 
   useEffect(() => {
     if (!triggerKey) return
     const idx = triggerKey % CELEBRATIONS.length
-    setCelebIdx(idx)
     const { emojis } = CELEBRATIONS[idx]
-    const newP = Array.from({ length: 12 }, (_, i) => ({
-      id: i,
-      emoji: emojis[i % emojis.length],
-      x: 50 + (Math.random() - 0.5) * 30,
-      y: 50 + (Math.random() - 0.5) * 10,
-      angle: (i / 12) * 360 + Math.random() * 30,
-      speed: 2 + Math.random() * 4,
-      size: 18 + Math.random() * 14,
-      delay: Math.random() * 0.2,
-    }))
+    const newP = Array.from({ length: 10 }, (_, i) => {
+      const angle = (i / 10) * 360 + (Math.random() - 0.5) * 20
+      const rad = (angle * Math.PI) / 180
+      const speed = 2.5 + Math.random() * 3
+      return {
+        id: i,
+        emoji: emojis[i % emojis.length],
+        x: 50 + (Math.random() - 0.5) * 16,
+        y: 45 + (Math.random() - 0.5) * 8,
+        dx: Math.cos(rad) * speed * 45,
+        dy: Math.sin(rad) * speed * 30 - 30,
+        rot: (Math.random() - 0.5) * 40,
+        size: 20 + Math.random() * 12,
+        delay: i * 0.03,
+      }
+    })
     setParticles(newP)
-    const timer = setTimeout(() => setParticles([]), 1500)
+    const timer = setTimeout(() => setParticles([]), 2000)
     return () => clearTimeout(timer)
   }, [triggerKey])
 
@@ -185,31 +189,26 @@ function MiniCelebration({ triggerKey }) {
   return (
     <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 9999, overflow: 'hidden' }}>
       <style>{`
-        @keyframes emoji-burst {
-          0% { transform: translate(0, 0) scale(0.3) rotate(0deg); opacity: 1; }
-          40% { transform: translate(var(--dx2), var(--dy2)) scale(1.2) rotate(var(--rot)); opacity: 1; }
-          100% { transform: translate(var(--dx), var(--dy)) scale(0.4) rotate(var(--rot2)); opacity: 0; }
+        @keyframes emoji-float {
+          0% { transform: translate(0, 0) scale(0) rotate(0deg); opacity: 0; }
+          15% { transform: translate(calc(var(--dx) * 0.1), calc(var(--dy) * 0.1 - 20px)) scale(1.3) rotate(calc(var(--rot) * 0.3)); opacity: 1; }
+          50% { transform: translate(calc(var(--dx) * 0.6), calc(var(--dy) * 0.5 - 10px)) scale(1) rotate(calc(var(--rot) * 0.7)); opacity: 0.9; }
+          100% { transform: translate(var(--dx), calc(var(--dy) + 60px)) scale(0.5) rotate(var(--rot)); opacity: 0; }
         }
       `}</style>
-      {particles.map(p => {
-        const rad = (p.angle * Math.PI) / 180
-        const dx = Math.cos(rad) * p.speed * 50
-        const dy = Math.sin(rad) * p.speed * 35 + 80
-        return (
-          <div key={p.id} style={{
-            position: 'absolute',
-            left: `${p.x}%`,
-            top: `${p.y}%`,
-            fontSize: p.size,
-            '--dx': `${dx}px`, '--dy': `${dy}px`,
-            '--dx2': `${dx * 0.5}px`, '--dy2': `${dy * 0.3 - 20}px`,
-            '--rot': `${(Math.random() - 0.5) * 60}deg`,
-            '--rot2': `${(Math.random() - 0.5) * 120}deg`,
-            animation: `emoji-burst 1.2s cubic-bezier(0.22, 1, 0.36, 1) ${p.delay}s forwards`,
-            opacity: 0,
-          }}>{p.emoji}</div>
-        )
-      })}
+      {particles.map(p => (
+        <div key={p.id} style={{
+          position: 'absolute',
+          left: `${p.x}%`,
+          top: `${p.y}%`,
+          fontSize: p.size,
+          '--dx': `${p.dx}px`,
+          '--dy': `${p.dy}px`,
+          '--rot': `${p.rot}deg`,
+          animation: `emoji-float 1.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${p.delay}s both`,
+          willChange: 'transform, opacity',
+        }}>{p.emoji}</div>
+      ))}
     </div>
   )
 }
@@ -597,9 +596,7 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
   const [feedbackWillMaster, setFeedbackWillMaster] = useState(false) // captured at answer time
   const [miniCelebKey, setMiniCelebKey] = useState(0) // triggers varied celebrations
 
-  // Bucket animation state
-  const [flyingPill, setFlyingPill] = useState(null)
-  const bucketRefs = { learning: useRef(null), review: useRef(null), mastered: useRef(null) }
+  // Bucket animation state (kept for potential future use)
   const wordCardRef = useRef(null)
   const pendingUpdate = useRef(null) // stores { word, card, wasCorrect } until animation ends
 
@@ -646,14 +643,6 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
     setLocalCards(prev => ({ ...prev, [pending.word]: pending.card }))
     setLocalIntroduced(prev => prev.includes(pending.word) ? prev : [...prev, pending.word])
   }
-
-  // Handle flying pill landing in bucket
-  const onFlyDone = useCallback(() => {
-    if (!flyingPill) return
-    const { target } = flyingPill
-    applyPendingUpdate()
-    setFlyingPill(null)
-  }, [flyingPill])
 
   useEffect(() => {
     if (initialMode === 'reviewQuiz') {
@@ -719,13 +708,9 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
   const submitAnswer = () => {
     if (showFeedback || !selected) return
     const ans = selected
-    // Flush any previous pending animation
-    if (pendingUpdate.current) applyPendingUpdate()
-    if (flyingPill) setFlyingPill(null)
 
     setSelected(ans)
     setShowFeedback(true)
-    // Determine target bucket for animation
     const q = quizWords[qIndex]
     const correctDef = getWordData(q.word).definition
     const isCorrect = ans === correctDef
@@ -761,34 +746,8 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
     }
     pendingUpdate.current = { word: q.word, card: updated, wasCorrect: isCorrect }
 
-    // Compute what bucket the word will land in after this answer
-    let targetBucket
-    if (isCorrect) {
-      if (existRep >= 1) targetBucket = 'mastered'
-      else targetBucket = 'review'
-    } else {
-      if (initialMode === 'masteredQuiz') targetBucket = 'review'
-      else targetBucket = 'learning'
-    }
-
-    // Launch flying pill after a beat
-    setTimeout(() => {
-      const fromEl = wordCardRef.current
-      const toEl = bucketRefs[targetBucket]?.current
-      if (!fromEl || !toEl) return
-      const fR = fromEl.getBoundingClientRect()
-      const tR = toEl.getBoundingClientRect()
-      // Determine source color: current bucket color, or green for new words
-      const sourceBucket = getBucket(q.word)
-      const srcColor = sourceBucket ? BUCKET_CFG[sourceBucket].color : C.green
-      setFlyingPill({
-        word: q.word, target: targetBucket,
-        from: { x: fR.left + fR.width / 2 - 36, y: fR.top + 10 },
-        to: { x: tR.left + tR.width / 2 - 36, y: tR.top + 30 },
-        sourceColor: srcColor,
-        targetColor: BUCKET_CFG[targetBucket].color,
-      })
-    }, 400)
+    // Apply card update immediately (no bucket animation needed)
+    applyPendingUpdate()
   }
 
   const continueQuiz = () => {
@@ -796,23 +755,19 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
     const correctDef = getWordData(w.word).definition
     const wasCorrect = selected === correctDef
 
-    // Grab the updated card for results - but DON'T apply to localCards here
-    // (localCards update happens in onFlyDone so dots/count animate correctly)
+    // Card was already applied in submitAnswer — grab it from refs or pending
     let updatedCard
     if (pendingUpdate.current && pendingUpdate.current.word === w.word) {
       updatedCard = pendingUpdate.current.card
     } else {
-      // Animation already finished and applied - card is in localCards
       updatedCard = localCards[w.word] || createSRSCard(w.word)
     }
-    pendingUpdate.current = null // Clear after extracting
+    pendingUpdate.current = null
 
     const newResults = [...results, { word: w.word, wasCorrect, newCard: updatedCard }]
     if (qIndex < quizWords.length - 1) {
       setResults(newResults); setQIndex(qIndex + 1); setSelected(null); setShowFeedback(false)
     } else {
-      // If animation still pending, apply now before finishing
-      if (pendingUpdate.current) applyPendingUpdate()
       finishQuiz(newResults)
     }
   }
@@ -963,7 +918,6 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
       <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', flexDirection: 'column' }}>
         <ConfettiBurst active={confettiKey} />
         <MiniCelebration triggerKey={miniCelebKey} />
-        {flyingPill && <FlyingPill {...flyingPill} onDone={onFlyDone} />}
         <div style={{ background: 'white', padding: '12px 20px', borderBottom: '2px solid #F0F0F0' }}>
           <div style={{ maxWidth: 400, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 12 }}>
             <button onClick={handleQuitQuiz} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.gray, fontSize: 20 }}>✕</button>
@@ -1150,7 +1104,6 @@ function CelebrationWithMessageBuilder({ profile, userId, isSprint, onComplete }
   // Mad Libs state
   const [filledSlots, setFilledSlots] = useState({}) // { slotId: { word, def } }
   const [activeSlot, setActiveSlot] = useState(null) // which slot is being filled
-  const [showDef, setShowDef] = useState(null)
 
   const today = getToday()
   const alreadyDoneToday = profile.today_complete && profile.last_session_date === today
@@ -1204,7 +1157,7 @@ function CelebrationWithMessageBuilder({ profile, userId, isSprint, onComplete }
     // Auto-advance to next empty slot
     const nextEmpty = tmpl.slots.find(s => s.id !== activeSlot && !newFilled[s.id])
     setActiveSlot(nextEmpty ? nextEmpty.id : null)
-    setShowDef(null)
+    
   }
 
   const handleSend = async () => {
@@ -1316,7 +1269,7 @@ function CelebrationWithMessageBuilder({ profile, userId, isSprint, onComplete }
                   const isActive = activeSlot === slot.id
                   return (
                     <button key={i}
-                      onClick={() => { setActiveSlot(slot.id); setShowDef(null) }}
+                      onClick={() => { setActiveSlot(slot.id) }}
                       style={{
                         display: 'inline', padding: '2px 8px', margin: '0 2px',
                         borderRadius: 8, border: 'none', cursor: 'pointer',
@@ -1346,35 +1299,32 @@ function CelebrationWithMessageBuilder({ profile, userId, isSprint, onComplete }
                     style={{ background: 'none', border: 'none', color: C.red, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>✕ Clear</button>
                 )}
               </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
                 {wordsForSlot.map(w => {
                   const isSelected = filledSlots[activeSlot]?.word === w.word
-                  // Check if used in another slot
                   const usedElsewhere = Object.entries(filledSlots).some(([sid, f]) => sid !== activeSlot && f.word === w.word)
                   return (
-                    <div key={w.word} style={{ position: 'relative' }}>
-                      <button
-                        onClick={() => !usedElsewhere && handleWordTap(w)}
-                        style={{
-                          padding: '10px 16px', borderRadius: 14,
-                          background: isSelected ? C.purple : usedElsewhere ? '#F8F8F8' : 'white',
-                          color: isSelected ? 'white' : usedElsewhere ? '#D0D0D0' : C.purple,
-                          border: `2px solid ${isSelected ? C.purple : usedElsewhere ? '#E8E8E8' : C.purple + '40'}`,
-                          fontWeight: 700, fontSize: 15, cursor: usedElsewhere ? 'default' : 'pointer',
-                          boxShadow: isSelected ? '0 3px 0 #A855F7' : usedElsewhere ? 'none' : '0 2px 0 #E5E5E5',
-                          transition: 'all 0.15s',
-                        }}>
-                        {w.word}
-                      </button>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); setShowDef(showDef === w.word ? null : w.word) }}
-                        style={{ position: 'absolute', top: -5, right: -5, width: 20, height: 20, borderRadius: '50%', background: '#E5E5E5', border: 'none', fontSize: 11, fontWeight: 800, color: C.gray, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>?</button>
-                      {showDef === w.word && (
-                        <div style={{ position: 'absolute', top: '100%', left: '50%', transform: 'translateX(-50%)', marginTop: 4, background: C.grayDark, color: 'white', padding: '8px 12px', borderRadius: 10, fontSize: 13, fontWeight: 600, zIndex: 10, whiteSpace: 'nowrap', maxWidth: 220, textAlign: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }}>
+                    <button key={w.word}
+                      onClick={() => !usedElsewhere && handleWordTap(w)}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 12,
+                        padding: '12px 14px', borderRadius: 14, width: '100%', textAlign: 'left',
+                        background: isSelected ? C.purple : usedElsewhere ? '#F8F8F8' : 'white',
+                        border: `2px solid ${isSelected ? C.purple : usedElsewhere ? '#E8E8E8' : C.purple + '30'}`,
+                        cursor: usedElsewhere ? 'default' : 'pointer',
+                        boxShadow: isSelected ? '0 3px 0 #A855F7' : usedElsewhere ? 'none' : '0 2px 0 #E5E5E5',
+                        transition: 'all 0.15s',
+                      }}>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontWeight: 800, fontSize: 15, color: isSelected ? 'white' : usedElsewhere ? '#D0D0D0' : C.purple }}>
+                          {w.word}
+                        </div>
+                        <div style={{ fontSize: 12, color: isSelected ? 'rgba(255,255,255,0.8)' : usedElsewhere ? '#D0D0D0' : C.gray, marginTop: 2, lineHeight: 1.3 }}>
                           {w.def}
                         </div>
-                      )}
-                    </div>
+                      </div>
+                      {isSelected && <span style={{ marginLeft: 'auto', fontSize: 16, color: 'white', flexShrink: 0 }}>✓</span>}
+                    </button>
                   )
                 })}
               </div>
@@ -1384,7 +1334,7 @@ function CelebrationWithMessageBuilder({ profile, userId, isSprint, onComplete }
           {/* All filled — show shuffle & send */}
           {allSlotsFilled && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <button onClick={() => { setFilledSlots({}); setActiveSlot(tmpl.slots[0].id); setShowDef(null) }}
+              <button onClick={() => { setFilledSlots({}); setActiveSlot(tmpl.slots[0].id) }}
                 style={{ width: '100%', padding: '12px 0', background: 'white', color: C.purple, fontWeight: 700, fontSize: 14, border: `2px solid ${C.purple}40`, borderRadius: 14, cursor: 'pointer' }}>
                 🔀 Remix it!
               </button>
