@@ -163,45 +163,43 @@ function MiniCelebration({ triggerKey }) {
   useEffect(() => {
     if (!triggerKey || !containerRef.current) return
     const container = containerRef.current
-    // Clear previous
     container.innerHTML = ''
 
     const idx = triggerKey % CELEBRATIONS.length
     const { emojis } = CELEBRATIONS[idx]
 
-    // Build unique keyframes + elements entirely in DOM — no React render cycle
     const styleEl = document.createElement('style')
     let css = ''
     const fragment = document.createDocumentFragment()
 
     for (let i = 0; i < 10; i++) {
-      const angle = (i / 10) * 360 + (Math.random() - 0.5) * 25
-      const rad = (angle * Math.PI) / 180
-      const speed = 2 + Math.random() * 3.5
-      const dx = Math.cos(rad) * speed * 48
-      const dy = Math.sin(rad) * speed * 32
-      const rot = (Math.random() - 0.5) * 45
+      // Fountain burst: spread horizontally, all shoot UP then arc DOWN
+      const spread = (i - 4.5) / 4.5  // -1 to 1 horizontal spread
+      const dx = spread * (60 + Math.random() * 40) // horizontal drift
+      const peakHeight = -(120 + Math.random() * 80)  // how high they go (negative = up)
+      const rot = spread * 30 + (Math.random() - 0.5) * 20
       const name = `mc${triggerKey}p${i}`
 
+      // Parabolic arc: up fast, hang at peak, drift down slowly
       css += `@keyframes ${name}{` +
-        `0%{transform:translate(0,0) scale(0);opacity:0}` +
-        `10%{transform:translate(${dx*0.06}px,${-14}px) scale(1.25);opacity:1}` +
-        `35%{transform:translate(${dx*0.4}px,${dy*0.25-10}px) scale(1.05) rotate(${rot*0.4}deg);opacity:1}` +
-        `65%{transform:translate(${dx*0.75}px,${dy*0.6+8}px) scale(0.9) rotate(${rot*0.75}deg);opacity:0.7}` +
-        `100%{transform:translate(${dx}px,${dy+55}px) scale(0.3) rotate(${rot}deg);opacity:0}}\n`
+        `0%{transform:translate(0,0) scale(0) rotate(0deg);opacity:0}` +
+        `8%{transform:translate(${dx*0.1}px,${peakHeight*0.3}px) scale(1.3) rotate(${rot*0.1}deg);opacity:1}` +
+        `30%{transform:translate(${dx*0.4}px,${peakHeight*0.95}px) scale(1.1) rotate(${rot*0.4}deg);opacity:1}` +
+        `45%{transform:translate(${dx*0.55}px,${peakHeight*0.9}px) scale(1) rotate(${rot*0.5}deg);opacity:0.95}` +
+        `100%{transform:translate(${dx}px,${30}px) scale(0.6) rotate(${rot}deg);opacity:0}}\n`
 
       const el = document.createElement('div')
       el.textContent = emojis[i % emojis.length]
-      el.style.cssText = `position:absolute;left:${50 + (Math.random()-0.5)*18}%;top:${42 + (Math.random()-0.5)*8}%;` +
-        `font-size:${20 + Math.random()*12}px;pointer-events:none;will-change:transform,opacity;` +
-        `animation:${name} 1.5s ease-out ${i * 0.04}s both;`
+      const startX = 50 + (Math.random() - 0.5) * 6
+      el.style.cssText = `position:absolute;left:${startX}%;top:55%;` +
+        `font-size:${20 + Math.random() * 12}px;pointer-events:none;will-change:transform,opacity;` +
+        `animation:${name} 1.6s ease-out ${i * 0.025}s both;`
       fragment.appendChild(el)
     }
 
     styleEl.textContent = css
     container.appendChild(styleEl)
-    // Force style parse before adding animated elements
-    styleEl.sheet // trigger sheet creation
+    styleEl.sheet
     container.appendChild(fragment)
 
     const timer = setTimeout(() => { container.innerHTML = '' }, 2200)
@@ -1096,6 +1094,7 @@ const MADLIB_WORDS = {
 function CelebrationWithMessageBuilder({ profile, userId, isSprint, onComplete }) {
   const [step, setStep] = useState('celebrate') // celebrate | pickFriend | buildMsg | sent
   const [friends, setFriends] = useState([])
+  const [friendsLoaded, setFriendsLoaded] = useState(false)
   const [selectedFriend, setSelectedFriend] = useState(null)
   const [sending, setSending] = useState(false)
 
@@ -1122,7 +1121,9 @@ function CelebrationWithMessageBuilder({ profile, userId, isSprint, onComplete }
 
   useEffect(() => {
     if (userId) {
-      getFollowing(userId).then(f => setFriends(f)).catch(() => {})
+      getFollowing(userId).then(f => { setFriends(f); setFriendsLoaded(true) }).catch(() => setFriendsLoaded(true))
+    } else {
+      setFriendsLoaded(true)
     }
   }, [userId])
 
@@ -1189,8 +1190,12 @@ function CelebrationWithMessageBuilder({ profile, userId, isSprint, onComplete }
           {isSprint ? 'Nice extra effort!' : 'Come back tomorrow to keep it going!'}
         </p>
 
-        {/* Prompt to send a friend encouragement */}
-        {friends.length > 0 ? (
+        {/* Prompt to send a friend encouragement — wait for load to avoid flash */}
+        {!friendsLoaded ? (
+          <div style={{ width: '100%', maxWidth: 340, textAlign: 'center', padding: 20 }}>
+            <Spinner text="" />
+          </div>
+        ) : friends.length > 0 ? (
           <div style={{ width: '100%', maxWidth: 340, display: 'flex', flexDirection: 'column', gap: 10 }}>
             <div style={{ background: 'white', borderRadius: 20, border: '2px solid #F0F0F0', padding: 20, textAlign: 'center' }}>
               <span style={{ fontSize: 32 }}>💜</span>
