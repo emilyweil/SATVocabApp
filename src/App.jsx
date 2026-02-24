@@ -158,59 +158,57 @@ const CELEBRATIONS = [
 ]
 
 function MiniCelebration({ triggerKey }) {
-  const [particles, setParticles] = useState([])
+  const containerRef = useRef(null)
 
   useEffect(() => {
-    if (!triggerKey) return
+    if (!triggerKey || !containerRef.current) return
+    const container = containerRef.current
+    // Clear previous
+    container.innerHTML = ''
+
     const idx = triggerKey % CELEBRATIONS.length
     const { emojis } = CELEBRATIONS[idx]
-    const newP = Array.from({ length: 10 }, (_, i) => {
-      const angle = (i / 10) * 360 + (Math.random() - 0.5) * 20
+
+    // Build unique keyframes + elements entirely in DOM — no React render cycle
+    const styleEl = document.createElement('style')
+    let css = ''
+    const fragment = document.createDocumentFragment()
+
+    for (let i = 0; i < 10; i++) {
+      const angle = (i / 10) * 360 + (Math.random() - 0.5) * 25
       const rad = (angle * Math.PI) / 180
-      const speed = 2.5 + Math.random() * 3
-      return {
-        id: i,
-        emoji: emojis[i % emojis.length],
-        x: 50 + (Math.random() - 0.5) * 16,
-        y: 45 + (Math.random() - 0.5) * 8,
-        dx: Math.cos(rad) * speed * 45,
-        dy: Math.sin(rad) * speed * 30 - 30,
-        rot: (Math.random() - 0.5) * 40,
-        size: 20 + Math.random() * 12,
-        delay: i * 0.03,
-      }
-    })
-    setParticles(newP)
-    const timer = setTimeout(() => setParticles([]), 2000)
-    return () => clearTimeout(timer)
+      const speed = 2 + Math.random() * 3.5
+      const dx = Math.cos(rad) * speed * 48
+      const dy = Math.sin(rad) * speed * 32
+      const rot = (Math.random() - 0.5) * 45
+      const name = `mc${triggerKey}p${i}`
+
+      css += `@keyframes ${name}{` +
+        `0%{transform:translate(0,0) scale(0);opacity:0}` +
+        `10%{transform:translate(${dx*0.06}px,${-14}px) scale(1.25);opacity:1}` +
+        `35%{transform:translate(${dx*0.4}px,${dy*0.25-10}px) scale(1.05) rotate(${rot*0.4}deg);opacity:1}` +
+        `65%{transform:translate(${dx*0.75}px,${dy*0.6+8}px) scale(0.9) rotate(${rot*0.75}deg);opacity:0.7}` +
+        `100%{transform:translate(${dx}px,${dy+55}px) scale(0.3) rotate(${rot}deg);opacity:0}}\n`
+
+      const el = document.createElement('div')
+      el.textContent = emojis[i % emojis.length]
+      el.style.cssText = `position:absolute;left:${50 + (Math.random()-0.5)*18}%;top:${42 + (Math.random()-0.5)*8}%;` +
+        `font-size:${20 + Math.random()*12}px;pointer-events:none;will-change:transform,opacity;` +
+        `animation:${name} 1.5s ease-out ${i * 0.04}s both;`
+      fragment.appendChild(el)
+    }
+
+    styleEl.textContent = css
+    container.appendChild(styleEl)
+    // Force style parse before adding animated elements
+    styleEl.sheet // trigger sheet creation
+    container.appendChild(fragment)
+
+    const timer = setTimeout(() => { container.innerHTML = '' }, 2200)
+    return () => { clearTimeout(timer); container.innerHTML = '' }
   }, [triggerKey])
 
-  if (particles.length === 0) return null
-  return (
-    <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 9999, overflow: 'hidden' }}>
-      <style>{`
-        @keyframes emoji-float {
-          0% { transform: translate(0, 0) scale(0) rotate(0deg); opacity: 0; }
-          15% { transform: translate(calc(var(--dx) * 0.1), calc(var(--dy) * 0.1 - 20px)) scale(1.3) rotate(calc(var(--rot) * 0.3)); opacity: 1; }
-          50% { transform: translate(calc(var(--dx) * 0.6), calc(var(--dy) * 0.5 - 10px)) scale(1) rotate(calc(var(--rot) * 0.7)); opacity: 0.9; }
-          100% { transform: translate(var(--dx), calc(var(--dy) + 60px)) scale(0.5) rotate(var(--rot)); opacity: 0; }
-        }
-      `}</style>
-      {particles.map(p => (
-        <div key={p.id} style={{
-          position: 'absolute',
-          left: `${p.x}%`,
-          top: `${p.y}%`,
-          fontSize: p.size,
-          '--dx': `${p.dx}px`,
-          '--dy': `${p.dy}px`,
-          '--rot': `${p.rot}deg`,
-          animation: `emoji-float 1.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${p.delay}s both`,
-          willChange: 'transform, opacity',
-        }}>{p.emoji}</div>
-      ))}
-    </div>
-  )
+  return <div ref={containerRef} style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 9999, overflow: 'hidden' }} />
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -803,7 +801,6 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
     quizResults.forEach(r => { newCards[r.word] = r.newCard; if (!newIntroduced.includes(r.word)) newIntroduced.push(r.word) })
     sessionNewWords.forEach(w => { if (!newIntroduced.includes(w)) newIntroduced.push(w); if (!newCards[w]) newCards[w] = createSRSCard(w) })
 
-    // Log final card states
     console.log('[finishQuiz] Card states being saved:')
     quizResults.forEach(r => console.log(`  ${r.word}: rep=${r.newCard.repetition} status=${r.newCard.status} correct=${r.wasCorrect}`))
 
@@ -813,8 +810,9 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
     introducedRef.current = newIntroduced
     setResults(quizResults)
 
-    await completeDayAndSave(newCards, newIntroduced, quizResults)
+    // Switch to celebration IMMEDIATELY — save in background to avoid flash
     setPhase('celebration')
+    completeDayAndSave(newCards, newIntroduced, quizResults).catch(e => console.error('Background save error:', e))
   }
 
   const saveToDB = async (cards, introduced, dayComplete, quizResults) => {
