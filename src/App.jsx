@@ -168,32 +168,83 @@ function MiniCelebration({ triggerKey }) {
     const idx = triggerKey % CELEBRATIONS.length
     const { emojis } = CELEBRATIONS[idx]
 
+    // Randomize firework character each time
+    const count = 6 + Math.floor(Math.random() * 10)           // 6–15 emojis
+    const intensity = 0.5 + Math.random() * 1.0                // 0.5–1.5 overall power
+    const duration = 1.2 + Math.random() * 0.9                 // 1.2–2.1s
+    const originX = 42 + Math.random() * 16                    // 42–58% horizontal origin
+    const originY = 45 + Math.random() * 15                    // 45–60% vertical origin
+    const sizeBase = 16 + Math.random() * 10                   // 16–26px base emoji size
+    const sizeVariance = 6 + Math.random() * 10                // how much sizes differ
+    const staggerStyle = Math.random()                          // 0–1 controls stagger pattern
+    const arcStyle = Math.floor(Math.random() * 4)             // 0=fountain, 1=ring, 2=rocket, 3=sparkle
+    const hangTime = 0.25 + Math.random() * 0.25               // 0.25–0.5 fraction of duration at peak
+    const gravity = 20 + Math.random() * 60                    // how far they fall at end
+
     const styleEl = document.createElement('style')
     let css = ''
     const fragment = document.createDocumentFragment()
 
-    for (let i = 0; i < 10; i++) {
-      // Fountain burst: spread horizontally, all shoot UP then arc DOWN
-      const spread = (i - 4.5) / 4.5  // -1 to 1 horizontal spread
-      const dx = spread * (60 + Math.random() * 40) // horizontal drift
-      const peakHeight = -(120 + Math.random() * 80)  // how high they go (negative = up)
-      const rot = spread * 30 + (Math.random() - 0.5) * 20
+    for (let i = 0; i < count; i++) {
+      const t = count > 1 ? i / (count - 1) : 0.5 // 0 to 1
+
+      // Vary trajectory by arcStyle
+      let dx, peakY, rot
+      if (arcStyle === 0) {
+        // Fountain: fan spread upward
+        const spread = (t - 0.5) * 2
+        dx = spread * (50 + Math.random() * 50) * intensity
+        peakY = -(100 + Math.random() * 100) * intensity
+        rot = spread * 35 + (Math.random() - 0.5) * 20
+      } else if (arcStyle === 1) {
+        // Ring: emojis explode outward in a circle
+        const angle = (i / count) * 360 + (Math.random() - 0.5) * 15
+        const rad = (angle * Math.PI) / 180
+        const dist = (70 + Math.random() * 60) * intensity
+        dx = Math.cos(rad) * dist
+        peakY = Math.sin(rad) * dist * -0.8 // bias upward
+        rot = (Math.random() - 0.5) * 50
+      } else if (arcStyle === 2) {
+        // Rocket: tight column shooting up, then spreading at peak
+        const spreadLate = (Math.random() - 0.5) * 120 * intensity
+        dx = spreadLate
+        peakY = -(140 + Math.random() * 80) * intensity
+        rot = (Math.random() - 0.5) * 30
+      } else {
+        // Sparkle: random directions, short distance, fast pop
+        const angle = Math.random() * 360
+        const rad = (angle * Math.PI) / 180
+        const dist = (30 + Math.random() * 70) * intensity
+        dx = Math.cos(rad) * dist
+        peakY = Math.sin(rad) * dist * -0.6
+        rot = (Math.random() - 0.5) * 60
+      }
+
+      // Stagger: either sequential wave or near-simultaneous burst
+      const delay = staggerStyle < 0.3
+        ? i * 0.015                           // rapid ripple
+        : staggerStyle < 0.6
+          ? i * (0.03 + Math.random() * 0.02) // organic stagger
+          : Math.random() * 0.08              // near-simultaneous burst
+
+      const peakPct = Math.round(28 + hangTime * 20)
+      const hangPct = Math.round(peakPct + hangTime * 100 * 0.3)
       const name = `mc${triggerKey}p${i}`
 
-      // Parabolic arc: up fast, hang at peak, drift down slowly
       css += `@keyframes ${name}{` +
         `0%{transform:translate(0,0) scale(0) rotate(0deg);opacity:0}` +
-        `8%{transform:translate(${dx*0.1}px,${peakHeight*0.3}px) scale(1.3) rotate(${rot*0.1}deg);opacity:1}` +
-        `30%{transform:translate(${dx*0.4}px,${peakHeight*0.95}px) scale(1.1) rotate(${rot*0.4}deg);opacity:1}` +
-        `45%{transform:translate(${dx*0.55}px,${peakHeight*0.9}px) scale(1) rotate(${rot*0.5}deg);opacity:0.95}` +
-        `100%{transform:translate(${dx}px,${30}px) scale(0.6) rotate(${rot}deg);opacity:0}}\n`
+        `10%{transform:translate(${dx*0.12}px,${peakY*0.35}px) scale(1.3) rotate(${rot*0.15}deg);opacity:1}` +
+        `${peakPct}%{transform:translate(${dx*0.5}px,${peakY*0.97}px) scale(1.1) rotate(${rot*0.45}deg);opacity:1}` +
+        `${hangPct}%{transform:translate(${dx*0.62}px,${peakY*0.88}px) scale(1) rotate(${rot*0.55}deg);opacity:0.9}` +
+        `100%{transform:translate(${dx}px,${gravity}px) scale(0.5) rotate(${rot}deg);opacity:0}}\n`
 
       const el = document.createElement('div')
       el.textContent = emojis[i % emojis.length]
-      const startX = 50 + (Math.random() - 0.5) * 6
-      el.style.cssText = `position:absolute;left:${startX}%;top:55%;` +
-        `font-size:${20 + Math.random() * 12}px;pointer-events:none;will-change:transform,opacity;` +
-        `animation:${name} 1.6s ease-out ${i * 0.025}s both;`
+      const sx = originX + (Math.random() - 0.5) * 6
+      const fontSize = sizeBase + Math.random() * sizeVariance
+      el.style.cssText = `position:absolute;left:${sx}%;top:${originY}%;` +
+        `font-size:${fontSize}px;pointer-events:none;will-change:transform,opacity;` +
+        `animation:${name} ${duration}s ease-out ${delay}s both;`
       fragment.appendChild(el)
     }
 
@@ -202,7 +253,7 @@ function MiniCelebration({ triggerKey }) {
     styleEl.sheet
     container.appendChild(fragment)
 
-    const timer = setTimeout(() => { container.innerHTML = '' }, 2200)
+    const timer = setTimeout(() => { container.innerHTML = '' }, Math.ceil(duration * 1000) + 600)
     return () => { clearTimeout(timer); container.innerHTML = '' }
   }, [triggerKey])
 
