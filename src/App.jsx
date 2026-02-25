@@ -168,41 +168,42 @@ function MiniCelebration({ triggerKey }) {
     const idx = triggerKey % CELEBRATIONS.length
     const { emojis } = CELEBRATIONS[idx]
 
-    const count = 10 + Math.floor(Math.random() * 14)    // 10–23 emojis
-    const power = 1.5 + Math.random() * 1.5              // BIG distance multiplier
-    const duration = 0.35 + Math.random() * 0.25         // 0.35–0.6s — VERY fast
-    const originX = 35 + Math.random() * 30
-    const originY = 30 + Math.random() * 25
-    const sizeBase = 20 + Math.random() * 10
-    const sizeVar = 8 + Math.random() * 16
+    const count = 9 + Math.floor(Math.random() * 9)      // 9–17 emojis
+    const power = 1.2 + Math.random() * 1.0              // moderate-to-big spread
+    const duration = 0.7 + Math.random() * 0.3           // 0.7–1.0s — snappy but readable
+    const originX = 38 + Math.random() * 24
+    const originY = 32 + Math.random() * 22
+    const sizeBase = 20 + Math.random() * 8
+    const sizeVar = 8 + Math.random() * 14
 
     const styleEl = document.createElement('style')
     let css = ''
     const fragment = document.createDocumentFragment()
 
     for (let i = 0; i < count; i++) {
-      const angle = (i / count) * 360 + Math.random() * 30
+      const angle = (i / count) * 360 + Math.random() * 25
       const rad = (angle * Math.PI) / 180
-      const dist = (200 + Math.random() * 250) * power   // 300–675px spread!
+      const dist = (150 + Math.random() * 180) * power   // 180–500px spread
       const dx = Math.cos(rad) * dist
       const dy = Math.sin(rad) * dist
-      const rot = (Math.random() - 0.5) * 120
-      const delay = Math.random() * 0.04                  // nearly instant
+      const rot = (Math.random() - 0.5) * 90
+      const delay = Math.random() * 0.05
 
       const name = `mc${triggerKey}p${i}`
 
-      // EXPLOSIVE: 80% of distance reached by 12% of time, then fade out fast
+      // Graceful: quick burst to 60% by 15%, hold visible at full size, then gentle fade
       css += `@keyframes ${name}{` +
         `0%{transform:translate(0,0) scale(0);opacity:1}` +
-        `12%{transform:translate(${dx*0.8}px,${dy*0.8}px) scale(1.2) rotate(${rot*0.4}deg);opacity:1}` +
-        `35%{transform:translate(${dx*0.95}px,${dy*0.95}px) scale(0.9) rotate(${rot*0.7}deg);opacity:0.6}` +
-        `100%{transform:translate(${dx}px,${dy}px) scale(0.2) rotate(${rot}deg);opacity:0}}\n`
+        `15%{transform:translate(${dx*0.6}px,${dy*0.6}px) scale(1.15) rotate(${rot*0.3}deg);opacity:1}` +
+        `40%{transform:translate(${dx*0.85}px,${dy*0.85}px) scale(1) rotate(${rot*0.6}deg);opacity:0.85}` +
+        `70%{transform:translate(${dx*0.95}px,${dy*0.95}px) scale(0.7) rotate(${rot*0.85}deg);opacity:0.4}` +
+        `100%{transform:translate(${dx}px,${dy}px) scale(0.3) rotate(${rot}deg);opacity:0}}\n`
 
       const el = document.createElement('div')
       el.textContent = emojis[i % emojis.length]
       el.style.cssText = `position:absolute;left:${originX + (Math.random()-.5)*4}%;top:${originY + (Math.random()-.5)*4}%;` +
         `font-size:${sizeBase + Math.random() * sizeVar}px;pointer-events:none;will-change:transform,opacity;` +
-        `animation:${name} ${duration}s cubic-bezier(0,.9,.3,1) ${delay}s both;`
+        `animation:${name} ${duration}s cubic-bezier(0.1,0.8,0.3,1) ${delay}s both;`
       fragment.appendChild(el)
     }
 
@@ -211,7 +212,7 @@ function MiniCelebration({ triggerKey }) {
     styleEl.sheet
     container.appendChild(fragment)
 
-    const timer = setTimeout(() => { container.innerHTML = '' }, Math.ceil(duration * 1000) + 300)
+    const timer = setTimeout(() => { container.innerHTML = '' }, Math.ceil(duration * 1000) + 400)
     return () => { clearTimeout(timer); container.innerHTML = '' }
   }, [triggerKey])
 
