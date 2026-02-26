@@ -159,61 +159,72 @@ const CELEBRATIONS = [
 
 function MiniCelebration({ triggerKey }) {
   const containerRef = useRef(null)
+  const rafRef = useRef(null)
 
   useEffect(() => {
     if (!triggerKey || !containerRef.current) return
     const container = containerRef.current
     container.innerHTML = ''
+    if (rafRef.current) cancelAnimationFrame(rafRef.current)
 
     const idx = triggerKey % CELEBRATIONS.length
     const { emojis } = CELEBRATIONS[idx]
 
-    const count = 9 + Math.floor(Math.random() * 9)      // 9–17 emojis
-    const power = 1.2 + Math.random() * 1.0              // moderate-to-big spread
-    const duration = 0.7 + Math.random() * 0.3           // 0.7–1.0s — snappy but readable
+    const count = 9 + Math.floor(Math.random() * 9)
+    const power = 1.2 + Math.random() * 1.0
+    const duration = 0.7 + Math.random() * 0.3
     const originX = 38 + Math.random() * 24
     const originY = 32 + Math.random() * 22
     const sizeBase = 20 + Math.random() * 8
     const sizeVar = 8 + Math.random() * 14
 
-    const styleEl = document.createElement('style')
-    let css = ''
-    const fragment = document.createDocumentFragment()
-
+    // Pre-build all particle data
+    const particles = []
     for (let i = 0; i < count; i++) {
       const angle = (i / count) * 360 + Math.random() * 25
       const rad = (angle * Math.PI) / 180
-      const dist = (150 + Math.random() * 180) * power   // 180–500px spread
-      const dx = Math.cos(rad) * dist
-      const dy = Math.sin(rad) * dist
-      const rot = (Math.random() - 0.5) * 90
-      const delay = Math.random() * 0.05
-
-      const name = `mc${triggerKey}p${i}`
-
-      // Graceful: quick burst to 60% by 15%, hold visible at full size, then gentle fade
-      css += `@keyframes ${name}{` +
-        `0%{transform:translate(0,0) scale(0);opacity:1}` +
-        `15%{transform:translate(${dx*0.6}px,${dy*0.6}px) scale(1.15) rotate(${rot*0.3}deg);opacity:1}` +
-        `40%{transform:translate(${dx*0.85}px,${dy*0.85}px) scale(1) rotate(${rot*0.6}deg);opacity:0.85}` +
-        `70%{transform:translate(${dx*0.95}px,${dy*0.95}px) scale(0.7) rotate(${rot*0.85}deg);opacity:0.4}` +
-        `100%{transform:translate(${dx}px,${dy}px) scale(0.3) rotate(${rot}deg);opacity:0}}\n`
-
-      const el = document.createElement('div')
-      el.textContent = emojis[i % emojis.length]
-      el.style.cssText = `position:absolute;left:${originX + (Math.random()-.5)*4}%;top:${originY + (Math.random()-.5)*4}%;` +
-        `font-size:${sizeBase + Math.random() * sizeVar}px;pointer-events:none;will-change:transform,opacity;` +
-        `animation:${name} ${duration}s cubic-bezier(0.1,0.8,0.3,1) ${delay}s both;`
-      fragment.appendChild(el)
+      const dist = (150 + Math.random() * 180) * power
+      particles.push({
+        emoji: emojis[i % emojis.length],
+        dx: Math.cos(rad) * dist,
+        dy: Math.sin(rad) * dist,
+        rot: (Math.random() - 0.5) * 90,
+        x: originX + (Math.random() - 0.5) * 4,
+        y: originY + (Math.random() - 0.5) * 4,
+        size: sizeBase + Math.random() * sizeVar,
+        delay: Math.random() * 0.05,
+      })
     }
 
+    // Step 1: inject stylesheet with all keyframes
+    const styleEl = document.createElement('style')
+    let css = ''
+    particles.forEach((p, i) => {
+      const name = `mc${triggerKey}p${i}`
+      css += `@keyframes ${name}{from{transform:translate(0,0) scale(1.15);opacity:1}` +
+        `to{transform:translate(${p.dx}px,${p.dy}px) scale(0.3) rotate(${p.rot}deg);opacity:0}}\n`
+    })
     styleEl.textContent = css
     container.appendChild(styleEl)
-    styleEl.sheet
-    container.appendChild(fragment)
 
-    const timer = setTimeout(() => { container.innerHTML = '' }, Math.ceil(duration * 1000) + 400)
-    return () => { clearTimeout(timer); container.innerHTML = '' }
+    // Step 2: wait one frame for styles to be parsed, THEN add animated elements
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = requestAnimationFrame(() => {
+        const fragment = document.createDocumentFragment()
+        particles.forEach((p, i) => {
+          const el = document.createElement('div')
+          el.textContent = p.emoji
+          el.style.cssText = `position:absolute;left:${p.x}%;top:${p.y}%;` +
+            `font-size:${p.size}px;pointer-events:none;will-change:transform;` +
+            `animation:mc${triggerKey}p${i} ${duration}s ease-out ${p.delay}s both;`
+          fragment.appendChild(el)
+        })
+        container.appendChild(fragment)
+      })
+    })
+
+    const timer = setTimeout(() => { container.innerHTML = '' }, Math.ceil(duration * 1000) + 500)
+    return () => { clearTimeout(timer); if (rafRef.current) cancelAnimationFrame(rafRef.current); container.innerHTML = '' }
   }, [triggerKey])
 
   return <div ref={containerRef} style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 9999, overflow: 'hidden' }} />
@@ -887,12 +898,14 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
           </div>
         </div>
         <div style={{ maxWidth: 400, margin: '0 auto', padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          {profile.sessions_completed === 0 && (
+            <p style={{ color: C.blue, fontSize: 16, fontWeight: 600, margin: '0 0 16px', letterSpacing: 0.3 }}>Tap to flip for definition</p>
+          )}
           <div onClick={() => setFlipped(!flipped)} style={{ width: '100%', maxWidth: 340, height: 280, cursor: 'pointer', perspective: 1000 }}>
             <div style={{ position: 'relative', width: '100%', height: '100%', transition: 'transform 0.5s', transformStyle: 'preserve-3d', transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)' }}>
               <div style={{ position: 'absolute', inset: 0, backfaceVisibility: 'hidden', background: 'white', borderRadius: 20, padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', border: '2px solid #F0F0F0' }}>
                 <h2 style={{ fontSize: 30, fontWeight: 800, color: C.grayDark, margin: '0 0 16px' }}>{word}</h2>
                 <p style={{ color: C.gray, textAlign: 'center', fontStyle: 'italic', fontSize: 15, lineHeight: 1.6 }}>"{data.sentence}"</p>
-                <p style={{ color: '#D0D0D0', fontSize: 12, marginTop: 16 }}>Tap to see definition →</p>
               </div>
               <div style={{ position: 'absolute', inset: 0, backfaceVisibility: 'hidden', transform: 'rotateY(180deg)', background: `linear-gradient(135deg, ${C.blue}, ${C.blueDark})`, borderRadius: 20, padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                 <h2 style={{ fontSize: 26, fontWeight: 800, color: 'white', margin: '0 0 12px' }}>{word}</h2>
@@ -1486,7 +1499,6 @@ function FlashcardBrowser({ title, words, srsCards, color, onBack }) {
             <div style={{ position: 'absolute', inset: 0, backfaceVisibility: 'hidden', background: 'white', borderRadius: 20, padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', border: `2px solid ${color}30` }}>
               <h2 style={{ fontSize: 30, fontWeight: 800, color: C.grayDark, margin: '0 0 16px' }}>{word}</h2>
               <p style={{ color: C.gray, textAlign: 'center', fontStyle: 'italic', fontSize: 15, lineHeight: 1.6 }}>"{data.sentence}"</p>
-              <p style={{ color: '#D0D0D0', fontSize: 12, marginTop: 16 }}>Tap to see definition →</p>
             </div>
             <div style={{ position: 'absolute', inset: 0, backfaceVisibility: 'hidden', transform: 'rotateY(180deg)', background: `linear-gradient(135deg, ${color}, ${color}CC)`, borderRadius: 20, padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
               <h2 style={{ fontSize: 26, fontWeight: 800, color: 'white', margin: '0 0 12px' }}>{word}</h2>
