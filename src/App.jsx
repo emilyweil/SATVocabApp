@@ -164,67 +164,70 @@ function MiniCelebration({ triggerKey }) {
   useEffect(() => {
     if (!triggerKey || !containerRef.current) return
     const container = containerRef.current
-    container.innerHTML = ''
     if (rafRef.current) cancelAnimationFrame(rafRef.current)
+
+    // Remove old particles
+    while (container.firstChild) container.removeChild(container.firstChild)
 
     const idx = triggerKey % CELEBRATIONS.length
     const { emojis } = CELEBRATIONS[idx]
 
     const count = 9 + Math.floor(Math.random() * 9)
     const power = 1.2 + Math.random() * 1.0
-    const duration = 0.7 + Math.random() * 0.3
+    const totalMs = 700 + Math.random() * 300
     const originX = 38 + Math.random() * 24
     const originY = 32 + Math.random() * 22
     const sizeBase = 20 + Math.random() * 8
     const sizeVar = 8 + Math.random() * 14
 
-    // Pre-build all particle data
+    // Create elements and particle physics data
     const particles = []
     for (let i = 0; i < count; i++) {
       const angle = (i / count) * 360 + Math.random() * 25
       const rad = (angle * Math.PI) / 180
       const dist = (150 + Math.random() * 180) * power
+      const el = document.createElement('div')
+      el.textContent = emojis[i % emojis.length]
+      const size = sizeBase + Math.random() * sizeVar
+      el.style.cssText = `position:absolute;left:${originX + (Math.random()-.5)*4}%;top:${originY + (Math.random()-.5)*4}%;font-size:${size}px;pointer-events:none;will-change:transform;`
+      container.appendChild(el)
       particles.push({
-        emoji: emojis[i % emojis.length],
+        el,
         dx: Math.cos(rad) * dist,
         dy: Math.sin(rad) * dist,
         rot: (Math.random() - 0.5) * 90,
-        x: originX + (Math.random() - 0.5) * 4,
-        y: originY + (Math.random() - 0.5) * 4,
-        size: sizeBase + Math.random() * sizeVar,
-        delay: Math.random() * 0.05,
       })
     }
 
-    // Step 1: inject stylesheet with all keyframes
-    const styleEl = document.createElement('style')
-    let css = ''
-    particles.forEach((p, i) => {
-      const name = `mc${triggerKey}p${i}`
-      css += `@keyframes ${name}{from{transform:translate(0,0) scale(1.15);opacity:1}` +
-        `to{transform:translate(${p.dx}px,${p.dy}px) scale(0.3) rotate(${p.rot}deg);opacity:0}}\n`
-    })
-    styleEl.textContent = css
-    container.appendChild(styleEl)
+    // Smooth easeOutQuart — no keyframes, no style recalc, just math
+    const easeOut = t => 1 - Math.pow(1 - t, 3)
+    const start = performance.now()
 
-    // Step 2: wait one frame for styles to be parsed, THEN add animated elements
-    rafRef.current = requestAnimationFrame(() => {
-      rafRef.current = requestAnimationFrame(() => {
-        const fragment = document.createDocumentFragment()
-        particles.forEach((p, i) => {
-          const el = document.createElement('div')
-          el.textContent = p.emoji
-          el.style.cssText = `position:absolute;left:${p.x}%;top:${p.y}%;` +
-            `font-size:${p.size}px;pointer-events:none;will-change:transform;` +
-            `animation:mc${triggerKey}p${i} ${duration}s ease-out ${p.delay}s both;`
-          fragment.appendChild(el)
-        })
-        container.appendChild(fragment)
-      })
-    })
+    const tick = (now) => {
+      const elapsed = now - start
+      const t = Math.min(elapsed / totalMs, 1)
+      const ease = easeOut(t)
+      const opacity = t < 0.5 ? 1 : 1 - (t - 0.5) * 2  // fade out in second half
+      const scale = 1.15 - ease * 0.85  // 1.15 → 0.3
 
-    const timer = setTimeout(() => { container.innerHTML = '' }, Math.ceil(duration * 1000) + 500)
-    return () => { clearTimeout(timer); if (rafRef.current) cancelAnimationFrame(rafRef.current); container.innerHTML = '' }
+      for (const p of particles) {
+        p.el.style.transform = `translate(${p.dx * ease}px,${p.dy * ease}px) scale(${scale}) rotate(${p.rot * ease}deg)`
+        p.el.style.opacity = Math.max(0, opacity)
+      }
+
+      if (t < 1) {
+        rafRef.current = requestAnimationFrame(tick)
+      } else {
+        while (container.firstChild) container.removeChild(container.firstChild)
+      }
+    }
+
+    rafRef.current = requestAnimationFrame(tick)
+
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current)
+      while (container.firstChild) container.removeChild(container.firstChild)
+    }
   }, [triggerKey])
 
   return <div ref={containerRef} style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 9999, overflow: 'hidden' }} />
@@ -898,7 +901,7 @@ function DailySession({ userId, profile, srsCards, onComplete, onSave, isSprint,
           </div>
         </div>
         <div style={{ maxWidth: 400, margin: '0 auto', padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          {profile.sessions_completed === 0 && (
+          {!profile.sessions_completed && (
             <p style={{ color: C.blue, fontSize: 16, fontWeight: 600, margin: '0 0 16px', letterSpacing: 0.3 }}>Tap to flip for definition</p>
           )}
           <div onClick={() => setFlipped(!flipped)} style={{ width: '100%', maxWidth: 340, height: 280, cursor: 'pointer', perspective: 1000 }}>
